@@ -1,4 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
+import getSpotToken from '@salesforce/apex/KpbController.getSpotToken';
 
 function formatLabel(key) {
     return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -52,6 +53,7 @@ export default class KpbPage extends LightningElement {
     @track parseError = null;
     @track _visibleComponentIds = [];
     @track _selectedCompId = '';
+    @track _calculating = false;
 
     connectedCallback() {
         if (this.action !== 'NEW') {
@@ -146,6 +148,24 @@ export default class KpbPage extends LightningElement {
     handleComponentHide(event) {
         const id = event.currentTarget.dataset.compId;
         this._visibleComponentIds = this._visibleComponentIds.filter(v => v !== id);
+    }
+
+    get isCalculating() {
+        return this._calculating;
+    }
+
+    handleCalculate() {
+        this._calculating = true;
+        getSpotToken()
+            .then(token => {
+                console.log('OAuth success — token:', token);
+            })
+            .catch(err => {
+                console.error('OAuth error:', err);
+            })
+            .finally(() => {
+                this._calculating = false;
+            });
     }
 
     handleFieldChange(event) {

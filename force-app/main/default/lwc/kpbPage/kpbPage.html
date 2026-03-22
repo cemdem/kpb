@@ -212,5 +212,15 @@
 
         </template>
 
+        <!-- Calculate button -->
+        <div class="slds-m-top_large slds-align_absolute-center">
+            <lightning-button
+                label="Calculate"
+                variant="brand"
+                disabled={isCalculating}
+                onclick={handleCalculate}>
+            </lightning-button>
+        </div>
+
     </div>
 </template>
