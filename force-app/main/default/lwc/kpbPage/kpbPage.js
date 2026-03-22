@@ -28,6 +28,11 @@ function toFields(obj, prefix) {
         }));
 }
 
+// Stable string key for a component, regardless of whether comp.id is set
+function compKey(comp, i) {
+    return comp.id != null ? String(comp.id) : `idx-${i}`;
+}
+
 const NESTED_KEYS = [
     'agreement_detail',
     'employee',
@@ -45,9 +50,13 @@ export default class KpbPage extends LightningElement {
 
     @track _costgroup = null;
     @track parseError = null;
+    @track _visibleComponentIds = [];
+    @track _selectedCompId = '';
 
     connectedCallback() {
-        this._parse();
+        if (this.action !== 'NEW') {
+            this._parse();
+        }
     }
 
     _parse() {
@@ -58,6 +67,10 @@ export default class KpbPage extends LightningElement {
         } catch (e) {
             this.parseError = e.message;
         }
+    }
+
+    get isNew() {
+        return this.action === 'NEW';
     }
 
     get hasData() {
@@ -83,15 +96,56 @@ export default class KpbPage extends LightningElement {
             }));
     }
 
-    get components() {
+    // Combobox value binding
+    get selectedCompId() {
+        return this._selectedCompId;
+    }
+
+    // Options not yet shown
+    get componentOptions() {
         if (!this._costgroup || !Array.isArray(this._costgroup.components)) return [];
-        return this._costgroup.components.map((comp, i) => ({
-            id: String(comp.id != null ? comp.id : i),
-            label: `Component ${i + 1} — ${comp.component_type || ''}`,
-            fields: toFields(comp, `comp-${comp.id}`),
-            valueFields: toFields(comp.value || {}, `comp-${comp.id}-value`),
-            auditFields: toFields(comp.audit || {}, `comp-${comp.id}-audit`)
-        }));
+        return this._costgroup.components
+            .map((comp, i) => ({ comp, i }))
+            .filter(({ comp, i }) => !this._visibleComponentIds.includes(compKey(comp, i)))
+            .map(({ comp, i }) => ({
+                label: `Component ${i + 1} — ${comp.component_type || ''}`,
+                value: compKey(comp, i)
+            }));
+    }
+
+    get hasComponentOptions() {
+        return this.componentOptions.length > 0;
+    }
+
+    // Components currently expanded as cards
+    get visibleComponents() {
+        if (!this._costgroup || !Array.isArray(this._costgroup.components)) return [];
+        return this._costgroup.components
+            .map((comp, i) => ({ comp, i }))
+            .filter(({ comp, i }) => this._visibleComponentIds.includes(compKey(comp, i)))
+            .map(({ comp, i }) => {
+                const key = compKey(comp, i);
+                return {
+                    id: key,
+                    label: `Component ${i + 1} — ${comp.component_type || ''}`,
+                    fields: toFields(comp, `comp-${key}`),
+                    valueFields: toFields(comp.value || {}, `comp-${key}-value`),
+                    auditFields: toFields(comp.audit || {}, `comp-${key}-audit`)
+                };
+            });
+    }
+
+    handleComponentSelect(event) {
+        const selected = event.detail.value;
+        if (selected && !this._visibleComponentIds.includes(selected)) {
+            this._visibleComponentIds = [...this._visibleComponentIds, selected];
+        }
+        this._selectedCompId = '';
+    }
+
+    handleComponentHide(event) {
+        const id = event.currentTarget.dataset.compId;
+        this._visibleComponentIds = this._visibleComponentIds.filter(v => v !== id);
     }
 
     handleFieldChange(event) {
@@ -109,7 +163,7 @@ export default class KpbPage extends LightningElement {
         const cg = JSON.parse(JSON.stringify(this._costgroup));
 
         if (compId !== undefined) {
-            const idx = cg.components.findIndex(c => String(c.id) === String(compId));
+            const idx = cg.components.findIndex((c, i) => compKey(c, i) === compId);
             if (idx !== -1) {
                 const target = subSection ? cg.components[idx][subSection] : cg.components[idx];
                 target[key] = val;

@@ -9,6 +9,15 @@
             </div>
         </template>
 
+        <!-- NEW action — no incoming data -->
+        <template lwc:if={isNew}>
+            <lightning-card title="New Cost Group">
+                <div class="slds-p-around_medium">
+                    <p class="slds-text-color_weak">No data loaded — creating a new cost group.</p>
+                </div>
+            </lightning-card>
+        </template>
+
         <template lwc:if={hasData}>
 
             <!-- Main cost group fields -->
@@ -71,9 +80,39 @@
                 </lightning-card>
             </template>
 
-            <!-- Components array -->
-            <template for:each={components} for:item="comp">
+            <!-- Components picker -->
+            <lightning-card title="Components" class="slds-m-top_medium">
+                <div class="slds-p-around_medium">
+                    <template lwc:if={hasComponentOptions}>
+                        <lightning-combobox
+                            label="Add component"
+                            placeholder="Select a component..."
+                            value={selectedCompId}
+                            options={componentOptions}
+                            onchange={handleComponentSelect}>
+                        </lightning-combobox>
+                    </template>
+                    <template lwc:else>
+                        <p class="slds-text-color_weak slds-text-body_small">All components are displayed below.</p>
+                    </template>
+                </div>
+            </lightning-card>
+
+            <!-- Visible component cards -->
+            <template for:each={visibleComponents} for:item="comp">
                 <lightning-card key={comp.id} title={comp.label} class="slds-m-top_medium">
+
+                    <!-- Hide button in card header -->
+                    <div slot="actions">
+                        <lightning-button-icon
+                            icon-name="utility:hide"
+                            variant="bare"
+                            alternative-text="Hide component"
+                            data-comp-id={comp.id}
+                            onclick={handleComponentHide}>
+                        </lightning-button-icon>
+                    </div>
+
                     <div class="slds-p-around_medium">
 
                         <!-- Component primitive fields -->
@@ -105,7 +144,7 @@
                             </template>
                         </div>
 
-                        <!-- Component value sub-object -->
+                        <!-- Value sub-object -->
                         <p class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">Value</p>
                         <div class="slds-grid slds-wrap">
                             <template for:each={comp.valueFields} for:item="field">
@@ -136,7 +175,7 @@
                             </template>
                         </div>
 
-                        <!-- Component audit sub-object -->
+                        <!-- Audit sub-object -->
                         <p class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">Audit</p>
                         <div class="slds-grid slds-wrap">
                             <template for:each={comp.auditFields} for:item="field">
