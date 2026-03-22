@@ -18,7 +18,7 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
-    public static KpbCallResult callSpot(String endpoint, String method, String body) {
+    public static KpbCallResult callSpot(String endpoint, String method, String body, Boolean xMessageIdIsRequired) {
         SPOT_Settings__c s = SPOT_Settings__c.getInstance();
         OAuthFlowController.Request oauthReq = new OAuthFlowController.Request();
         oauthReq.client_id     = s.client_id__c;
@@ -34,10 +34,11 @@ public with sharing class KpbController {
         String token = oauthRes.token;
 
         OutboundCallFlow.Request req = new OutboundCallFlow.Request();
-        req.token    = token;
-        req.endpoint = endpoint;
-        req.method   = method;
-        req.json     = body;
+        req.token                = token;
+        req.endpoint             = endpoint;
+        req.method               = method;
+        req.json                 = body;
+        req.xMessageIdIsRequired = xMessageIdIsRequired;
 
         List<OutboundCallFlow.response> results =
             OutboundCallFlow.createOutboundCall(new List<OutboundCallFlow.Request>{ req });

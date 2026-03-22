@@ -160,7 +160,8 @@ export default class KpbPage extends LightningElement {
         callSpot({
             endpoint: '/cost-groups/calculate',
             method: 'POST',
-            body: JSON.stringify({ costgroup: this._costgroup })
+            body: JSON.stringify({ costgroup: this._costgroup }),
+            xMessageIdIsRequired: true
         })
             .then(res => {
                 console.log('callSpot success', res.httpCode, res.result);
