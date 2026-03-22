@@ -1,10 +1,177 @@
 <template>
-    <div class="slds-p-around_large">
-        <lightning-card title="Debug — Incoming Parameters">
-            <div class="slds-p-around_medium">
-                <p><strong>Record Id:</strong> {recordId}</p>
-                <p><strong>Action:</strong> {action}</p>
+    <div class="slds-p-around_medium">
+
+        <!-- Parse error -->
+        <template lwc:if={parseError}>
+            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <h2>JSON parse error: {parseError}</h2>
             </div>
-        </lightning-card>
+        </template>
+
+        <template lwc:if={hasData}>
+
+            <!-- Main cost group fields -->
+            <lightning-card title="Cost Group">
+                <div class="slds-p-around_medium slds-grid slds-wrap">
+                    <template for:each={mainFields} for:item="field">
+                        <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
+                            <template lwc:if={field.isCheckbox}>
+                                <lightning-input
+                                    type="checkbox"
+                                    label={field.label}
+                                    checked={field.value}
+                                    data-key={field.key}
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </template>
+                            <template lwc:else>
+                                <lightning-input
+                                    type={field.inputType}
+                                    label={field.label}
+                                    value={field.value}
+                                    data-key={field.key}
+                                    onchange={handleFieldChange}>
+                                </lightning-input>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </lightning-card>
+
+            <!-- Nested object sections (agreement_detail, employee, etc.) -->
+            <template for:each={sections} for:item="section">
+                <lightning-card key={section.name} title={section.label} class="slds-m-top_medium">
+                    <div class="slds-p-around_medium slds-grid slds-wrap">
+                        <template for:each={section.fields} for:item="field">
+                            <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
+                                <template lwc:if={field.isCheckbox}>
+                                    <lightning-input
+                                        type="checkbox"
+                                        label={field.label}
+                                        checked={field.value}
+                                        data-key={field.key}
+                                        data-section={section.name}
+                                        onchange={handleFieldChange}>
+                                    </lightning-input>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-input
+                                        type={field.inputType}
+                                        label={field.label}
+                                        value={field.value}
+                                        data-key={field.key}
+                                        data-section={section.name}
+                                        onchange={handleFieldChange}>
+                                    </lightning-input>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-card>
+            </template>
+
+            <!-- Components array -->
+            <template for:each={components} for:item="comp">
+                <lightning-card key={comp.id} title={comp.label} class="slds-m-top_medium">
+                    <div class="slds-p-around_medium">
+
+                        <!-- Component primitive fields -->
+                        <p class="slds-text-heading_small slds-m-bottom_x-small">Fields</p>
+                        <div class="slds-grid slds-wrap">
+                            <template for:each={comp.fields} for:item="field">
+                                <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
+                                    <template lwc:if={field.isCheckbox}>
+                                        <lightning-input
+                                            type="checkbox"
+                                            label={field.label}
+                                            checked={field.value}
+                                            data-key={field.key}
+                                            data-comp-id={comp.id}
+                                            onchange={handleFieldChange}>
+                                        </lightning-input>
+                                    </template>
+                                    <template lwc:else>
+                                        <lightning-input
+                                            type={field.inputType}
+                                            label={field.label}
+                                            value={field.value}
+                                            data-key={field.key}
+                                            data-comp-id={comp.id}
+                                            onchange={handleFieldChange}>
+                                        </lightning-input>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Component value sub-object -->
+                        <p class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">Value</p>
+                        <div class="slds-grid slds-wrap">
+                            <template for:each={comp.valueFields} for:item="field">
+                                <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
+                                    <template lwc:if={field.isCheckbox}>
+                                        <lightning-input
+                                            type="checkbox"
+                                            label={field.label}
+                                            checked={field.value}
+                                            data-key={field.key}
+                                            data-comp-id={comp.id}
+                                            data-sub-section="value"
+                                            onchange={handleFieldChange}>
+                                        </lightning-input>
+                                    </template>
+                                    <template lwc:else>
+                                        <lightning-input
+                                            type={field.inputType}
+                                            label={field.label}
+                                            value={field.value}
+                                            data-key={field.key}
+                                            data-comp-id={comp.id}
+                                            data-sub-section="value"
+                                            onchange={handleFieldChange}>
+                                        </lightning-input>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Component audit sub-object -->
+                        <p class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">Audit</p>
+                        <div class="slds-grid slds-wrap">
+                            <template for:each={comp.auditFields} for:item="field">
+                                <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
+                                    <template lwc:if={field.isCheckbox}>
+                                        <lightning-input
+                                            type="checkbox"
+                                            label={field.label}
+                                            checked={field.value}
+                                            data-key={field.key}
+                                            data-comp-id={comp.id}
+                                            data-sub-section="audit"
+                                            onchange={handleFieldChange}>
+                                        </lightning-input>
+                                    </template>
+                                    <template lwc:else>
+                                        <lightning-input
+                                            type={field.inputType}
+                                            label={field.label}
+                                            value={field.value}
+                                            data-key={field.key}
+                                            data-comp-id={comp.id}
+                                            data-sub-section="audit"
+                                            onchange={handleFieldChange}>
+                                        </lightning-input>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+
+                    </div>
+                </lightning-card>
+            </template>
+
+        </template>
+
     </div>
 </template>
