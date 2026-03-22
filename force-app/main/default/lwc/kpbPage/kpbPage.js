@@ -1,5 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import getSpotToken from '@salesforce/apex/KpbController.getSpotToken';
+import callSpot from '@salesforce/apex/KpbController.callSpot';
 
 function formatLabel(key) {
     return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -156,12 +157,16 @@ export default class KpbPage extends LightningElement {
 
     handleCalculate() {
         this._calculating = true;
-        getSpotToken()
-            .then(token => {
-                console.log('OAuth success — token:', token);
+        callSpot({
+            endpoint: '/cost-groups/calculate',
+            method: 'POST',
+            body: JSON.stringify({ costgroup: this._costgroup })
+        })
+            .then(res => {
+                console.log('callSpot success', res.httpCode, res.result);
             })
             .catch(err => {
-                console.error('OAuth error:', err);
+                console.error('callSpot error:', err);
             })
             .finally(() => {
                 this._calculating = false;
