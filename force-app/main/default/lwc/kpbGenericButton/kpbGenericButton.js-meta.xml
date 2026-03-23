@@ -7,10 +7,10 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="label"       type="String"  label="Button Label" />
-            <property name="action"      type="String"  label="Action (EDIT | COPY | NEW)" required="true" />
-            <property name="flowApiName" type="String"  label="Next Flow API Name"          required="true" />
-            <property name="recordId"    type="String"  label="Record Id" />
+            <property name="label"    type="String"  label="Button Label" />
+            <property name="action"   type="String"  label="Action (EDIT | COPY | NEW)" required="true" />
+            <property name="recordId" type="String"  label="Record Id" />
+            <property name="json"     type="String"  label="Cost Group JSON" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
