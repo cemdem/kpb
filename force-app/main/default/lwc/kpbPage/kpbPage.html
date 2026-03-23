@@ -1,7 +1,6 @@
 <template>
     <div class="slds-p-around_medium">
 
-        <!-- Parse error -->
         <template lwc:if={parseError}>
             <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
                 <span class="slds-assistive-text">Error</span>
@@ -9,7 +8,6 @@
             </div>
         </template>
 
-        <!-- NEW action — no incoming data -->
         <template lwc:if={isNew}>
             <lightning-card title="New Cost Group">
                 <div class="slds-p-around_medium">
@@ -20,7 +18,6 @@
 
         <template lwc:if={hasData}>
 
-            <!-- Main cost group fields -->
             <lightning-card title="Cost Group">
                 <div class="slds-p-around_medium slds-grid slds-wrap">
                     <template for:each={mainFields} for:item="field">
@@ -48,7 +45,6 @@
                 </div>
             </lightning-card>
 
-            <!-- Nested object sections (agreement_detail, employee, etc.) -->
             <template for:each={sections} for:item="section">
                 <lightning-card key={section.name} title={section.label} class="slds-m-top_medium">
                     <div class="slds-p-around_medium slds-grid slds-wrap">
@@ -80,7 +76,6 @@
                 </lightning-card>
             </template>
 
-            <!-- Components picker -->
             <lightning-card title="Components" class="slds-m-top_medium">
                 <div class="slds-p-around_medium">
                     <template lwc:if={hasComponentOptions}>
@@ -98,11 +93,9 @@
                 </div>
             </lightning-card>
 
-            <!-- Visible component cards -->
             <template for:each={visibleComponents} for:item="comp">
                 <lightning-card key={comp.id} title={comp.label} class="slds-m-top_medium">
 
-                    <!-- Hide button in card header -->
                     <div slot="actions">
                         <lightning-button-icon
                             icon-name="utility:hide"
@@ -115,7 +108,6 @@
 
                     <div class="slds-p-around_medium">
 
-                        <!-- Component primitive fields -->
                         <p class="slds-text-heading_small slds-m-bottom_x-small">Fields</p>
                         <div class="slds-grid slds-wrap">
                             <template for:each={comp.fields} for:item="field">
@@ -144,7 +136,6 @@
                             </template>
                         </div>
 
-                        <!-- Value sub-object -->
                         <p class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">Value</p>
                         <div class="slds-grid slds-wrap">
                             <template for:each={comp.valueFields} for:item="field">
@@ -175,7 +166,6 @@
                             </template>
                         </div>
 
-                        <!-- Audit sub-object -->
                         <p class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">Audit</p>
                         <div class="slds-grid slds-wrap">
                             <template for:each={comp.auditFields} for:item="field">

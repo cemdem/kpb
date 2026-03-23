@@ -2,14 +2,10 @@ global with sharing class OutboundCallFlow {
     @InvocableMethod(label='Create Outbound SPOT FLOW' description='Create Outbound SPOT FLOW')
     global static List<response> createOutboundCall(List<Request> items){
         Request req = items[0];
-        // Generate 16 random bytes
         Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
         String hex = EncodingUtil.convertToHex(b);
-
-        // Insert dashes in the correct places for a UUID
         String randomGuid =  hex.substring(0, 8) + '-' + hex.substring(8, 12) + '-' + hex.substring(12, 16) + '-' + hex.substring(16, 20) + '-' + hex.substring(20, 32);
 
-        Nebula.Logger.debug('Endpoint: ' + req.endpoint);
         HttpRequest request = new HttpRequest();
         request.setEndpoint('callout:RGF_SPOT_BaseURL' +req.endpoint);
         request.setMethod(req.method);
@@ -36,17 +32,12 @@ global with sharing class OutboundCallFlow {
         request.setHeader('X-Correlation-ID', req.identity);
         request.setTimeout(120000);
         if(req.json != null){
-            String body = req.json;
-            request.setBody(body);
-            Nebula.Logger.debug('Body: ' + body);
-
+            request.setBody(req.json);
         }
 
         HttpResponse response = new Http().send(request);
-        //Read header location
         List<String> headerKeys = response.getHeaderKeys();
         response result = new response();
-        // Loop through the header keys to retrieve and debug the header values
         for (String headerKey : headerKeys) {
             String headerValue = response.getHeader(headerKey);
             if(headerKey == 'Location'){
@@ -55,17 +46,10 @@ global with sharing class OutboundCallFlow {
         }
 
         result.httpCode = Integer.valueOf(response.getStatusCode());
-        Nebula.Logger.info('HTTP Code: ' + result.httpCode);
-         result.result = response.getBody();
-        if(response.getStatusCode() != 202 && response.getStatusCode() != 200){
-            result.success = false;
-            Nebula.Logger.error('Error: ' + result.result + 'Body: ' + response.getBody());
-        }else{
-            result.success = true;
-        }
+        result.result = response.getBody();
+        result.success = (response.getStatusCode() == 202 || response.getStatusCode() == 200);
         List<response> resultList = new List<response>();
         resultList.add(result);
-        Nebula.Logger.saveLog();
         return resultList;
     }
     global class Request{

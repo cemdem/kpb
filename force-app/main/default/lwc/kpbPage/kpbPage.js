@@ -28,7 +28,6 @@ function toFields(obj, prefix) {
         }));
 }
 
-// Stable string key for a component, regardless of whether comp.id is set
 function compKey(comp, i) {
     return comp.id != null ? String(comp.id) : `idx-${i}`;
 }
@@ -95,12 +94,10 @@ export default class KpbPage extends LightningElement {
             }));
     }
 
-    // Combobox value binding
     get selectedCompId() {
         return this._selectedCompId;
     }
 
-    // Options not yet shown
     get componentOptions() {
         if (!this._costgroup || !Array.isArray(this._costgroup.components)) return [];
         return this._costgroup.components
@@ -116,7 +113,6 @@ export default class KpbPage extends LightningElement {
         return this.componentOptions.length > 0;
     }
 
-    // Components currently expanded as cards
     get visibleComponents() {
         if (!this._costgroup || !Array.isArray(this._costgroup.components)) return [];
         return this._costgroup.components
