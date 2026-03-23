@@ -1,4 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 
 function formatLabel(key) {
@@ -125,6 +126,8 @@ export default class KpbPage extends LightningElement {
     @track _visibleComponentIds = [];
     @track _selectedCompId = '';
 
+    _initialCostgroup = null;
+
     connectedCallback() {
         if (this.action === 'NEW') {
             this._costgroup = JSON.parse(JSON.stringify(NEW_COSTGROUP_TEMPLATE));
@@ -144,6 +147,7 @@ export default class KpbPage extends LightningElement {
             if (result.success) {
                 const raw = JSON.parse(result.result);
                 this._costgroup = raw.costgroup || raw;
+                this._initialCostgroup = JSON.parse(JSON.stringify(this._costgroup));
             } else {
                 this.fetchError = `HTTP ${result.httpCode}: ${result.result}`;
             }
@@ -159,6 +163,7 @@ export default class KpbPage extends LightningElement {
         try {
             const raw = JSON.parse(this.json);
             this._costgroup = raw.costgroup || raw;
+            this._initialCostgroup = JSON.parse(JSON.stringify(this._costgroup));
         } catch (e) {
             this.parseError = e.message;
         }
@@ -248,6 +253,21 @@ export default class KpbPage extends LightningElement {
     handleComponentHide(event) {
         const id = event.currentTarget.dataset.compId;
         this._visibleComponentIds = this._visibleComponentIds.filter(v => v !== id);
+    }
+
+    handleReset() {
+        if (this.action === 'NEW') {
+            this._costgroup = JSON.parse(JSON.stringify(NEW_COSTGROUP_TEMPLATE));
+        } else {
+            this._costgroup = JSON.parse(JSON.stringify(this._initialCostgroup));
+        }
+        this._visibleComponentIds = [];
+        this._selectedCompId = '';
+        this.dispatchEvent(new ShowToastEvent({
+            title: 'Reset',
+            message: 'KPB reset uitgevoerd',
+            variant: 'success'
+        }));
     }
 
     handleFieldChange(event) {
