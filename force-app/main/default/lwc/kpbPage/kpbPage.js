@@ -1,4 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
+import getKpb from '@salesforce/apex/KpbController.getKpb';
 
 function formatLabel(key) {
     return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -49,11 +50,34 @@ export default class KpbPage extends LightningElement {
 
     @track _costgroup = null;
     @track parseError = null;
+    @track fetchError = null;
+    @track isLoading = false;
     @track _visibleComponentIds = [];
     @track _selectedCompId = '';
+
     connectedCallback() {
-        if (this.action !== 'NEW') {
+        if (this.action === 'NEW') return;
+        if (this.recordId) {
+            this._fetchKpb();
+        } else {
             this._parse();
+        }
+    }
+
+    async _fetchKpb() {
+        this.isLoading = true;
+        try {
+            const result = await getKpb({ recordId: this.recordId });
+            if (result.success) {
+                const raw = JSON.parse(result.result);
+                this._costgroup = raw.costgroup || raw;
+            } else {
+                this.fetchError = `HTTP ${result.httpCode}: ${result.result}`;
+            }
+        } catch (e) {
+            this.fetchError = (e.body && e.body.message) ? e.body.message : (e.message || 'Unknown error');
+        } finally {
+            this.isLoading = false;
         }
     }
 

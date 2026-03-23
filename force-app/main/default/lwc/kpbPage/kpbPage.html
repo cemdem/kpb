@@ -1,6 +1,17 @@
 <template>
     <div class="slds-p-around_medium">
 
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+        </template>
+
+        <template lwc:if={fetchError}>
+            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+                <span class="slds-assistive-text">Error</span>
+                <h2>Failed to load cost group: {fetchError}</h2>
+            </div>
+        </template>
+
         <template lwc:if={parseError}>
             <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
                 <span class="slds-assistive-text">Error</span>
