@@ -1,19 +1,21 @@
 <template>
-    <div class="slds-p-top_medium slds-button-group" role="group">
-        <lightning-button
-            label="New"
-            variant="brand"
-            onclick={handleNew}>
-        </lightning-button>
-        <lightning-button
-            label="Copy"
-            variant="neutral"
-            onclick={handleCopy}>
-        </lightning-button>
-        <lightning-button
-            label="Edit"
-            variant="neutral"
-            onclick={handleEdit}>
-        </lightning-button>
+    <div class="slds-p-top_medium">
+        <lightning-button-group>
+            <lightning-button
+                label="New"
+                variant="brand"
+                onclick={handleNew}>
+            </lightning-button>
+            <lightning-button
+                label="Copy"
+                variant="brand-outline"
+                onclick={handleCopy}>
+            </lightning-button>
+            <lightning-button
+                label="Edit"
+                variant="brand-outline"
+                onclick={handleEdit}>
+            </lightning-button>
+        </lightning-button-group>
     </div>
 </template>
