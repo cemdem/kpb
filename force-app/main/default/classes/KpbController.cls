@@ -55,7 +55,7 @@ public with sharing class KpbController {
 
     @AuraEnabled
     public static KpbCallResult getKpb(String recordId) {
-        String endpoint = 'callout:RGF_Base_URL/candidate-simulations/v1/candidate-costs/' + recordId;
+        String endpoint = '/candidate-simulations/v1/candidate-costs/' + recordId;
         return callSpot(endpoint, 'GET', null, true);
     }
 
