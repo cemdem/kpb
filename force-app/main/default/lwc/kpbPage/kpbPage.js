@@ -43,6 +43,63 @@ const NESTED_KEYS = [
     'audit'
 ];
 
+const NEW_COSTGROUP_TEMPLATE = {
+    payroll_id: null,
+    account: null,
+    agreement_id: null,
+    approve_margin: null,
+    avg_days_per_week_cost: null,
+    avg_days_per_week_sales: null,
+    avg_hours_per_week_cost: null,
+    avg_hours_per_week_sales: null,
+    calculate_from_date: null,
+    calculation_method: null,
+    calculation_type_id: null,
+    car_cost: null,
+    car_cost_unit: null,
+    description: null,
+    first_approved_on: null,
+    first_validated_on: null,
+    fulltime_equivalent_id: null,
+    indexation_date: null,
+    indexation_operator_id: null,
+    label_id: null,
+    last_transaction_id: null,
+    leave_of_absence: false,
+    margin: null,
+    approved_margin: null,
+    old_calculation: false,
+    old: false,
+    other_cost: null,
+    other_cost_unit: null,
+    part_time_factor: null,
+    previous_employer: false,
+    process_status: null,
+    proposal_calculation_id: null,
+    real_salary: null,
+    remarks: null,
+    salary_cost: null,
+    salary_cost_unit: null,
+    sales_price_per_day: null,
+    sales_price_per_hour: null,
+    simulation_type: null,
+    status: null,
+    total_cost_per_day: null,
+    total_cost_per_hour_excl: null,
+    total_cost_per_month: null,
+    unit_id: null,
+    weight: null,
+    creation_user_id: null,
+    agreement_detail: { id: null, name: null, annex_remark: null },
+    employee: { id: null, number: null, name: null, type: null, delete_status: null },
+    project: { id: null, name: null },
+    reason_refusal: { code: null, description: null },
+    reference_salary: { before_indexation: null, salary: null, unit: null, unit_hours: null },
+    staffing_request: { id: null, name: null },
+    audit: { created_by: null, created_on: null, modified_by: null, modified_on: null },
+    components: []
+};
+
 export default class KpbPage extends LightningElement {
     @api recordId;
     @api action;
@@ -56,7 +113,10 @@ export default class KpbPage extends LightningElement {
     @track _selectedCompId = '';
 
     connectedCallback() {
-        if (this.action === 'NEW') return;
+        if (this.action === 'NEW') {
+            this._costgroup = JSON.parse(JSON.stringify(NEW_COSTGROUP_TEMPLATE));
+            return;
+        }
         if (this.recordId) {
             this._fetchKpb();
         } else {
@@ -89,10 +149,6 @@ export default class KpbPage extends LightningElement {
         } catch (e) {
             this.parseError = e.message;
         }
-    }
-
-    get isNew() {
-        return this.action === 'NEW';
     }
 
     get hasData() {
