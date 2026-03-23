@@ -43,6 +43,19 @@ const NESTED_KEYS = [
     'audit'
 ];
 
+const NEW_COMPONENT_TEMPLATE = {
+    id: null,
+    legacy_id: null,
+    component_type: null,
+    avg_day_per_month: null,
+    avg_hours_per_day: null,
+    parent_component_id: null,
+    unit: null,
+    unit_quantity: null,
+    value: { total: null, per_day: null, per_hour: null, per_hour_excl: null, per_month: null },
+    audit: { created_by: null, created_on: null, modified_by: null, modified_on: null }
+};
+
 const NEW_COSTGROUP_TEMPLATE = {
     payroll_id: null,
     account: null,
@@ -208,6 +221,16 @@ export default class KpbPage extends LightningElement {
                     auditFields: toFields(comp.audit || {}, `comp-${key}-audit`)
                 };
             });
+    }
+
+    handleAddComponent() {
+        const cg = JSON.parse(JSON.stringify(this._costgroup));
+        const newComp = JSON.parse(JSON.stringify(NEW_COMPONENT_TEMPLATE));
+        cg.components = [...(cg.components || []), newComp];
+        const newIdx = cg.components.length - 1;
+        const newKey = compKey(newComp, newIdx);
+        this._costgroup = cg;
+        this._visibleComponentIds = [...this._visibleComponentIds, newKey];
     }
 
     handleComponentSelect(event) {

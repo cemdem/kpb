@@ -83,16 +83,19 @@
                 <div class="slds-p-around_medium">
                     <template lwc:if={hasComponentOptions}>
                         <lightning-combobox
-                            label="Add component"
+                            label="Show component"
                             placeholder="Select a component..."
                             value={selectedCompId}
                             options={componentOptions}
                             onchange={handleComponentSelect}>
                         </lightning-combobox>
                     </template>
-                    <template lwc:else>
-                        <p class="slds-text-color_weak slds-text-body_small">All components are displayed below.</p>
-                    </template>
+                    <lightning-button
+                        label="Add component"
+                        icon-name="utility:add"
+                        class="slds-m-top_small"
+                        onclick={handleAddComponent}>
+                    </lightning-button>
                 </div>
             </lightning-card>
 
