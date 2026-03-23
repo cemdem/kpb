@@ -206,6 +206,10 @@ export default class KpbPage extends LightningElement {
         return this.componentOptions.length > 0;
     }
 
+    get isNewAction() {
+        return this.action === 'NEW';
+    }
+
     get visibleComponents() {
         if (!this._costgroup || !Array.isArray(this._costgroup.components)) return [];
         return this._costgroup.components

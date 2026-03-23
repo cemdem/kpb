@@ -90,12 +90,14 @@
                             onchange={handleComponentSelect}>
                         </lightning-combobox>
                     </template>
-                    <lightning-button
-                        label="Add component"
-                        icon-name="utility:add"
-                        class="slds-m-top_small"
-                        onclick={handleAddComponent}>
-                    </lightning-button>
+                    <template lwc:if={isNewAction}>
+                        <lightning-button
+                            label="Add component"
+                            icon-name="utility:add"
+                            class="slds-m-top_small"
+                            onclick={handleAddComponent}>
+                        </lightning-button>
+                    </template>
                 </div>
             </lightning-card>
 
