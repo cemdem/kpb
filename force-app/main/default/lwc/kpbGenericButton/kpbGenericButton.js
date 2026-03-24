@@ -6,22 +6,22 @@ export default class KpbGenericButton extends LightningElement {
     @api label = 'Start';
     @api action;
     @api recordId;
-    @api selectedRows1;
-    @api selectedRows2;
-    @api selectedRows3;
-    @api selectedRows4;
+    @api selectedRowId1;
+    @api selectedRowId2;
+    @api selectedRowId3;
+    @api selectedRowId4;
 
-    get _filledSelections() {
-        return [this.selectedRows1, this.selectedRows2, this.selectedRows3, this.selectedRows4]
-            .filter(s => s && s.trim() !== '[]' && s.trim() !== '');
+    get _filledCount() {
+        return [this.selectedRowId1, this.selectedRowId2, this.selectedRowId3, this.selectedRowId4]
+            .filter(id => id && id.trim() !== '').length;
     }
 
     handleClick() {
-        const filled = this._filledSelections;
-        if (filled.length !== 1) {
+        const count = this._filledCount;
+        if (count !== 1) {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Ongeldige selectie',
-                message: filled.length === 0
+                message: count === 0
                     ? 'Selecteer eerst een rij in één van de tabellen.'
                     : 'Selecteer een rij in slechts één tabel.',
                 variant: 'warning'
