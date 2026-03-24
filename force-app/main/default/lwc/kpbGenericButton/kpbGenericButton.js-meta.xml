@@ -7,9 +7,13 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="label"    type="String"  label="Button Label" />
-            <property name="action"   type="String"  label="Action (NEW / COPY / EDIT)" />
-            <property name="recordId" type="String"  label="Record Id" />
+            <property name="label"         type="String"  label="Button Label" />
+            <property name="action"        type="String"  label="Action (NEW / COPY / EDIT)" />
+            <property name="recordId"      type="String"  label="Record Id" />
+            <property name="selectedRows1" type="String"  label="Geselecteerde rijen tabel 1" />
+            <property name="selectedRows2" type="String"  label="Geselecteerde rijen tabel 2" />
+            <property name="selectedRows3" type="String"  label="Geselecteerde rijen tabel 3" />
+            <property name="selectedRows4" type="String"  label="Geselecteerde rijen tabel 4" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
