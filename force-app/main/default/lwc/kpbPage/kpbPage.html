@@ -29,27 +29,34 @@
                         onclick={handleReset}>
                     </lightning-button>
                 </div>
-                <div class="slds-p-around_medium slds-grid slds-wrap">
-                    <template for:each={mainFields} for:item="field">
-                        <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
-                            <template lwc:if={field.isCheckbox}>
-                                <lightning-input
-                                    type="checkbox"
-                                    label={field.label}
-                                    checked={field.value}
-                                    data-key={field.key}
-                                    onchange={handleFieldChange}>
-                                </lightning-input>
-                            </template>
-                            <template lwc:else>
-                                <lightning-input
-                                    type={field.inputType}
-                                    label={field.label}
-                                    value={field.value}
-                                    data-key={field.key}
-                                    onchange={handleFieldChange}>
-                                </lightning-input>
-                            </template>
+                <div class="slds-p-around_medium">
+                    <template for:each={mainFieldGroups} for:item="group">
+                        <div key={group.key} class="slds-m-bottom_medium">
+                            <p class="slds-text-heading_small slds-m-bottom_x-small">{group.label}</p>
+                            <div class="slds-grid slds-wrap">
+                                <template for:each={group.fields} for:item="field">
+                                    <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
+                                        <template lwc:if={field.isCheckbox}>
+                                            <lightning-input
+                                                type="checkbox"
+                                                label={field.label}
+                                                checked={field.value}
+                                                data-key={field.key}
+                                                onchange={handleFieldChange}>
+                                            </lightning-input>
+                                        </template>
+                                        <template lwc:else>
+                                            <lightning-input
+                                                type={field.inputType}
+                                                label={field.label}
+                                                value={field.value}
+                                                data-key={field.key}
+                                                onchange={handleFieldChange}>
+                                            </lightning-input>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
                     </template>
                 </div>

@@ -57,6 +57,49 @@ const NEW_COMPONENT_TEMPLATE = {
     audit: { created_by: null, created_on: null, modified_by: null, modified_on: null }
 };
 
+const MAIN_FIELD_GROUPS = [
+    {
+        key: 'identification',
+        label: 'Identification',
+        fields: ['payroll_id', 'account', 'agreement_id', 'label_id', 'unit_id', 'calculation_type_id', 'fulltime_equivalent_id', 'proposal_calculation_id', 'last_transaction_id', 'creation_user_id']
+    },
+    {
+        key: 'status',
+        label: 'Status & Type',
+        fields: ['status', 'process_status', 'simulation_type', 'calculation_method']
+    },
+    {
+        key: 'flags',
+        label: 'Options',
+        fields: ['leave_of_absence', 'old_calculation', 'old', 'previous_employer']
+    },
+    {
+        key: 'cost',
+        label: 'Cost',
+        fields: ['real_salary', 'salary_cost', 'salary_cost_unit', 'car_cost', 'car_cost_unit', 'other_cost', 'other_cost_unit']
+    },
+    {
+        key: 'sales',
+        label: 'Sales & Margin',
+        fields: ['sales_price_per_day', 'sales_price_per_hour', 'margin', 'approved_margin', 'approve_margin']
+    },
+    {
+        key: 'totals',
+        label: 'Totals',
+        fields: ['total_cost_per_day', 'total_cost_per_hour_excl', 'total_cost_per_month']
+    },
+    {
+        key: 'time',
+        label: 'Time & Averages',
+        fields: ['avg_days_per_week_cost', 'avg_days_per_week_sales', 'avg_hours_per_week_cost', 'avg_hours_per_week_sales', 'part_time_factor', 'weight', 'calculate_from_date', 'indexation_date', 'indexation_operator_id', 'first_approved_on', 'first_validated_on']
+    },
+    {
+        key: 'info',
+        label: 'Info',
+        fields: ['description', 'remarks']
+    }
+];
+
 const NEW_COSTGROUP_TEMPLATE = {
     payroll_id: null,
     account: null,
@@ -176,6 +219,27 @@ export default class KpbPage extends LightningElement {
     get mainFields() {
         if (!this._costgroup) return [];
         return toFields(this._costgroup, 'main');
+    }
+
+    get mainFieldGroups() {
+        if (!this._costgroup) return [];
+        return MAIN_FIELD_GROUPS.map(group => ({
+            key: group.key,
+            label: group.label,
+            fields: group.fields
+                .filter(k => k in this._costgroup)
+                .map((k, i) => {
+                    const v = this._costgroup[k];
+                    return {
+                        id: `main-${group.key}-${k}-${i}`,
+                        key: k,
+                        label: formatLabel(k),
+                        value: v === null ? '' : (typeof v === 'boolean' ? v : String(v)),
+                        inputType: fieldInputType(v),
+                        isCheckbox: typeof v === 'boolean'
+                    };
+                })
+        })).filter(g => g.fields.length > 0);
     }
 
     get sections() {
