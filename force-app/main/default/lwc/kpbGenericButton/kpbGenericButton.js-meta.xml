@@ -7,8 +7,6 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="label"          type="String" label="Button Label" />
-            <property name="action"         type="String" label="Action (NEW / COPY / EDIT)" />
             <property name="recordId"       type="String" label="Selected Record Id (formula)" />
             <property name="selectionCount" type="Integer" label="Aantal geselecteerde rijen (formule)" />
         </targetConfig>
