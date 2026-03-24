@@ -10,7 +10,6 @@
             <property name="label"    type="String"  label="Button Label" />
             <property name="action"   type="String"  label="Action (NEW / COPY / EDIT)" />
             <property name="recordId" type="String"  label="Record Id" />
-            <property name="json"     type="String"  label="Cost Group JSON" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
