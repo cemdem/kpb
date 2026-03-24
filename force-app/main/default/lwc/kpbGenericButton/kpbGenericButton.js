@@ -6,18 +6,10 @@ export default class KpbGenericButton extends LightningElement {
     @api label = 'Start';
     @api action;
     @api recordId;
-    @api selectedRowId1;
-    @api selectedRowId2;
-    @api selectedRowId3;
-    @api selectedRowId4;
-
-    get _filledCount() {
-        return [this.selectedRowId1, this.selectedRowId2, this.selectedRowId3, this.selectedRowId4]
-            .filter(id => id && id.trim() !== '').length;
-    }
+    @api selectionCount = 0;
 
     handleClick() {
-        const count = this._filledCount;
+        const count = Number(this.selectionCount);
         if (count === 0) {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Ongeldige selectie',
