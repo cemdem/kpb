@@ -1,9 +1,19 @@
 <template>
-    <div class="slds-p-top_medium">
+    <div class="slds-p-top_medium slds-button-group">
         <lightning-button
-            label={label}
+            label="Nieuw"
             variant="brand"
-            onclick={handleClick}>
+            onclick={handleNew}>
+        </lightning-button>
+        <lightning-button
+            label="Kopieer"
+            variant="neutral"
+            onclick={handleCopy}>
+        </lightning-button>
+        <lightning-button
+            label="Bewerk"
+            variant="neutral"
+            onclick={handleEdit}>
         </lightning-button>
     </div>
 </template>
