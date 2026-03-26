@@ -4,7 +4,6 @@ import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
-import USER_NAME from '@salesforce/schema/User.Name';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 
@@ -232,11 +231,10 @@ export default class KpbPage extends LightningElement {
         }
     }
 
-    @wire(getRecord, { recordId: USER_ID, fields: [USER_BRAND, USER_NAME] })
+    @wire(getRecord, { recordId: USER_ID, fields: [USER_BRAND] })
     _wiredUser({ data }) {
         if (data) {
-            this.userBrand  = getFieldValue(data, USER_BRAND);
-            this.consultant = getFieldValue(data, USER_NAME);
+            this.userBrand = getFieldValue(data, USER_BRAND);
         }
     }
 
