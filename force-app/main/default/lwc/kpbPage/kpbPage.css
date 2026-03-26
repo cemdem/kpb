@@ -12,6 +12,12 @@
     margin-bottom: 1.5rem;
 }
 
+.kpb-card {
+    border: 2px solid var(--kpb-blue);
+    border-radius: 0.25rem;
+    height: 100%;
+}
+
 .kpb-form .slds-col {
     margin-bottom: 0.75rem;
 }
