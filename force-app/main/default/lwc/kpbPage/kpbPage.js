@@ -1,5 +1,4 @@
 import { LightningElement, wire, api } from 'lwc';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
@@ -400,15 +399,7 @@ export default class KpbPage extends LightningElement {
         this._initRows();
     }
 
-    _wip() {
-        this.dispatchEvent(new ShowToastEvent({
-            title: 'Work in progress',
-            message: 'Deze functionaliteit is nog niet beschikbaar.',
-            variant: 'info'
-        }));
-    }
-
-    handleSave()        { this._wip(); }
-    handleGoedkeuren()  { this._wip(); }
-    handleBereken()     { this._wip(); }
+    handleCalculate() {}
+    handleSave()      {}
+    handleApprove()   {}
 }
