@@ -4,26 +4,25 @@ import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
 import CONTACT_FULL_NAME from '@salesforce/schema/Contact.Name';
+import getKpb from '@salesforce/apex/KpbController.getKpb';
 
 const SELECT_ALL_VALUE = '__ALL__';
 
 export default class KpbPage extends LightningElement {
     @api recordId;
     @api action;
-    @api nummer;
-
-    @track _omschrijving = '';
-    @api get omschrijving() { return this._omschrijving; }
-    set omschrijving(v) { this._omschrijving = v; }
+    @api json;
 
     isLoading = false;
     fetchError = null;
     parseError = null;
     contactId;
     userBrand;
+    nummer = null;
     formType = 'Werknemer';
     freelancerName = '';
     typeLabel = 'Werknemer';
+    omschrijving = '';
     kandidaat = '';
     aanvraag = '';
     berekeningstype = '';
@@ -160,6 +159,57 @@ export default class KpbPage extends LightningElement {
     connectedCallback() {
         this.opgemaaktDatum = new Date().toISOString().split('T')[0];
         this._resetCostRows();
+        if (this.action === 'NEW') return;
+        if (this.recordId) {
+            this._fetchKpb();
+        } else if (this.json) {
+            this._parse();
+        }
+    }
+
+    async _fetchKpb() {
+        this.isLoading = true;
+        try {
+            const result = await getKpb({ recordId: this.recordId });
+            if (result.success) {
+                const raw = JSON.parse(result.result);
+                this._populate(raw.costgroup || raw);
+            } else {
+                this.fetchError = `HTTP ${result.httpCode}: ${result.result}`;
+            }
+        } catch (e) {
+            this.fetchError = e.body?.message ?? e.message ?? 'Unknown error';
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    _parse() {
+        try {
+            const raw = JSON.parse(this.json);
+            this._populate(raw.costgroup || raw);
+        } catch (e) {
+            this.parseError = e.message;
+        }
+    }
+
+    _populate(cg) {
+        this.nummer         = cg.payroll_id ?? null;
+        this.omschrijving   = cg.description ?? '';
+        this.kandidaat      = cg.employee?.name ?? '';
+        this.aanvraag       = cg.staffing_request?.name ?? '';
+        this.berekeningstype  = cg.calculation_type_id ?? '';
+        this.berekeningswijze = cg.calculation_method ?? '';
+        this.gemUrenPerWeek   = cg.avg_hours_per_week_sales ?? null;
+        this.margePct         = cg.margin ?? null;
+        this.verkoopPrijsUur  = cg.sales_price_per_hour ?? null;
+        this.brutoloonMaand   = cg.real_salary ?? null;
+        this.gemUrenPerWeekKostprijs = cg.avg_hours_per_week_cost ?? null;
+        this.voltijdseMaatman = cg.fulltime_equivalent_id ?? '';
+        this.teRekenenVanaf   = cg.calculate_from_date ?? null;
+        this.processtatus     = cg.process_status ?? 'In behandeling';
+        if (cg.first_approved_on) this.opgemaaktDatum = cg.first_approved_on;
+        if (cg.simulation_type)   this.formType = cg.simulation_type;
     }
 
     @wire(CurrentPageReference)
@@ -277,7 +327,7 @@ export default class KpbPage extends LightningElement {
     handleReset() {
         this.formType = 'Werknemer';
         this.freelancerName = '';
-        this._omschrijving = '';
+        this.omschrijving = '';
         this.kandidaat = '';
         this.aanvraag = '';
         this.berekeningstype = '';
