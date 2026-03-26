@@ -223,6 +223,29 @@ export default class KpbPage extends LightningElement {
         this.processStatus        = cg.process_status ?? 'In behandeling';
         if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
         if (cg.simulation_type)   this.formType = cg.simulation_type;
+        if (Array.isArray(cg.components) && cg.components.length > 0) {
+            this._populateRows(cg.components);
+        }
+    }
+
+    _populateRows(components) {
+        const mobilityKeySet = new Set(this.mobilityDefinitions.map(d => d.key));
+        const variableKeySet = new Set(this.variableDefinitions.map(d => d.key));
+        const newMobility = [];
+        const newVariable = [];
+        for (const comp of components) {
+            const key = comp.key ?? comp.component_type;
+            if (!key) continue;
+            if (mobilityKeySet.has(key)) {
+                const def = this.mobilityDefinitions.find(d => d.key === key);
+                newMobility.push({ ...this._defToRow(def), value: comp.value ?? def.defaultValue });
+            } else if (variableKeySet.has(key)) {
+                const def = this.variableDefinitions.find(d => d.key === key);
+                newVariable.push({ ...this._defToRow(def), value: comp.value ?? def.defaultValue });
+            }
+        }
+        if (newMobility.length > 0) this.mobilityRows = newMobility;
+        if (newVariable.length > 0) this.variableRows = newVariable;
     }
 
     @wire(CurrentPageReference)
