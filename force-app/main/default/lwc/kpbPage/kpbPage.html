@@ -48,7 +48,7 @@
                                 <lightning-input
                                     label="Nummer"
                                     variant="label-inline"
-                                    value={nummer}
+                                    value={number}
                                     disabled>
                                 </lightning-input>
                             </div>
@@ -56,8 +56,8 @@
                                 <lightning-input
                                     label="Omschrijving"
                                     variant="label-inline"
-                                    value={omschrijving}
-                                    data-field="omschrijving"
+                                    value={description}
+                                    data-field="description"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-input>
@@ -66,9 +66,9 @@
                                 <lightning-combobox
                                     label="Kandidaat"
                                     variant="label-inline"
-                                    value={kandidaatId}
-                                    options={kandidaatOptions}
-                                    onchange={handleKandidaatChange}
+                                    value={candidateId}
+                                    options={candidateOptions}
+                                    onchange={handleCandidateChange}
                                     required>
                                 </lightning-combobox>
                             </div>
@@ -76,8 +76,8 @@
                                 <lightning-input
                                     label="Aanvraag"
                                     variant="label-inline"
-                                    value={aanvraag}
-                                    data-field="aanvraag"
+                                    value={request}
+                                    data-field="request"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-input>
@@ -86,9 +86,9 @@
                                 <lightning-combobox
                                     label="Berekeningstype"
                                     variant="label-inline"
-                                    value={berekeningstype}
-                                    options={berekeningstypeOptions}
-                                    data-field="berekeningstype"
+                                    value={calculationType}
+                                    options={calculationTypeOptions}
+                                    data-field="calculationType"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-combobox>
@@ -105,9 +105,9 @@
                                 <lightning-combobox
                                     label="Specialisatie"
                                     variant="label-inline"
-                                    value={specialisatie}
-                                    options={specialisatieOptions}
-                                    data-field="specialisatie"
+                                    value={specialization}
+                                    options={specializationOptions}
+                                    data-field="specialization"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-combobox>
@@ -123,8 +123,8 @@
                                     type="date"
                                     label="Opgemaakt"
                                     variant="label-inline"
-                                    value={opgemaaktDatum}
-                                    data-field="opgemaaktDatum"
+                                    value={createdDate}
+                                    data-field="createdDate"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-input>
@@ -134,8 +134,8 @@
                                     type="date"
                                     label="Te rekenen vanaf"
                                     variant="label-inline"
-                                    value={teRekenenVanaf}
-                                    data-field="teRekenenVanaf"
+                                    value={calculateFromDate}
+                                    data-field="calculateFromDate"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-input>
@@ -144,7 +144,7 @@
                                 <lightning-input
                                     label="Processtatus"
                                     variant="label-inline"
-                                    value={processtatus}
+                                    value={processStatus}
                                     disabled>
                                 </lightning-input>
                             </div>
@@ -153,9 +153,7 @@
                                     label="Consultant"
                                     variant="label-inline"
                                     value={consultant}
-                                    data-field="consultant"
-                                    onchange={handleFieldChange}
-                                    required>
+                                    disabled>
                                 </lightning-input>
                             </div>
                         </div>
@@ -171,9 +169,9 @@
                                 <lightning-combobox
                                     label="Berekeningswijze"
                                     variant="label-inline"
-                                    value={berekeningswijze}
-                                    options={berekeningswijzeOptions}
-                                    data-field="berekeningswijze"
+                                    value={calculationMethod}
+                                    options={calculationMethodOptions}
+                                    data-field="calculationMethod"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-combobox>
@@ -183,8 +181,8 @@
                                     type="number"
                                     label="Gem. uren / week"
                                     variant="label-inline"
-                                    value={gemUrenPerWeek}
-                                    data-field="gemUrenPerWeek"
+                                    value={avgHoursPerWeekSales}
+                                    data-field="avgHoursPerWeekSales"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-input>
@@ -194,8 +192,9 @@
                                     type="number"
                                     label="Marge (%)"
                                     variant="label-inline"
-                                    value={margePct}
-                                    data-field="margePct"
+                                    value={marginPct}
+                                    data-field="marginPct"
+                                    disabled={marginDisabled}
                                     onchange={handleFieldChange}>
                                 </lightning-input>
                             </div>
@@ -204,9 +203,9 @@
                                     type="number"
                                     label="Verkoopprijs / uur"
                                     variant="label-inline"
-                                    value={verkoopPrijsUur}
-                                    data-field="verkoopPrijsUur"
-                                    disabled={verkoopprijsDisabled}
+                                    value={salesPricePerHour}
+                                    data-field="salesPricePerHour"
+                                    disabled={salesPriceDisabled}
                                     onchange={handleFieldChange}>
                                 </lightning-input>
                             </div>
@@ -221,8 +220,8 @@
                                     type="number"
                                     label="Brutoloon / maand"
                                     variant="label-inline"
-                                    value={brutoloonMaand}
-                                    data-field="brutoloonMaand"
+                                    value={grossSalaryPerMonth}
+                                    data-field="grossSalaryPerMonth"
                                     min="0"
                                     max="10000"
                                     onchange={handleFieldChange}
@@ -234,8 +233,8 @@
                                     type="number"
                                     label="Gem. uren / week"
                                     variant="label-inline"
-                                    value={gemUrenPerWeekKostprijs}
-                                    data-field="gemUrenPerWeekKostprijs"
+                                    value={avgHoursPerWeekCost}
+                                    data-field="avgHoursPerWeekCost"
                                     onchange={handleFieldChange}
                                     required>
                                 </lightning-input>
@@ -244,9 +243,9 @@
                                 <lightning-combobox
                                     label="Voltijdse maatman"
                                     variant="label-inline"
-                                    value={voltijdseMaatman}
-                                    options={voltijdseMaatmanOptions}
-                                    onchange={handleVoltijdseMaatmanChange}
+                                    value={fulltimeEquivalent}
+                                    options={fulltimeEquivalentOptions}
+                                    onchange={handleFulltimeEquivalentChange}
                                     required>
                                 </lightning-combobox>
                             </div>
@@ -255,7 +254,7 @@
                 </div>
             </div>
 
-            <template lwc:if={showWerknemer}>
+            <template lwc:if={showEmployee}>
                 <div class="slds-grid slds-wrap slds-gutters kpb-section">
                     <div class="slds-col slds-size_1-of-2">
                         <lightning-card title="KOSTCOMPONENTEN MOBILITEIT">
@@ -270,7 +269,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <template for:each={mobiliteitRows} for:item="row">
+                                        <template for:each={mobilityRows} for:item="row">
                                             <tr key={row.key}>
                                                 <td>{row.label}</td>
                                                 <td>
@@ -279,7 +278,7 @@
                                                             value={row.value}
                                                             options={row.options}
                                                             data-key={row.key}
-                                                            onchange={handleMobiliteitValueChange}>
+                                                            onchange={handleMobilityValueChange}>
                                                         </lightning-combobox>
                                                     </template>
                                                     <template lwc:else>
@@ -287,7 +286,7 @@
                                                             type="number"
                                                             value={row.value}
                                                             data-key={row.key}
-                                                            onchange={handleMobiliteitValueChange}>
+                                                            onchange={handleMobilityValueChange}>
                                                         </lightning-input>
                                                     </template>
                                                 </td>
@@ -295,7 +294,7 @@
                                                 <td class="slds-text-align_center kpb-trash">
                                                     <lightning-button-icon
                                                         icon-name="utility:delete"
-                                                        data-section="mobiliteit"
+                                                        data-section="mobility"
                                                         data-key={row.key}
                                                         onclick={handleRemoveRow}>
                                                     </lightning-button-icon>
@@ -307,8 +306,8 @@
                                 <div class="slds-m-top_small">
                                     <lightning-combobox
                                         label="Nieuwe kostcomponent"
-                                        options={availableMobiliteitOptions}
-                                        onchange={handleAddMobiliteit}>
+                                        options={availableMobilityOptions}
+                                        onchange={handleAddMobility}>
                                     </lightning-combobox>
                                 </div>
                             </div>
@@ -327,7 +326,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <template for:each={variabeleRows} for:item="row">
+                                        <template for:each={variableRows} for:item="row">
                                             <tr key={row.key}>
                                                 <td>{row.label}</td>
                                                 <td>
@@ -337,7 +336,7 @@
                                                             options={row.options}
                                                             data-key={row.key}
                                                             disabled={row.disabled}
-                                                            onchange={handleVariabeleValueChange}>
+                                                            onchange={handleVariableValueChange}>
                                                         </lightning-combobox>
                                                     </template>
                                                     <template lwc:else>
@@ -346,7 +345,7 @@
                                                             value={row.value}
                                                             data-key={row.key}
                                                             disabled={row.disabled}
-                                                            onchange={handleVariabeleValueChange}>
+                                                            onchange={handleVariableValueChange}>
                                                         </lightning-input>
                                                     </template>
                                                 </td>
@@ -354,7 +353,7 @@
                                                 <td class="slds-text-align_center kpb-trash">
                                                     <lightning-button-icon
                                                         icon-name="utility:delete"
-                                                        data-section="variabele"
+                                                        data-section="variable"
                                                         data-key={row.key}
                                                         onclick={handleRemoveRow}>
                                                     </lightning-button-icon>
@@ -366,9 +365,9 @@
                                 <div class="slds-m-top_small">
                                     <lightning-combobox
                                         label="Nieuwe kostcomponent"
-                                        value={variabeleAddValue}
-                                        options={availableVariabeleOptions}
-                                        onchange={handleAddVariabele}>
+                                        value={variableAddValue}
+                                        options={availableVariableOptions}
+                                        onchange={handleAddVariable}>
                                     </lightning-combobox>
                                 </div>
                             </div>
@@ -386,8 +385,8 @@
                                     type="number"
                                     label="Andere kosten (€/maand)"
                                     variant="label-inline"
-                                    value={freelancerAndereKosten}
-                                    data-field="freelancerAndereKosten"
+                                    value={freelancerOtherCosts}
+                                    data-field="freelancerOtherCosts"
                                     onchange={handleFieldChange}>
                                 </lightning-input>
                             </div>
@@ -415,7 +414,7 @@
                 label="Bewaren"
                 variant="neutral"
                 class="kpb-btn"
-                onclick={handleBewaren}>
+                onclick={handleSave}>
             </lightning-button>
             <lightning-button
                 label="Goedkeuren"

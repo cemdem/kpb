@@ -4,6 +4,7 @@ import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
+import USER_NAME from '@salesforce/schema/User.Name';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 
@@ -17,46 +18,54 @@ export default class KpbPage extends LightningElement {
     isLoading = false;
     fetchError = null;
     parseError = null;
-    contactId;
     userBrand;
-    nummer = null;
+    number = null;
     formType = 'Werknemer';
     freelancerName = '';
     typeLabel = 'Werknemer';
-    omschrijving = '';
-    kandidaatId = null;
-    kandidaat = '';
-    kandidaatOptions = [];
-    aanvraag = '';
-    berekeningstype = '';
-    specialisatie = '';
-    berekeningswijze = '';
-    gemUrenPerWeek;
-    margePct;
-    verkoopPrijsUur;
-    brutoloonMaand;
-    gemUrenPerWeekKostprijs;
-    opgemaaktDatum;
-    teRekenenVanaf;
-    processtatus = 'In behandeling';
-    consultant = 'John Doe';
-    voltijdseMaatman = '';
-    freelancerAndereKosten = null;
-    mobiliteitRows = [];
-    variabeleRows = [];
-    variabeleAddValue = null;
+    description = '';
+    candidateId = null;
+    candidate = '';
+    candidateOptions = [];
+    request = '';
+    calculationType = '';
+    specialization = '';
+    calculationMethod = '';
+    avgHoursPerWeekSales;
+    marginPct;
+    salesPricePerHour;
+    grossSalaryPerMonth;
+    avgHoursPerWeekCost;
+    createdDate;
+    calculateFromDate;
+    processStatus = 'In behandeling';
+    consultant = '';
+    fulltimeEquivalent = '';
+    freelancerOtherCosts = null;
+    mobilityRows = [];
+    variableRows = [];
+    variableAddValue = null;
 
     formTypeOptions = [
         { label: 'Werknemer', value: 'Werknemer' },
         { label: 'Freelancer', value: 'Freelancer' }
     ];
 
-    berekeningswijzeOptions = [
+    calculationMethodOptions = [
         { label: 'Verkoopprijs', value: 'Verkoopprijs' },
         { label: 'Marge', value: 'Marge' }
     ];
 
-    maatmanBaseOptions = [
+    specializationOptions = [
+        { label: 'Consulting',              value: 'Consulting' },
+        { label: 'Finance projectsourcing', value: 'Finance projectsourcing' },
+        { label: 'HR projectsourcing',      value: 'HR projectsourcing' },
+        { label: 'Office projectsourcing',  value: 'Office projectsourcing' },
+        { label: 'Outplacement',            value: 'Outplacement' },
+        { label: 'Projectsourcing',         value: 'Projectsourcing' }
+    ];
+
+    fulltimeEquivalentBaseOptions = [
         '01 Bedienden 40 u/wk',
         '02 Bedienden 38 u/wk',
         '07 Bedienden 39 u/wk',
@@ -70,14 +79,14 @@ export default class KpbPage extends LightningElement {
         '99 Bedienden 12 ADV 40 u/wk'
     ];
 
-    mobiliteitDefinitions = [
+    mobilityDefinitions = [
         { key: 'keuze_lease_category', label: 'Keuze lease category', isPicklist: true, unit: '', options: [{ label: 'Categorie 1', value: 'Categorie 1' }, { label: 'Categorie 2', value: 'Categorie 2' }, { label: 'Categorie 3', value: 'Categorie 3' }, { label: 'Categorie 4', value: 'Categorie 4' }, { label: 'Categorie 1E', value: 'Categorie 1E' }, { label: 'Categorie 2E', value: 'Categorie 2E' }, { label: 'Categorie 3E', value: 'Categorie 3E' }, { label: 'Categorie 4E', value: 'Categorie 4E' }], defaultValue: null, disabled: false },
         { key: 'tankkaart_budget', label: 'Tankkaart budget', isPicklist: false, unit: '€ per maand', options: [], defaultValue: 300, disabled: false },
         { key: 'bedrijfswagen_netto_inhouding', label: 'Bedrijfswagen netto-inhouding', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
         { key: 'mobiliteitsprogramma', label: 'Mobiliteitsprogramma', isPicklist: true, unit: '', options: [{ label: 'Fleet Family', value: 'Fleet Family' }, { label: 'Fleet Flex', value: 'Fleet Flex' }], defaultValue: null, disabled: false }
     ];
 
-    variabeleDefinitions = [
+    variableDefinitions = [
         { key: 'parkeerkosten', label: 'Parkeerkosten', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
         { key: 'maaltijdcheques', label: 'Maaltijdcheques', isPicklist: true, unit: '€ per dag', options: [{ label: '', value: '' }, { label: '6,91 WG + 1,09 WN', value: '6,91 WG + 1,09 WN' }], defaultValue: '', disabled: false },
         { key: 'gsm', label: 'GSM', isPicklist: true, unit: '€ per maand', options: [{ label: '0', value: '0' }, { label: '19', value: '19' }], defaultValue: '0', disabled: false },
@@ -105,8 +114,8 @@ export default class KpbPage extends LightningElement {
         { key: 'kost_leasefiets', label: 'Kost leasefiets', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false }
     ];
 
-    defaultMobiliteitKeys = ['keuze_lease_category'];
-    defaultVariabeleKeys = ['parkeerkosten', 'maaltijdcheques', 'gsm'];
+    defaultMobilityKeys = ['keuze_lease_category'];
+    defaultVariableKeys = ['parkeerkosten', 'maaltijdcheques', 'gsm'];
 
     get hasData() {
         return !this.isLoading && !this.fetchError;
@@ -116,15 +125,19 @@ export default class KpbPage extends LightningElement {
         return this.action === 'NEW';
     }
 
-    get showWerknemer() {
+    get showEmployee() {
         return this.formType === 'Werknemer';
     }
 
-    get verkoopprijsDisabled() {
-        return this.berekeningswijze !== 'Verkoopprijs';
+    get salesPriceDisabled() {
+        return this.calculationMethod !== 'Verkoopprijs';
     }
 
-    get berekeningstypeOptions() {
+    get marginDisabled() {
+        return this.calculationMethod !== 'Marge';
+    }
+
+    get calculationTypeOptions() {
         if (!this.userBrand) return [];
         return [
             { label: `${this.userBrand}-BT1`, value: `${this.userBrand}-BT1` },
@@ -132,32 +145,24 @@ export default class KpbPage extends LightningElement {
         ];
     }
 
-    get specialisatieOptions() {
+    get fulltimeEquivalentOptions() {
         if (!this.userBrand) return [];
-        return [
-            { label: `${this.userBrand}-SP1`, value: `${this.userBrand}-SP1` },
-            { label: `${this.userBrand}-SP2`, value: `${this.userBrand}-SP2` }
-        ];
-    }
-
-    get voltijdseMaatmanOptions() {
-        if (!this.userBrand) return [];
-        return this.maatmanBaseOptions.map(opt => {
+        return this.fulltimeEquivalentBaseOptions.map(opt => {
             const v = `${this.userBrand}-${opt}`;
             return { label: v, value: v };
         });
     }
 
-    get availableMobiliteitOptions() {
-        const used = new Set(this.mobiliteitRows.map(r => r.key));
-        return this.mobiliteitDefinitions
+    get availableMobilityOptions() {
+        const used = new Set(this.mobilityRows.map(r => r.key));
+        return this.mobilityDefinitions
             .filter(d => !used.has(d.key))
             .map(d => ({ label: d.label, value: d.key }));
     }
 
-    get availableVariabeleOptions() {
-        const used = new Set(this.variabeleRows.map(r => r.key));
-        const remaining = this.variabeleDefinitions
+    get availableVariableOptions() {
+        const used = new Set(this.variableRows.map(r => r.key));
+        const remaining = this.variableDefinitions
             .filter(d => !used.has(d.key))
             .map(d => ({ label: d.label, value: d.key }));
         if (remaining.length === 0) return [];
@@ -165,8 +170,8 @@ export default class KpbPage extends LightningElement {
     }
 
     connectedCallback() {
-        this.opgemaaktDatum = new Date().toISOString().split('T')[0];
-        this._resetCostRows();
+        this.createdDate = new Date().toISOString().split('T')[0];
+        this._initRows();
         if (this.action === 'NEW') return;
         if (this.recordId) {
             this._fetchKpb();
@@ -202,21 +207,21 @@ export default class KpbPage extends LightningElement {
     }
 
     _populate(cg) {
-        this.nummer         = cg.payroll_id ?? null;
-        this.omschrijving   = cg.description ?? '';
-        this.kandidaat      = cg.employee?.name ?? '';
-        this.aanvraag       = cg.staffing_request?.name ?? '';
-        this.berekeningstype  = cg.calculation_type_id ?? '';
-        this.berekeningswijze = cg.calculation_method ?? '';
-        this.gemUrenPerWeek   = cg.avg_hours_per_week_sales ?? null;
-        this.margePct         = cg.margin ?? null;
-        this.verkoopPrijsUur  = cg.sales_price_per_hour ?? null;
-        this.brutoloonMaand   = cg.real_salary ?? null;
-        this.gemUrenPerWeekKostprijs = cg.avg_hours_per_week_cost ?? null;
-        this.voltijdseMaatman = cg.fulltime_equivalent_id ?? '';
-        this.teRekenenVanaf   = cg.calculate_from_date ?? null;
-        this.processtatus     = cg.process_status ?? 'In behandeling';
-        if (cg.first_approved_on) this.opgemaaktDatum = cg.first_approved_on;
+        this.number               = cg.payroll_id ?? null;
+        this.description          = cg.description ?? '';
+        this.candidate            = cg.employee?.name ?? '';
+        this.request              = cg.staffing_request?.name ?? '';
+        this.calculationType      = cg.calculation_type_id ?? '';
+        this.calculationMethod    = cg.calculation_method ?? '';
+        this.avgHoursPerWeekSales = cg.avg_hours_per_week_sales ?? null;
+        this.marginPct            = cg.margin ?? null;
+        this.salesPricePerHour    = cg.sales_price_per_hour ?? null;
+        this.grossSalaryPerMonth  = cg.real_salary ?? null;
+        this.avgHoursPerWeekCost  = cg.avg_hours_per_week_cost ?? null;
+        this.fulltimeEquivalent   = cg.fulltime_equivalent_id ?? '';
+        this.calculateFromDate    = cg.calculate_from_date ?? null;
+        this.processStatus        = cg.process_status ?? 'In behandeling';
+        if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
         if (cg.simulation_type)   this.formType = cg.simulation_type;
     }
 
@@ -227,26 +232,29 @@ export default class KpbPage extends LightningElement {
         }
     }
 
-    @wire(getRecord, { recordId: USER_ID, fields: [USER_BRAND] })
+    @wire(getRecord, { recordId: USER_ID, fields: [USER_BRAND, USER_NAME] })
     _wiredUser({ data }) {
-        if (data) this.userBrand = getFieldValue(data, USER_BRAND);
+        if (data) {
+            this.userBrand  = getFieldValue(data, USER_BRAND);
+            this.consultant = getFieldValue(data, USER_NAME);
+        }
     }
 
     @wire(getContactsByBrand, { brand: '$userBrand' })
     _wiredContacts({ data }) {
         if (data) {
-            this.kandidaatOptions = data.map(c => ({ label: c.Name, value: c.Id }));
-            if (this.kandidaat && !this.kandidaatId) {
-                const match = this.kandidaatOptions.find(o => o.label === this.kandidaat);
-                if (match) this.kandidaatId = match.value;
+            this.candidateOptions = data.map(c => ({ label: c.Name, value: c.Id }));
+            if (this.candidate && !this.candidateId) {
+                const match = this.candidateOptions.find(o => o.label === this.candidate);
+                if (match) this.candidateId = match.value;
             }
         }
     }
 
-    handleKandidaatChange(event) {
-        this.kandidaatId = event.detail.value;
-        const option = this.kandidaatOptions.find(o => o.value === this.kandidaatId);
-        this.kandidaat = option ? option.label : '';
+    handleCandidateChange(event) {
+        this.candidateId = event.detail.value;
+        const option = this.candidateOptions.find(o => o.value === this.candidateId);
+        this.candidate = option ? option.label : '';
     }
 
     handleFormTypeChange(event) {
@@ -261,15 +269,15 @@ export default class KpbPage extends LightningElement {
         this[event.target.dataset.field] = event.target.value;
     }
 
-    handleVoltijdseMaatmanChange(event) {
+    handleFulltimeEquivalentChange(event) {
         const selected = event.detail.value;
-        this.voltijdseMaatman = selected;
+        this.fulltimeEquivalent = selected;
         const raw = selected && this.userBrand ? selected.replace(`${this.userBrand}-`, '') : selected;
-        const hours = this._extractHoursBeforeUwk(raw);
-        if (hours !== null) this.gemUrenPerWeekKostprijs = hours;
+        const hours = this._extractHoursFromUwk(raw);
+        if (hours !== null) this.avgHoursPerWeekCost = hours;
     }
 
-    _extractHoursBeforeUwk(text) {
+    _extractHoursFromUwk(text) {
         if (!text) return null;
         const match = text.match(/(\d+(?:[.,]\d+)?)\s*u\/wk/i);
         if (!match) return null;
@@ -277,47 +285,47 @@ export default class KpbPage extends LightningElement {
         return Number.isFinite(num) ? num : null;
     }
 
-    handleAddMobiliteit(event) {
-        const def = this.mobiliteitDefinitions.find(d => d.key === event.detail.value);
+    handleAddMobility(event) {
+        const def = this.mobilityDefinitions.find(d => d.key === event.detail.value);
         if (!def) return;
-        this.mobiliteitRows = [...this.mobiliteitRows, this._defToRow(def)];
+        this.mobilityRows = [...this.mobilityRows, this._defToRow(def)];
     }
 
-    handleMobiliteitValueChange(event) {
+    handleMobilityValueChange(event) {
         const { key } = event.target.dataset;
         const value = event.detail?.value !== undefined ? event.detail.value : event.target.value;
-        this.mobiliteitRows = this.mobiliteitRows.map(r => r.key === key ? { ...r, value } : r);
+        this.mobilityRows = this.mobilityRows.map(r => r.key === key ? { ...r, value } : r);
     }
 
-    handleAddVariabele(event) {
+    handleAddVariable(event) {
         const selected = event.detail.value;
-        this.variabeleAddValue = null;
+        this.variableAddValue = null;
         if (selected === SELECT_ALL_VALUE) {
-            this._addAllRemainingVariabele();
+            this._addAllRemainingVariables();
             return;
         }
-        const def = this.variabeleDefinitions.find(d => d.key === selected);
-        if (def) this.variabeleRows = [...this.variabeleRows, this._defToRow(def)];
+        const def = this.variableDefinitions.find(d => d.key === selected);
+        if (def) this.variableRows = [...this.variableRows, this._defToRow(def)];
     }
 
-    _addAllRemainingVariabele() {
-        const used = new Set(this.variabeleRows.map(r => r.key));
-        const toAdd = this.variabeleDefinitions.filter(d => !used.has(d.key)).map(d => this._defToRow(d));
-        this.variabeleRows = [...this.variabeleRows, ...toAdd];
+    _addAllRemainingVariables() {
+        const used = new Set(this.variableRows.map(r => r.key));
+        const toAdd = this.variableDefinitions.filter(d => !used.has(d.key)).map(d => this._defToRow(d));
+        this.variableRows = [...this.variableRows, ...toAdd];
     }
 
-    handleVariabeleValueChange(event) {
+    handleVariableValueChange(event) {
         const { key } = event.target.dataset;
         const value = event.detail?.value !== undefined ? event.detail.value : event.target.value;
-        this.variabeleRows = this.variabeleRows.map(r => r.key === key ? { ...r, value } : r);
+        this.variableRows = this.variableRows.map(r => r.key === key ? { ...r, value } : r);
     }
 
     handleRemoveRow(event) {
         const { section, key } = event.currentTarget.dataset;
-        if (section === 'mobiliteit') {
-            this.mobiliteitRows = this.mobiliteitRows.filter(r => r.key !== key);
+        if (section === 'mobility') {
+            this.mobilityRows = this.mobilityRows.filter(r => r.key !== key);
         } else {
-            this.variabeleRows = this.variabeleRows.filter(r => r.key !== key);
+            this.variableRows = this.variableRows.filter(r => r.key !== key);
         }
     }
 
@@ -333,38 +341,38 @@ export default class KpbPage extends LightningElement {
         };
     }
 
-    _resetCostRows() {
-        this.mobiliteitRows = this.defaultMobiliteitKeys
-            .map(k => this.mobiliteitDefinitions.find(d => d.key === k))
+    _initRows() {
+        this.mobilityRows = this.defaultMobilityKeys
+            .map(k => this.mobilityDefinitions.find(d => d.key === k))
             .filter(Boolean)
             .map(d => this._defToRow(d));
-        this.variabeleRows = this.defaultVariabeleKeys
-            .map(k => this.variabeleDefinitions.find(d => d.key === k))
+        this.variableRows = this.defaultVariableKeys
+            .map(k => this.variableDefinitions.find(d => d.key === k))
             .filter(Boolean)
             .map(d => this._defToRow(d));
     }
 
     handleReset() {
-        this.formType = 'Werknemer';
-        this.freelancerName = '';
-        this.omschrijving = '';
-        this.kandidaatId = null;
-        this.kandidaat = '';
-        this.aanvraag = '';
-        this.berekeningstype = '';
-        this.specialisatie = '';
-        this.berekeningswijze = '';
-        this.gemUrenPerWeek = null;
-        this.margePct = null;
-        this.verkoopPrijsUur = null;
-        this.brutoloonMaand = null;
-        this.gemUrenPerWeekKostprijs = null;
-        this.opgemaaktDatum = new Date().toISOString().split('T')[0];
-        this.teRekenenVanaf = null;
-        this.consultant = '';
-        this.voltijdseMaatman = '';
-        this.freelancerAndereKosten = null;
-        this._resetCostRows();
+        this.formType           = 'Werknemer';
+        this.freelancerName     = '';
+        this.description        = '';
+        this.candidateId        = null;
+        this.candidate          = '';
+        this.request            = '';
+        this.calculationType    = '';
+        this.specialization     = '';
+        this.calculationMethod  = '';
+        this.avgHoursPerWeekSales = null;
+        this.marginPct          = null;
+        this.salesPricePerHour  = null;
+        this.grossSalaryPerMonth = null;
+        this.avgHoursPerWeekCost = null;
+        this.createdDate        = new Date().toISOString().split('T')[0];
+        this.calculateFromDate  = null;
+        this.consultant         = '';
+        this.fulltimeEquivalent = '';
+        this.freelancerOtherCosts = null;
+        this._initRows();
     }
 
     _wip() {
@@ -375,7 +383,7 @@ export default class KpbPage extends LightningElement {
         }));
     }
 
-    handleBewaren() { this._wip(); }
-    handleGoedkeuren() { this._wip(); }
-    handleBereken() { this._wip(); }
+    handleSave()        { this._wip(); }
+    handleGoedkeuren()  { this._wip(); }
+    handleBereken()     { this._wip(); }
 }
