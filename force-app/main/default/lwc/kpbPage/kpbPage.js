@@ -1,11 +1,11 @@
-import { LightningElement, track, wire, api } from 'lwc';
+import { LightningElement, wire, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
-import CONTACT_FULL_NAME from '@salesforce/schema/Contact.Name';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
+import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 
 const SELECT_ALL_VALUE = '__ALL__';
 
@@ -24,7 +24,9 @@ export default class KpbPage extends LightningElement {
     freelancerName = '';
     typeLabel = 'Werknemer';
     omschrijving = '';
+    kandidaatId = null;
     kandidaat = '';
+    kandidaatOptions = [];
     aanvraag = '';
     berekeningstype = '';
     specialisatie = '';
@@ -230,9 +232,21 @@ export default class KpbPage extends LightningElement {
         if (data) this.userBrand = getFieldValue(data, USER_BRAND);
     }
 
-    @wire(getRecord, { recordId: '$contactId', fields: [CONTACT_FULL_NAME] })
-    _wiredContact({ data }) {
-        if (data) this.kandidaat = getFieldValue(data, CONTACT_FULL_NAME);
+    @wire(getContactsByBrand, { brand: '$userBrand' })
+    _wiredContacts({ data }) {
+        if (data) {
+            this.kandidaatOptions = data.map(c => ({ label: c.Name, value: c.Id }));
+            if (this.kandidaat && !this.kandidaatId) {
+                const match = this.kandidaatOptions.find(o => o.label === this.kandidaat);
+                if (match) this.kandidaatId = match.value;
+            }
+        }
+    }
+
+    handleKandidaatChange(event) {
+        this.kandidaatId = event.detail.value;
+        const option = this.kandidaatOptions.find(o => o.value === this.kandidaatId);
+        this.kandidaat = option ? option.label : '';
     }
 
     handleFormTypeChange(event) {
@@ -334,6 +348,7 @@ export default class KpbPage extends LightningElement {
         this.formType = 'Werknemer';
         this.freelancerName = '';
         this.omschrijving = '';
+        this.kandidaatId = null;
         this.kandidaat = '';
         this.aanvraag = '';
         this.berekeningstype = '';

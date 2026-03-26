@@ -63,14 +63,14 @@
                                 </lightning-input>
                             </div>
                             <div class="slds-col slds-size_1-of-2">
-                                <lightning-input
+                                <lightning-combobox
                                     label="Kandidaat"
                                     variant="label-inline"
-                                    value={kandidaat}
-                                    data-field="kandidaat"
-                                    onchange={handleFieldChange}
+                                    value={kandidaatId}
+                                    options={kandidaatOptions}
+                                    onchange={handleKandidaatChange}
                                     required>
-                                </lightning-input>
+                                </lightning-combobox>
                             </div>
                             <div class="slds-col slds-size_1-of-2">
                                 <lightning-input

@@ -59,6 +59,18 @@ public with sharing class KpbController {
         return callSpot(endpoint, 'GET', null, true);
     }
 
+    @AuraEnabled(cacheable=true)
+    public static List<Contact> getContactsByBrand(String brand) {
+        if (String.isBlank(brand)) return new List<Contact>();
+        return [
+            SELECT Id, Name
+            FROM Contact
+            WHERE RGF_Brand__c = :brand
+            ORDER BY Name
+            LIMIT 200
+        ];
+    }
+
     public class KpbCallResult {
         @AuraEnabled public Boolean success;
         @AuraEnabled public Integer httpCode;
