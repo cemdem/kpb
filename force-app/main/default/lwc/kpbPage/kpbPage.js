@@ -1,365 +1,308 @@
-import { LightningElement, api, track } from 'lwc';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import getKpb from '@salesforce/apex/KpbController.getKpb';
+import { LightningElement, track, wire, api } from 'lwc';
+import USER_ID from '@salesforce/user/Id';
+import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import { CurrentPageReference } from 'lightning/navigation';
+import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
+import CONTACT_FULL_NAME from '@salesforce/schema/Contact.Name';
 
-function formatLabel(key) {
-    return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-}
-
-function fieldInputType(val) {
-    if (typeof val === 'boolean') return 'checkbox';
-    if (typeof val === 'number') return 'number';
-    return 'text';
-}
-
-function isPrimitive(val) {
-    return val === null || typeof val !== 'object';
-}
-
-function toFields(obj, prefix) {
-    if (!obj || typeof obj !== 'object') return [];
-    return Object.entries(obj)
-        .filter(([, v]) => isPrimitive(v))
-        .map(([k, v], i) => ({
-            id: `${prefix}-${k}-${i}`,
-            key: k,
-            label: formatLabel(k),
-            value: v === null ? '' : (typeof v === 'boolean' ? v : String(v)),
-            inputType: fieldInputType(v),
-            isCheckbox: typeof v === 'boolean'
-        }));
-}
-
-function compKey(comp, i) {
-    return comp.id != null ? String(comp.id) : `idx-${i}`;
-}
-
-const NESTED_KEYS = [
-    'agreement_detail',
-    'employee',
-    'project',
-    'reason_refusal',
-    'reference_salary',
-    'staffing_request',
-    'audit'
-];
-
-const NEW_COMPONENT_TEMPLATE = {
-    id: null,
-    legacy_id: null,
-    component_type: null,
-    avg_day_per_month: null,
-    avg_hours_per_day: null,
-    parent_component_id: null,
-    unit: null,
-    unit_quantity: null,
-    value: { total: null, per_day: null, per_hour: null, per_hour_excl: null, per_month: null },
-    audit: { created_by: null, created_on: null, modified_by: null, modified_on: null }
-};
-
-const MAIN_FIELD_GROUPS = [
-    {
-        key: 'identification',
-        label: 'Identification',
-        fields: ['payroll_id', 'account', 'agreement_id', 'label_id', 'unit_id', 'calculation_type_id', 'fulltime_equivalent_id', 'proposal_calculation_id', 'last_transaction_id', 'creation_user_id']
-    },
-    {
-        key: 'status',
-        label: 'Status & Type',
-        fields: ['status', 'process_status', 'simulation_type', 'calculation_method']
-    },
-    {
-        key: 'flags',
-        label: 'Options',
-        fields: ['leave_of_absence', 'old_calculation', 'old', 'previous_employer']
-    },
-    {
-        key: 'cost',
-        label: 'Cost',
-        fields: ['real_salary', 'salary_cost', 'salary_cost_unit', 'car_cost', 'car_cost_unit', 'other_cost', 'other_cost_unit']
-    },
-    {
-        key: 'sales',
-        label: 'Sales & Margin',
-        fields: ['sales_price_per_day', 'sales_price_per_hour', 'margin', 'approved_margin', 'approve_margin']
-    },
-    {
-        key: 'totals',
-        label: 'Totals',
-        fields: ['total_cost_per_day', 'total_cost_per_hour_excl', 'total_cost_per_month']
-    },
-    {
-        key: 'time',
-        label: 'Time & Averages',
-        fields: ['avg_days_per_week_cost', 'avg_days_per_week_sales', 'avg_hours_per_week_cost', 'avg_hours_per_week_sales', 'part_time_factor', 'weight', 'calculate_from_date', 'indexation_date', 'indexation_operator_id', 'first_approved_on', 'first_validated_on']
-    },
-    {
-        key: 'info',
-        label: 'Info',
-        fields: ['description', 'remarks']
-    }
-];
-
-const NEW_COSTGROUP_TEMPLATE = {
-    payroll_id: null,
-    account: null,
-    agreement_id: null,
-    approve_margin: null,
-    avg_days_per_week_cost: null,
-    avg_days_per_week_sales: null,
-    avg_hours_per_week_cost: null,
-    avg_hours_per_week_sales: null,
-    calculate_from_date: null,
-    calculation_method: null,
-    calculation_type_id: null,
-    car_cost: null,
-    car_cost_unit: null,
-    description: null,
-    first_approved_on: null,
-    first_validated_on: null,
-    fulltime_equivalent_id: null,
-    indexation_date: null,
-    indexation_operator_id: null,
-    label_id: null,
-    last_transaction_id: null,
-    leave_of_absence: false,
-    margin: null,
-    approved_margin: null,
-    old_calculation: false,
-    old: false,
-    other_cost: null,
-    other_cost_unit: null,
-    part_time_factor: null,
-    previous_employer: false,
-    process_status: null,
-    proposal_calculation_id: null,
-    real_salary: null,
-    remarks: null,
-    salary_cost: null,
-    salary_cost_unit: null,
-    sales_price_per_day: null,
-    sales_price_per_hour: null,
-    simulation_type: null,
-    status: null,
-    total_cost_per_day: null,
-    total_cost_per_hour_excl: null,
-    total_cost_per_month: null,
-    unit_id: null,
-    weight: null,
-    creation_user_id: null,
-    agreement_detail: { id: null, name: null, annex_remark: null },
-    employee: { id: null, number: null, name: null, type: null, delete_status: null },
-    project: { id: null, name: null },
-    reason_refusal: { code: null, description: null },
-    reference_salary: { before_indexation: null, salary: null, unit: null, unit_hours: null },
-    staffing_request: { id: null, name: null },
-    audit: { created_by: null, created_on: null, modified_by: null, modified_on: null },
-    components: []
-};
+const SELECT_ALL_VALUE = '__ALL__';
 
 export default class KpbPage extends LightningElement {
     @api recordId;
     @api action;
-    @api json;
+    @api nummer;
 
-    @track _costgroup = null;
-    @track parseError = null;
-    @track fetchError = null;
-    @track isLoading = false;
-    @track _visibleComponentIds = [];
-    @track _selectedCompId = '';
+    @track _omschrijving = '';
+    @api get omschrijving() { return this._omschrijving; }
+    set omschrijving(v) { this._omschrijving = v; }
 
-    _initialCostgroup = null;
+    isLoading = false;
+    fetchError = null;
+    parseError = null;
+    contactId;
+    userBrand;
+    formType = 'Werknemer';
+    freelancerName = '';
+    typeLabel = 'Werknemer';
+    kandidaat = '';
+    aanvraag = '';
+    berekeningstype = '';
+    specialisatie = '';
+    berekeningswijze = '';
+    gemUrenPerWeek;
+    margePct;
+    verkoopPrijsUur;
+    brutoloonMaand;
+    gemUrenPerWeekKostprijs;
+    opgemaaktDatum;
+    teRekenenVanaf;
+    processtatus = 'In behandeling';
+    consultant = 'John Doe';
+    voltijdseMaatman = '';
+    mobiliteitRows = [];
+    variabeleRows = [];
+    variabeleAddValue = null;
 
-    connectedCallback() {
-        if (this.action === 'NEW') {
-            this._costgroup = JSON.parse(JSON.stringify(NEW_COSTGROUP_TEMPLATE));
-            return;
-        }
-        if (this.recordId) {
-            this._fetchKpb();
-        } else {
-            this._parse();
-        }
-    }
+    formTypeOptions = [
+        { label: 'Werknemer', value: 'Werknemer' },
+        { label: 'Freelancer', value: 'Freelancer' }
+    ];
 
-    async _fetchKpb() {
-        this.isLoading = true;
-        try {
-            const result = await getKpb({ recordId: this.recordId });
-            if (result.success) {
-                const raw = JSON.parse(result.result);
-                this._costgroup = raw.costgroup || raw;
-                this._initialCostgroup = JSON.parse(JSON.stringify(this._costgroup));
-            } else {
-                this.fetchError = `HTTP ${result.httpCode}: ${result.result}`;
-            }
-        } catch (e) {
-            this.fetchError = (e.body && e.body.message) ? e.body.message : (e.message || 'Unknown error');
-        } finally {
-            this.isLoading = false;
-        }
-    }
+    berekeningswijzeOptions = [
+        { label: 'Verkoopprijs', value: 'Verkoopprijs' },
+        { label: 'Marge', value: 'Marge' }
+    ];
 
-    _parse() {
-        if (!this.json) return;
-        try {
-            const raw = JSON.parse(this.json);
-            this._costgroup = raw.costgroup || raw;
-            this._initialCostgroup = JSON.parse(JSON.stringify(this._costgroup));
-        } catch (e) {
-            this.parseError = e.message;
-        }
-    }
+    maatmanBaseOptions = [
+        '01 Bedienden 40 u/wk',
+        '02 Bedienden 38 u/wk',
+        '07 Bedienden 39 u/wk',
+        '20 Bedienden 39,5 u/wk',
+        '21 Bedienden 38,5 u/wk',
+        '24 Bedienden 39,65 u/wk',
+        '37,5 u/wk',
+        '38,67 u/wk',
+        '38,75 u/wk',
+        '39,17 u/wk',
+        '99 Bedienden 12 ADV 40 u/wk'
+    ];
+
+    mobiliteitDefinitions = [
+        { key: 'keuze_lease_category', label: 'Keuze lease category', isPicklist: true, unit: '', options: [{ label: 'Categorie 1', value: 'Categorie 1' }, { label: 'Categorie 2', value: 'Categorie 2' }, { label: 'Categorie 3', value: 'Categorie 3' }, { label: 'Categorie 4', value: 'Categorie 4' }, { label: 'Categorie 1E', value: 'Categorie 1E' }, { label: 'Categorie 2E', value: 'Categorie 2E' }, { label: 'Categorie 3E', value: 'Categorie 3E' }, { label: 'Categorie 4E', value: 'Categorie 4E' }], defaultValue: null, disabled: false },
+        { key: 'tankkaart_budget', label: 'Tankkaart budget', isPicklist: false, unit: '€ per maand', options: [], defaultValue: 300, disabled: false },
+        { key: 'bedrijfswagen_netto_inhouding', label: 'Bedrijfswagen netto-inhouding', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
+        { key: 'mobiliteitsprogramma', label: 'Mobiliteitsprogramma', isPicklist: true, unit: '', options: [{ label: 'Fleet Family', value: 'Fleet Family' }, { label: 'Fleet Flex', value: 'Fleet Flex' }], defaultValue: null, disabled: false }
+    ];
+
+    variabeleDefinitions = [
+        { key: 'parkeerkosten', label: 'Parkeerkosten', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
+        { key: 'maaltijdcheques', label: 'Maaltijdcheques', isPicklist: true, unit: '€ per dag', options: [{ label: '', value: '' }, { label: '6,91 WG + 1,09 WN', value: '6,91 WG + 1,09 WN' }], defaultValue: '', disabled: false },
+        { key: 'gsm', label: 'GSM', isPicklist: true, unit: '€ per maand', options: [{ label: '0', value: '0' }, { label: '19', value: '19' }], defaultValue: '0', disabled: false },
+        { key: '3de_betaler_trein_aantal_km_enkel', label: '3de betaler trein aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: '3e_betaler_tram_bus_metro', label: '3e betaler (tram/bus/metro)', isPicklist: true, unit: '', options: [{ label: 'De Lijn', value: 'De Lijn' }, { label: 'MIVB', value: 'MIVB' }, { label: 'Tec', value: 'Tec' }], defaultValue: null, disabled: false },
+        { key: 'andere_kosten', label: 'Andere kosten', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: null, disabled: false },
+        { key: 'bonus_commissies', label: 'Bonus/Commissies', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: null, disabled: false },
+        { key: 'correctie_standaard_leegloop', label: 'Correctie standaard leegloop', isPicklist: false, unit: '', options: [], defaultValue: null, disabled: false },
+        { key: 'ecocheques', label: 'Ecocheques', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: 0, disabled: true },
+        { key: 'extra_opleiding', label: 'Extra opleiding', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: null, disabled: false },
+        { key: 'extra_opzegvergoeding', label: 'Extra opzegvergoeding', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: null, disabled: false },
+        { key: 'fietsvergoeding_aantal_km_enkel', label: 'Fietsvergoeding aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: 'forfaitaire_onkostenvergoeding_maand', label: 'Forfaitaire onkostenvergoeding (maand)', isPicklist: false, unit: '€ per maand', options: [], defaultValue: 0, disabled: true },
+        { key: 'gsm_tussenkomst_aankoop_toestel', label: 'GSM tussenkomst aankoop toestel', isPicklist: true, unit: '€ per jaar', options: [{ label: '0', value: '0' }, { label: '100', value: '100' }, { label: '150', value: '150' }, { label: '300', value: '300' }], defaultValue: '0', disabled: false },
+        { key: 'internetvergoeding', label: 'Internetvergoeding', isPicklist: true, unit: '€ per maand', options: [{ label: '0', value: '0' }, { label: '20', value: '20' }], defaultValue: '0', disabled: false },
+        { key: 'parkingkosten', label: 'Parkingkosten', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
+        { key: 'ploegenarbeid_volgens_voorwaarden', label: 'Ploegenarbeid volgens voorwaarden', isPicklist: true, unit: '', options: [{ label: '', value: '' }, { label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: '', disabled: false },
+        { key: 'projectpremie_per_maand', label: 'Projectpremie per maand', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
+        { key: 'soc_abon_trein_aantal_km_enkel', label: 'Soc. abon. trein aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: 'soc_abon_tram_metro_bus_aantal_km_enkel', label: 'Soc. abon. aantal km enkel (tram, metro, bus)', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: 'soc_abon_prive_vervoer_auto_aantal_km_enkel', label: 'Soc. abon. privé vervoer auto aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: 'televergoeding', label: 'Televergoeding', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
+        { key: 'auteursrechten', label: 'Auteursrechten', isPicklist: false, unit: '%', options: [], defaultValue: null, disabled: false },
+        { key: 'brutopremie_mobiliteit', label: 'Brutopremie Mobiliteit', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
+        { key: 'kost_leasefiets', label: 'Kost leasefiets', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false }
+    ];
+
+    defaultMobiliteitKeys = ['keuze_lease_category'];
+    defaultVariabeleKeys = ['parkeerkosten', 'maaltijdcheques', 'gsm'];
 
     get hasData() {
-        return !!this._costgroup;
+        return !this.isLoading && !this.fetchError;
     }
 
-    get mainFields() {
-        if (!this._costgroup) return [];
-        return toFields(this._costgroup, 'main');
+    get showWerknemer() {
+        return this.formType === 'Werknemer';
     }
 
-    get mainFieldGroups() {
-        if (!this._costgroup) return [];
-        return MAIN_FIELD_GROUPS.map(group => ({
-            key: group.key,
-            label: group.label,
-            fields: group.fields
-                .filter(k => k in this._costgroup)
-                .map((k, i) => {
-                    const v = this._costgroup[k];
-                    return {
-                        id: `main-${group.key}-${k}-${i}`,
-                        key: k,
-                        label: formatLabel(k),
-                        value: v === null ? '' : (typeof v === 'boolean' ? v : String(v)),
-                        inputType: fieldInputType(v),
-                        isCheckbox: typeof v === 'boolean'
-                    };
-                })
-        })).filter(g => g.fields.length > 0);
+    get verkoopprijsDisabled() {
+        return this.berekeningswijze !== 'Verkoopprijs';
     }
 
-    get sections() {
-        if (!this._costgroup) return [];
-        return NESTED_KEYS
-            .filter(k => {
-                const v = this._costgroup[k];
-                return v && typeof v === 'object' && !Array.isArray(v);
-            })
-            .map(k => ({
-                name: k,
-                label: formatLabel(k),
-                fields: toFields(this._costgroup[k], k)
-            }));
+    get berekeningstypeOptions() {
+        if (!this.userBrand) return [];
+        return [
+            { label: `${this.userBrand}-BT1`, value: `${this.userBrand}-BT1` },
+            { label: `${this.userBrand}-BT2`, value: `${this.userBrand}-BT2` }
+        ];
     }
 
-    get selectedCompId() {
-        return this._selectedCompId;
+    get specialisatieOptions() {
+        if (!this.userBrand) return [];
+        return [
+            { label: `${this.userBrand}-SP1`, value: `${this.userBrand}-SP1` },
+            { label: `${this.userBrand}-SP2`, value: `${this.userBrand}-SP2` }
+        ];
     }
 
-    get componentOptions() {
-        if (!this._costgroup || !Array.isArray(this._costgroup.components)) return [];
-        return this._costgroup.components
-            .map((comp, i) => ({ comp, i }))
-            .filter(({ comp, i }) => !this._visibleComponentIds.includes(compKey(comp, i)))
-            .map(({ comp, i }) => ({
-                label: `Component ${i + 1} — ${comp.component_type || ''}`,
-                value: compKey(comp, i)
-            }));
+    get voltijdseMaatmanOptions() {
+        if (!this.userBrand) return [];
+        return this.maatmanBaseOptions.map(opt => {
+            const v = `${this.userBrand}-${opt}`;
+            return { label: v, value: v };
+        });
     }
 
-    get hasComponentOptions() {
-        return this.componentOptions.length > 0;
+    get availableMobiliteitOptions() {
+        const used = new Set(this.mobiliteitRows.map(r => r.key));
+        return this.mobiliteitDefinitions
+            .filter(d => !used.has(d.key))
+            .map(d => ({ label: d.label, value: d.key }));
     }
 
-    get isNewAction() {
-        return this.action === 'NEW';
+    get availableVariabeleOptions() {
+        const used = new Set(this.variabeleRows.map(r => r.key));
+        const remaining = this.variabeleDefinitions
+            .filter(d => !used.has(d.key))
+            .map(d => ({ label: d.label, value: d.key }));
+        if (remaining.length === 0) return [];
+        return [{ label: 'Selecteer alles', value: SELECT_ALL_VALUE }, ...remaining];
     }
 
-    get visibleComponents() {
-        if (!this._costgroup || !Array.isArray(this._costgroup.components)) return [];
-        return this._costgroup.components
-            .map((comp, i) => ({ comp, i }))
-            .filter(({ comp, i }) => this._visibleComponentIds.includes(compKey(comp, i)))
-            .map(({ comp, i }) => {
-                const key = compKey(comp, i);
-                return {
-                    id: key,
-                    label: `Component ${i + 1} — ${comp.component_type || ''}`,
-                    fields: toFields(comp, `comp-${key}`),
-                    valueFields: toFields(comp.value || {}, `comp-${key}-value`),
-                    auditFields: toFields(comp.audit || {}, `comp-${key}-audit`)
-                };
-            });
+    connectedCallback() {
+        this.opgemaaktDatum = new Date().toISOString().split('T')[0];
+        this._resetCostRows();
     }
 
-    handleAddComponent() {
-        const cg = JSON.parse(JSON.stringify(this._costgroup));
-        const newComp = JSON.parse(JSON.stringify(NEW_COMPONENT_TEMPLATE));
-        cg.components = [...(cg.components || []), newComp];
-        const newIdx = cg.components.length - 1;
-        const newKey = compKey(newComp, newIdx);
-        this._costgroup = cg;
-        this._visibleComponentIds = [...this._visibleComponentIds, newKey];
-    }
-
-    handleComponentSelect(event) {
-        const selected = event.detail.value;
-        if (selected && !this._visibleComponentIds.includes(selected)) {
-            this._visibleComponentIds = [...this._visibleComponentIds, selected];
+    @wire(CurrentPageReference)
+    _readPageRef(pageRef) {
+        if (pageRef?.state?.c__recordId) {
+            this.contactId = pageRef.state.c__recordId;
         }
-        this._selectedCompId = '';
     }
 
-    handleComponentHide(event) {
-        const id = event.currentTarget.dataset.compId;
-        this._visibleComponentIds = this._visibleComponentIds.filter(v => v !== id);
+    @wire(getRecord, { recordId: USER_ID, fields: [USER_BRAND] })
+    _wiredUser({ data }) {
+        if (data) this.userBrand = getFieldValue(data, USER_BRAND);
     }
 
-    handleReset() {
-        if (this.action === 'NEW') {
-            this._costgroup = JSON.parse(JSON.stringify(NEW_COSTGROUP_TEMPLATE));
-        } else {
-            this._costgroup = JSON.parse(JSON.stringify(this._initialCostgroup));
-        }
-        this._visibleComponentIds = [];
-        this._selectedCompId = '';
-        this.dispatchEvent(new ShowToastEvent({
-            title: 'Reset',
-            message: 'KPB reset uitgevoerd',
-            variant: 'success'
-        }));
+    @wire(getRecord, { recordId: '$contactId', fields: [CONTACT_FULL_NAME] })
+    _wiredContact({ data }) {
+        if (data) this.kandidaat = getFieldValue(data, CONTACT_FULL_NAME);
+    }
+
+    handleFormTypeChange(event) {
+        this.formType = event.detail.value;
+    }
+
+    handleFreelancerNameChange(event) {
+        this.freelancerName = event.target.value;
     }
 
     handleFieldChange(event) {
-        const { key, section, compId, subSection } = event.target.dataset;
+        this[event.target.dataset.field] = event.target.value;
+    }
 
-        let val;
-        if (event.target.type === 'checkbox') {
-            val = event.target.checked;
-        } else if (event.target.type === 'number') {
-            val = event.target.value === '' ? null : parseFloat(event.target.value);
-        } else {
-            val = event.target.value === '' ? null : event.target.value;
+    handleVoltijdseMaatmanChange(event) {
+        const selected = event.detail.value;
+        this.voltijdseMaatman = selected;
+        const raw = selected && this.userBrand ? selected.replace(`${this.userBrand}-`, '') : selected;
+        const hours = this._extractHoursBeforeUwk(raw);
+        if (hours !== null) this.gemUrenPerWeekKostprijs = hours;
+    }
+
+    _extractHoursBeforeUwk(text) {
+        if (!text) return null;
+        const match = text.match(/(\d+(?:[.,]\d+)?)\s*u\/wk/i);
+        if (!match) return null;
+        const num = Number(match[1].replace(',', '.'));
+        return Number.isFinite(num) ? num : null;
+    }
+
+    handleAddMobiliteit(event) {
+        const def = this.mobiliteitDefinitions.find(d => d.key === event.detail.value);
+        if (!def) return;
+        this.mobiliteitRows = [...this.mobiliteitRows, this._defToRow(def)];
+    }
+
+    handleMobiliteitValueChange(event) {
+        const { key } = event.target.dataset;
+        const value = event.detail?.value !== undefined ? event.detail.value : event.target.value;
+        this.mobiliteitRows = this.mobiliteitRows.map(r => r.key === key ? { ...r, value } : r);
+    }
+
+    handleAddVariabele(event) {
+        const selected = event.detail.value;
+        this.variabeleAddValue = null;
+        if (selected === SELECT_ALL_VALUE) {
+            this._addAllRemainingVariabele();
+            return;
         }
+        const def = this.variabeleDefinitions.find(d => d.key === selected);
+        if (def) this.variabeleRows = [...this.variabeleRows, this._defToRow(def)];
+    }
 
-        const cg = JSON.parse(JSON.stringify(this._costgroup));
+    _addAllRemainingVariabele() {
+        const used = new Set(this.variabeleRows.map(r => r.key));
+        const toAdd = this.variabeleDefinitions.filter(d => !used.has(d.key)).map(d => this._defToRow(d));
+        this.variabeleRows = [...this.variabeleRows, ...toAdd];
+    }
 
-        if (compId !== undefined) {
-            const idx = cg.components.findIndex((c, i) => compKey(c, i) === compId);
-            if (idx !== -1) {
-                const target = subSection ? cg.components[idx][subSection] : cg.components[idx];
-                target[key] = val;
-            }
-        } else if (section) {
-            cg[section][key] = val;
+    handleVariabeleValueChange(event) {
+        const { key } = event.target.dataset;
+        const value = event.detail?.value !== undefined ? event.detail.value : event.target.value;
+        this.variabeleRows = this.variabeleRows.map(r => r.key === key ? { ...r, value } : r);
+    }
+
+    handleRemoveRow(event) {
+        const { section, key } = event.currentTarget.dataset;
+        if (section === 'mobiliteit') {
+            this.mobiliteitRows = this.mobiliteitRows.filter(r => r.key !== key);
         } else {
-            cg[key] = val;
+            this.variabeleRows = this.variabeleRows.filter(r => r.key !== key);
         }
+    }
 
-        this._costgroup = cg;
+    _defToRow(def) {
+        return {
+            key: def.key,
+            label: def.label,
+            isPicklist: def.isPicklist,
+            unit: def.unit,
+            options: def.options,
+            value: def.defaultValue,
+            disabled: !!def.disabled
+        };
+    }
+
+    _resetCostRows() {
+        this.mobiliteitRows = this.defaultMobiliteitKeys
+            .map(k => this.mobiliteitDefinitions.find(d => d.key === k))
+            .filter(Boolean)
+            .map(d => this._defToRow(d));
+        this.variabeleRows = this.defaultVariabeleKeys
+            .map(k => this.variabeleDefinitions.find(d => d.key === k))
+            .filter(Boolean)
+            .map(d => this._defToRow(d));
+    }
+
+    handleReset() {
+        this.formType = 'Werknemer';
+        this.freelancerName = '';
+        this._omschrijving = '';
+        this.kandidaat = '';
+        this.aanvraag = '';
+        this.berekeningstype = '';
+        this.specialisatie = '';
+        this.berekeningswijze = '';
+        this.gemUrenPerWeek = null;
+        this.margePct = null;
+        this.verkoopPrijsUur = null;
+        this.brutoloonMaand = null;
+        this.gemUrenPerWeekKostprijs = null;
+        this.opgemaaktDatum = new Date().toISOString().split('T')[0];
+        this.teRekenenVanaf = null;
+        this.consultant = '';
+        this.voltijdseMaatman = '';
+        this._resetCostRows();
+    }
+
+    handleSave() {}
+
+    handleGoedkeuren() {}
+
+    handleBereken() {
+        const fields = this.template.querySelectorAll('lightning-input, lightning-combobox');
+        let allValid = true;
+        fields.forEach(f => { if (!f.reportValidity()) allValid = false; });
+        if (!allValid) return;
     }
 }

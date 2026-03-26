@@ -1,5 +1,5 @@
 <template>
-    <div class="slds-p-around_medium">
+    <div class="slds-p-around_large">
 
         <template lwc:if={isLoading}>
             <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
@@ -8,222 +8,413 @@
         <template lwc:if={fetchError}>
             <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
                 <span class="slds-assistive-text">Error</span>
-                <h2>Failed to load cost group: {fetchError}</h2>
+                <h2>{fetchError}</h2>
             </div>
         </template>
 
         <template lwc:if={parseError}>
             <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
                 <span class="slds-assistive-text">Error</span>
-                <h2>JSON parse error: {parseError}</h2>
+                <h2>{parseError}</h2>
             </div>
         </template>
 
         <template lwc:if={hasData}>
 
-            <lightning-card title="Cost Group">
-                <div slot="actions">
-                    <lightning-button
-                        label="Reset"
-                        icon-name="utility:refresh"
-                        onclick={handleReset}>
-                    </lightning-button>
-                </div>
-                <div class="slds-p-around_medium">
-                    <template for:each={mainFieldGroups} for:item="group">
-                        <div key={group.key} class="slds-m-bottom_medium">
-                            <p class="slds-text-heading_small slds-m-bottom_x-small">{group.label}</p>
-                            <div class="slds-grid slds-wrap">
-                                <template for:each={group.fields} for:item="field">
-                                    <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
-                                        <template lwc:if={field.isCheckbox}>
-                                            <lightning-input
-                                                type="checkbox"
-                                                label={field.label}
-                                                checked={field.value}
-                                                data-key={field.key}
-                                                onchange={handleFieldChange}>
-                                            </lightning-input>
-                                        </template>
-                                        <template lwc:else>
-                                            <lightning-input
-                                                type={field.inputType}
-                                                label={field.label}
-                                                value={field.value}
-                                                data-key={field.key}
-                                                onchange={handleFieldChange}>
-                                            </lightning-input>
-                                        </template>
-                                    </div>
-                                </template>
-                            </div>
+            <div class="kpb-section">
+                <lightning-card title="FORM TYPE">
+                    <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters kpb-form">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox
+                                label="Type"
+                                variant="label-inline"
+                                value={formType}
+                                options={formTypeOptions}
+                                onchange={handleFormTypeChange}
+                                required>
+                            </lightning-combobox>
                         </div>
-                    </template>
-                </div>
-            </lightning-card>
-
-            <template for:each={sections} for:item="section">
-                <lightning-card key={section.name} title={section.label} class="slds-m-top_medium">
-                    <div class="slds-p-around_medium slds-grid slds-wrap">
-                        <template for:each={section.fields} for:item="field">
-                            <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
-                                <template lwc:if={field.isCheckbox}>
-                                    <lightning-input
-                                        type="checkbox"
-                                        label={field.label}
-                                        checked={field.value}
-                                        data-key={field.key}
-                                        data-section={section.name}
-                                        onchange={handleFieldChange}>
-                                    </lightning-input>
-                                </template>
-                                <template lwc:else>
-                                    <lightning-input
-                                        type={field.inputType}
-                                        label={field.label}
-                                        value={field.value}
-                                        data-key={field.key}
-                                        data-section={section.name}
-                                        onchange={handleFieldChange}>
-                                    </lightning-input>
-                                </template>
-                            </div>
-                        </template>
                     </div>
                 </lightning-card>
+            </div>
+
+            <template lwc:if={showWerknemer}>
+
+                <div class="slds-grid slds-wrap slds-gutters kpb-section">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-card title="IDENTIFICATIE">
+                            <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters kpb-form">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        label="Nummer"
+                                        variant="label-inline"
+                                        value={nummer}
+                                        disabled>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        label="Omschrijving"
+                                        variant="label-inline"
+                                        value={omschrijving}
+                                        data-field="_omschrijving"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        label="Kandidaat"
+                                        variant="label-inline"
+                                        value={kandidaat}
+                                        data-field="kandidaat"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        label="Aanvraag"
+                                        variant="label-inline"
+                                        value={aanvraag}
+                                        data-field="aanvraag"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        label="Berekeningstype"
+                                        variant="label-inline"
+                                        value={berekeningstype}
+                                        options={berekeningstypeOptions}
+                                        data-field="berekeningstype"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        label="Type"
+                                        variant="label-inline"
+                                        value={typeLabel}
+                                        disabled>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        label="Specialisatie"
+                                        variant="label-inline"
+                                        value={specialisatie}
+                                        options={specialisatieOptions}
+                                        data-field="specialisatie"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-card title="OPVOLGING">
+                            <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters kpb-form">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="date"
+                                        label="Opgemaakt"
+                                        variant="label-inline"
+                                        value={opgemaaktDatum}
+                                        data-field="opgemaaktDatum"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="date"
+                                        label="Te rekenen vanaf"
+                                        variant="label-inline"
+                                        value={teRekenenVanaf}
+                                        data-field="teRekenenVanaf"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        label="Processtatus"
+                                        variant="label-inline"
+                                        value={processtatus}
+                                        disabled>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        label="Consultant"
+                                        variant="label-inline"
+                                        value={consultant}
+                                        data-field="consultant"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </div>
+                </div>
+
+                <div class="slds-grid slds-wrap slds-gutters kpb-section">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-card title="KENMERKEN VERKOPEN">
+                            <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters kpb-form">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        label="Berekeningswijze"
+                                        variant="label-inline"
+                                        value={berekeningswijze}
+                                        options={berekeningswijzeOptions}
+                                        data-field="berekeningswijze"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Gem. uren / week"
+                                        variant="label-inline"
+                                        value={gemUrenPerWeek}
+                                        data-field="gemUrenPerWeek"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Marge (%)"
+                                        variant="label-inline"
+                                        value={margePct}
+                                        data-field="margePct"
+                                        onchange={handleFieldChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Verkoopprijs / uur"
+                                        variant="label-inline"
+                                        value={verkoopPrijsUur}
+                                        data-field="verkoopPrijsUur"
+                                        disabled={verkoopprijsDisabled}
+                                        onchange={handleFieldChange}>
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-card title="KENMERKEN KOSTPRIJS">
+                            <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters kpb-form">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Brutoloon / maand"
+                                        variant="label-inline"
+                                        value={brutoloonMaand}
+                                        data-field="brutoloonMaand"
+                                        min="0"
+                                        max="10000"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Gem. uren / week"
+                                        variant="label-inline"
+                                        value={gemUrenPerWeekKostprijs}
+                                        data-field="gemUrenPerWeekKostprijs"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        label="Voltijdse maatman"
+                                        variant="label-inline"
+                                        value={voltijdseMaatman}
+                                        options={voltijdseMaatmanOptions}
+                                        onchange={handleVoltijdseMaatmanChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </div>
+                </div>
+
+                <div class="slds-grid slds-wrap slds-gutters kpb-section">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-card title="KOSTCOMPONENTEN MOBILITEIT">
+                            <div class="slds-p-around_medium">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th style="width: 220px;">Aantal</th>
+                                            <th style="width: 140px;">Eenheid</th>
+                                            <th style="width: 48px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={mobiliteitRows} for:item="row">
+                                            <tr key={row.key}>
+                                                <td>{row.label}</td>
+                                                <td>
+                                                    <template lwc:if={row.isPicklist}>
+                                                        <lightning-combobox
+                                                            value={row.value}
+                                                            options={row.options}
+                                                            data-key={row.key}
+                                                            onchange={handleMobiliteitValueChange}>
+                                                        </lightning-combobox>
+                                                    </template>
+                                                    <template lwc:else>
+                                                        <lightning-input
+                                                            type="number"
+                                                            value={row.value}
+                                                            data-key={row.key}
+                                                            onchange={handleMobiliteitValueChange}>
+                                                        </lightning-input>
+                                                    </template>
+                                                </td>
+                                                <td>{row.unit}</td>
+                                                <td class="slds-text-align_center kpb-trash">
+                                                    <lightning-button-icon
+                                                        icon-name="utility:delete"
+                                                        data-section="mobiliteit"
+                                                        data-key={row.key}
+                                                        onclick={handleRemoveRow}>
+                                                    </lightning-button-icon>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                                <div class="slds-m-top_small">
+                                    <lightning-combobox
+                                        label="Nieuwe kostcomponent"
+                                        options={availableMobiliteitOptions}
+                                        onchange={handleAddMobiliteit}>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-card title="VARIABELE KOSTEN">
+                            <div class="slds-p-around_medium">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th style="width: 220px;">Aantal</th>
+                                            <th style="width: 180px;">Eenheid</th>
+                                            <th style="width: 48px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={variabeleRows} for:item="row">
+                                            <tr key={row.key}>
+                                                <td>{row.label}</td>
+                                                <td>
+                                                    <template lwc:if={row.isPicklist}>
+                                                        <lightning-combobox
+                                                            value={row.value}
+                                                            options={row.options}
+                                                            data-key={row.key}
+                                                            disabled={row.disabled}
+                                                            onchange={handleVariabeleValueChange}>
+                                                        </lightning-combobox>
+                                                    </template>
+                                                    <template lwc:else>
+                                                        <lightning-input
+                                                            type="number"
+                                                            value={row.value}
+                                                            data-key={row.key}
+                                                            disabled={row.disabled}
+                                                            onchange={handleVariabeleValueChange}>
+                                                        </lightning-input>
+                                                    </template>
+                                                </td>
+                                                <td>{row.unit}</td>
+                                                <td class="slds-text-align_center kpb-trash">
+                                                    <lightning-button-icon
+                                                        icon-name="utility:delete"
+                                                        data-section="variabele"
+                                                        data-key={row.key}
+                                                        onclick={handleRemoveRow}>
+                                                    </lightning-button-icon>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                                <div class="slds-m-top_small">
+                                    <lightning-combobox
+                                        label="Nieuwe kostcomponent"
+                                        value={variabeleAddValue}
+                                        options={availableVariabeleOptions}
+                                        onchange={handleAddVariabele}>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </div>
+                </div>
+
             </template>
 
-            <lightning-card title="Components" class="slds-m-top_medium">
-                <div class="slds-p-around_medium">
-                    <template lwc:if={hasComponentOptions}>
-                        <lightning-combobox
-                            label="Show component"
-                            placeholder="Select a component..."
-                            value={selectedCompId}
-                            options={componentOptions}
-                            onchange={handleComponentSelect}>
-                        </lightning-combobox>
-                    </template>
-                    <template lwc:if={isNewAction}>
-                        <lightning-button
-                            label="Add component"
-                            icon-name="utility:add"
-                            class="slds-m-top_small"
-                            onclick={handleAddComponent}>
-                        </lightning-button>
-                    </template>
+            <template lwc:else>
+                <div class="kpb-section">
+                    <lightning-card title="FREELANCER">
+                        <div class="slds-p-around_medium">
+                            <lightning-input
+                                label="Naam"
+                                variant="label-inline"
+                                value={freelancerName}
+                                onchange={handleFreelancerNameChange}
+                                required>
+                            </lightning-input>
+                        </div>
+                    </lightning-card>
                 </div>
-            </lightning-card>
-
-            <template for:each={visibleComponents} for:item="comp">
-                <lightning-card key={comp.id} title={comp.label} class="slds-m-top_medium">
-
-                    <div slot="actions">
-                        <lightning-button-icon
-                            icon-name="utility:hide"
-                            variant="bare"
-                            alternative-text="Hide component"
-                            data-comp-id={comp.id}
-                            onclick={handleComponentHide}>
-                        </lightning-button-icon>
-                    </div>
-
-                    <div class="slds-p-around_medium">
-
-                        <p class="slds-text-heading_small slds-m-bottom_x-small">Fields</p>
-                        <div class="slds-grid slds-wrap">
-                            <template for:each={comp.fields} for:item="field">
-                                <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
-                                    <template lwc:if={field.isCheckbox}>
-                                        <lightning-input
-                                            type="checkbox"
-                                            label={field.label}
-                                            checked={field.value}
-                                            data-key={field.key}
-                                            data-comp-id={comp.id}
-                                            onchange={handleFieldChange}>
-                                        </lightning-input>
-                                    </template>
-                                    <template lwc:else>
-                                        <lightning-input
-                                            type={field.inputType}
-                                            label={field.label}
-                                            value={field.value}
-                                            data-key={field.key}
-                                            data-comp-id={comp.id}
-                                            onchange={handleFieldChange}>
-                                        </lightning-input>
-                                    </template>
-                                </div>
-                            </template>
-                        </div>
-
-                        <p class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">Value</p>
-                        <div class="slds-grid slds-wrap">
-                            <template for:each={comp.valueFields} for:item="field">
-                                <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
-                                    <template lwc:if={field.isCheckbox}>
-                                        <lightning-input
-                                            type="checkbox"
-                                            label={field.label}
-                                            checked={field.value}
-                                            data-key={field.key}
-                                            data-comp-id={comp.id}
-                                            data-sub-section="value"
-                                            onchange={handleFieldChange}>
-                                        </lightning-input>
-                                    </template>
-                                    <template lwc:else>
-                                        <lightning-input
-                                            type={field.inputType}
-                                            label={field.label}
-                                            value={field.value}
-                                            data-key={field.key}
-                                            data-comp-id={comp.id}
-                                            data-sub-section="value"
-                                            onchange={handleFieldChange}>
-                                        </lightning-input>
-                                    </template>
-                                </div>
-                            </template>
-                        </div>
-
-                        <p class="slds-text-heading_small slds-m-top_medium slds-m-bottom_x-small">Audit</p>
-                        <div class="slds-grid slds-wrap">
-                            <template for:each={comp.auditFields} for:item="field">
-                                <div key={field.id} class="slds-col slds-size_1-of-3 slds-p-around_x-small">
-                                    <template lwc:if={field.isCheckbox}>
-                                        <lightning-input
-                                            type="checkbox"
-                                            label={field.label}
-                                            checked={field.value}
-                                            data-key={field.key}
-                                            data-comp-id={comp.id}
-                                            data-sub-section="audit"
-                                            onchange={handleFieldChange}>
-                                        </lightning-input>
-                                    </template>
-                                    <template lwc:else>
-                                        <lightning-input
-                                            type={field.inputType}
-                                            label={field.label}
-                                            value={field.value}
-                                            data-key={field.key}
-                                            data-comp-id={comp.id}
-                                            data-sub-section="audit"
-                                            onchange={handleFieldChange}>
-                                        </lightning-input>
-                                    </template>
-                                </div>
-                            </template>
-                        </div>
-
-                    </div>
-                </lightning-card>
             </template>
 
         </template>
 
+        <div class="kpb-action-bar slds-grid slds-grid_align-end slds-gutters">
+            <lightning-button
+                label="Reset"
+                variant="neutral"
+                class="kpb-btn"
+                onclick={handleReset}>
+            </lightning-button>
+            <lightning-button
+                label="Opslaan"
+                variant="neutral"
+                class="kpb-btn"
+                onclick={handleSave}>
+            </lightning-button>
+            <lightning-button
+                label="Goedkeuren"
+                variant="brand"
+                class="kpb-btn"
+                onclick={handleGoedkeuren}>
+            </lightning-button>
+        </div>
 
     </div>
 </template>

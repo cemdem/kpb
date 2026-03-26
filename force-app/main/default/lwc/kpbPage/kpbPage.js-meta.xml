@@ -3,14 +3,17 @@
     <apiVersion>66</apiVersion>
     <isExposed>true</isExposed>
     <targets>
+        <target>lightning__RecordAction</target>
         <target>lightning__FlowScreen</target>
         <target>lightning__AppPage</target>
     </targets>
     <targetConfigs>
+        <targetConfig targets="lightning__RecordAction">
+            <actionType>ScreenAction</actionType>
+        </targetConfig>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="recordId" type="String" label="Record Id" />
-            <property name="action"   type="String" label="Action (EDIT | COPY | NEW)" />
-            <property name="json"     type="String" label="JSON (legacy)" />
+            <property name="nummer"       type="Integer" label="Nummer"       description="Nummer from Flow" />
+            <property name="omschrijving" type="String"  label="Omschrijving" description="Omschrijving from Flow" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

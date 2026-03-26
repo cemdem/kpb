@@ -1,1 +1,40 @@
-/* kpbPage styles */
+:host {
+    --kpb-blue: #1b4f72;
+}
+
+.slds-card__header-title {
+    color: var(--kpb-blue) !important;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.kpb-section {
+    margin-bottom: 1.5rem;
+}
+
+.kpb-form .slds-col {
+    margin-bottom: 0.75rem;
+}
+
+.kpb-trash .slds-button_icon {
+    color: var(--kpb-blue);
+}
+
+.kpb-action-bar {
+    position: sticky;
+    bottom: 0;
+    background: #ffffff;
+    border-top: 1px solid #d8dde6;
+    padding: 0.75rem 1rem;
+    z-index: 10;
+}
+
+.kpb-btn .slds-button {
+    background-color: var(--kpb-blue);
+    border-color: var(--kpb-blue);
+}
+
+.kpb-btn .slds-button:hover {
+    background-color: #154360;
+    border-color: #154360;
+}
