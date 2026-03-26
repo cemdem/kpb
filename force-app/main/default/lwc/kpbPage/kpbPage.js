@@ -1,4 +1,5 @@
 import { LightningElement, track, wire, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
@@ -38,6 +39,7 @@ export default class KpbPage extends LightningElement {
     processtatus = 'In behandeling';
     consultant = 'John Doe';
     voltijdseMaatman = '';
+    freelancerAndereKosten = null;
     mobiliteitRows = [];
     variabeleRows = [];
     variabeleAddValue = null;
@@ -106,6 +108,10 @@ export default class KpbPage extends LightningElement {
 
     get hasData() {
         return !this.isLoading && !this.fetchError;
+    }
+
+    get showFormTypeSelector() {
+        return this.action === 'NEW';
     }
 
     get showWerknemer() {
@@ -342,17 +348,19 @@ export default class KpbPage extends LightningElement {
         this.teRekenenVanaf = null;
         this.consultant = '';
         this.voltijdseMaatman = '';
+        this.freelancerAndereKosten = null;
         this._resetCostRows();
     }
 
-    handleSave() {}
-
-    handleGoedkeuren() {}
-
-    handleBereken() {
-        const fields = this.template.querySelectorAll('lightning-input, lightning-combobox');
-        let allValid = true;
-        fields.forEach(f => { if (!f.reportValidity()) allValid = false; });
-        if (!allValid) return;
+    _wip() {
+        this.dispatchEvent(new ShowToastEvent({
+            title: 'Work in progress',
+            message: 'Deze functionaliteit is nog niet beschikbaar.',
+            variant: 'info'
+        }));
     }
+
+    handleBewaren() { this._wip(); }
+    handleGoedkeuren() { this._wip(); }
+    handleBereken() { this._wip(); }
 }
