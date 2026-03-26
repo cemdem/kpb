@@ -21,12 +21,13 @@
 }
 
 .kpb-action-bar {
-    position: sticky;
-    bottom: 0;
-    background: #ffffff;
     border-top: 1px solid #d8dde6;
     padding: 0.75rem 1rem;
-    z-index: 10;
+    margin-top: 1rem;
+}
+
+.kpb-action-bar lightning-button {
+    margin-left: 0.5rem;
 }
 
 .kpb-btn .slds-button {

@@ -71,6 +71,11 @@ public with sharing class KpbController {
         ];
     }
 
+    @AuraEnabled(cacheable=true)
+    public static String getConsultantName() {
+        return [SELECT Name FROM User WHERE Id = :UserInfo.getUserId()].Name;
+    }
+
     public class KpbCallResult {
         @AuraEnabled public Boolean success;
         @AuraEnabled public Integer httpCode;
