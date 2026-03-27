@@ -141,7 +141,7 @@ export default class KpbPage extends LightningElement {
     }
 
     get showApprove() {
-        return this.simulationType === 'PRE';
+        return this.simulationType === 'WRK';
     }
 
     get salesPriceDisabled() {
