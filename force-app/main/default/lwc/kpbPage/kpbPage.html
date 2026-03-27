@@ -415,6 +415,12 @@
 
         <div class="kpb-action-bar slds-grid slds-grid_align-end slds-gutters">
             <lightning-button
+                label="Sluiten"
+                variant="neutral"
+                class="kpb-btn"
+                onclick={handleClose}>
+            </lightning-button>
+            <lightning-button
                 label="Reset"
                 variant="neutral"
                 class="kpb-btn"
@@ -432,12 +438,14 @@
                 class="kpb-btn"
                 onclick={handleSave}>
             </lightning-button>
-            <lightning-button
-                label="Goedkeuren"
-                variant="brand"
-                class="kpb-btn"
-                onclick={handleApprove}>
-            </lightning-button>
+            <template lwc:if={showApprove}>
+                <lightning-button
+                    label="Goedkeuren"
+                    variant="brand"
+                    class="kpb-btn"
+                    onclick={handleApprove}>
+                </lightning-button>
+            </template>
         </div>
 
     </div>

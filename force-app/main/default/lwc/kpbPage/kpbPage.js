@@ -10,17 +10,14 @@ import getConsultantName from '@salesforce/apex/KpbController.getConsultantName'
 const SELECT_ALL_VALUE = '__ALL__';
 
 const COMPONENT_ID_TO_KEY = {
-    // CAR → mobility
     1:     'keuze_lease_category',
     2:     'tankkaart_budget',
     3:     'bedrijfswagen_netto_inhouding',
-    // DIV → variable costs
     105:   'maaltijdcheques',
     108:   'gsm',
     113:   'andere_kosten',
     114:   'parkeerkosten',
     11000: 'projectpremie_per_maand',
-    // FIX components are auto-calculated; add further parent_component_id mappings as needed
 };
 
 export default class KpbPage extends LightningElement {
@@ -58,6 +55,7 @@ export default class KpbPage extends LightningElement {
     mobilityRows = [];
     variableRows = [];
     variableAddValue = null;
+    simulationType = null;
 
     formTypeOptions = [
         { label: 'Werknemer', value: 'Werknemer' },
@@ -140,6 +138,10 @@ export default class KpbPage extends LightningElement {
 
     get showEmployee() {
         return this.formType === 'Werknemer';
+    }
+
+    get showApprove() {
+        return this.simulationType === 'PRE';
     }
 
     get salesPriceDisabled() {
@@ -235,6 +237,7 @@ export default class KpbPage extends LightningElement {
         this.calculateFromDate    = cg.calculate_from_date ?? null;
         this.processStatus        = cg.process_status ?? 'In behandeling';
         if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
+        if (cg.simulation_type)   this.simulationType = cg.simulation_type;
         if (Array.isArray(cg.components)) {
             this.formType = cg.components.some(c => c.component_type === 'CAR') ? 'Werknemer' : 'Freelancer';
         }
@@ -415,6 +418,10 @@ export default class KpbPage extends LightningElement {
         this.fulltimeEquivalent = '';
         this.freelancerOtherCosts = null;
         this._initRows();
+    }
+
+    handleClose() {
+        this.dispatchEvent(new CustomEvent('close'));
     }
 
     handleCalculate() {}
