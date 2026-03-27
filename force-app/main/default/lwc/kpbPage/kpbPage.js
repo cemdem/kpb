@@ -9,6 +9,20 @@ import getConsultantName from '@salesforce/apex/KpbController.getConsultantName'
 
 const SELECT_ALL_VALUE = '__ALL__';
 
+const COMPONENT_ID_TO_KEY = {
+    // CAR → mobility
+    1:     'keuze_lease_category',
+    2:     'tankkaart_budget',
+    3:     'bedrijfswagen_netto_inhouding',
+    // DIV → variable costs
+    105:   'maaltijdcheques',
+    108:   'gsm',
+    113:   'andere_kosten',
+    114:   'parkeerkosten',
+    11000: 'projectpremie_per_maand',
+    // FIX components are auto-calculated; add further parent_component_id mappings as needed
+};
+
 export default class KpbPage extends LightningElement {
     @api recordId;
     @api action;
@@ -233,14 +247,16 @@ export default class KpbPage extends LightningElement {
         const newMobility = [];
         const newVariable = [];
         for (const comp of components) {
-            const key = comp.key ?? comp.component_type;
+            const key = COMPONENT_ID_TO_KEY[comp.parent_component_id];
             if (!key) continue;
+            let value = comp.unit_quantity ?? comp.value?.per_month ?? comp.value?.total ?? null;
+            if (key === 'bedrijfswagen_netto_inhouding' && value != null) value = Math.abs(value);
             if (mobilityKeySet.has(key)) {
                 const def = this.mobilityDefinitions.find(d => d.key === key);
-                newMobility.push({ ...this._defToRow(def), value: comp.value ?? def.defaultValue });
+                newMobility.push({ ...this._defToRow(def), value });
             } else if (variableKeySet.has(key)) {
                 const def = this.variableDefinitions.find(d => d.key === key);
-                newVariable.push({ ...this._defToRow(def), value: comp.value ?? def.defaultValue });
+                newVariable.push({ ...this._defToRow(def), value });
             }
         }
         if (newMobility.length > 0) this.mobilityRows = newMobility;
