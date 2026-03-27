@@ -235,7 +235,9 @@ export default class KpbPage extends LightningElement {
         this.calculateFromDate    = cg.calculate_from_date ?? null;
         this.processStatus        = cg.process_status ?? 'In behandeling';
         if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
-        if (cg.simulation_type)   this.formType = cg.simulation_type;
+        if (Array.isArray(cg.components)) {
+            this.formType = cg.components.some(c => c.component_type === 'CAR') ? 'Werknemer' : 'Freelancer';
+        }
         if (Array.isArray(cg.components) && cg.components.length > 0) {
             this._populateRows(cg.components);
         }
