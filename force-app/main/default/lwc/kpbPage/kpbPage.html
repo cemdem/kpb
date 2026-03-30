@@ -71,8 +71,7 @@
                                         variant="label-inline"
                                         value={candidateId}
                                         options={candidateOptions}
-                                        onchange={handleCandidateChange}
-                                        required>
+                                        onchange={handleCandidateChange}>
                                     </lightning-combobox>
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
@@ -81,8 +80,7 @@
                                         variant="label-inline"
                                         value={request}
                                         data-field="request"
-                                        onchange={handleFieldChange}
-                                        required>
+                                        onchange={handleFieldChange}>
                                     </lightning-input>
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
@@ -111,8 +109,7 @@
                                         value={specialization}
                                         options={specializationOptions}
                                         data-field="specialization"
-                                        onchange={handleFieldChange}
-                                        required>
+                                        onchange={handleFieldChange}>
                                     </lightning-combobox>
                                 </div>
                             </div>
@@ -147,9 +144,9 @@
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
-                                        label="Processtatus"
+                                        label="Status"
                                         variant="label-inline"
-                                        value={processStatus}
+                                        value={kpbStatus}
                                         disabled>
                                     </lightning-input>
                                 </div>
@@ -168,6 +165,58 @@
             </div>
 
             <div class="slds-grid slds-wrap slds-gutters kpb-section">
+                <div class="slds-col slds-size_1-of-2">
+                    <div class="kpb-card">
+                        <lightning-card title="KENMERKEN KOSTPRIJS">
+                            <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters kpb-form">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Brutoloon / maand"
+                                        variant="label-inline"
+                                        value={grossSalaryPerMonth}
+                                        data-field="grossSalaryPerMonth"
+                                        min="0"
+                                        max="10000"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Gem. uren / week"
+                                        variant="label-inline"
+                                        value={avgHoursPerWeekCost}
+                                        data-field="avgHoursPerWeekCost"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Gem. dagen / week"
+                                        variant="label-inline"
+                                        value={avgDaysPerWeekCost}
+                                        data-field="avgDaysPerWeekCost"
+                                        onchange={handleFieldChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        label="Voltijdse maatman"
+                                        variant="label-inline"
+                                        value={fulltimeEquivalent}
+                                        options={fulltimeEquivalentOptions}
+                                        onchange={handleFulltimeEquivalentChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </div>
+                </div>
                 <div class="slds-col slds-size_1-of-2">
                     <div class="kpb-card">
                         <lightning-card title="KENMERKEN VERKOPEN">
@@ -216,47 +265,16 @@
                                         onchange={handleFieldChange}>
                                     </lightning-input>
                                 </div>
-                            </div>
-                        </lightning-card>
-                    </div>
-                </div>
-                <div class="slds-col slds-size_1-of-2">
-                    <div class="kpb-card">
-                        <lightning-card title="KENMERKEN KOSTPRIJS">
-                            <div class="slds-p-around_medium slds-grid slds-wrap slds-gutters kpb-form">
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
                                         type="number"
-                                        label="Brutoloon / maand"
+                                        label="Verkoopprijs / dag"
                                         variant="label-inline"
-                                        value={grossSalaryPerMonth}
-                                        data-field="grossSalaryPerMonth"
-                                        min="0"
-                                        max="10000"
-                                        onchange={handleFieldChange}
-                                        required>
+                                        value={salesPricePerDay}
+                                        data-field="salesPricePerDay"
+                                        disabled={salesPriceDisabled}
+                                        onchange={handleFieldChange}>
                                     </lightning-input>
-                                </div>
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-input
-                                        type="number"
-                                        label="Gem. uren / week"
-                                        variant="label-inline"
-                                        value={avgHoursPerWeekCost}
-                                        data-field="avgHoursPerWeekCost"
-                                        onchange={handleFieldChange}
-                                        required>
-                                    </lightning-input>
-                                </div>
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-combobox
-                                        label="Voltijdse maatman"
-                                        variant="label-inline"
-                                        value={fulltimeEquivalent}
-                                        options={fulltimeEquivalentOptions}
-                                        onchange={handleFulltimeEquivalentChange}
-                                        required>
-                                    </lightning-combobox>
                                 </div>
                             </div>
                         </lightning-card>

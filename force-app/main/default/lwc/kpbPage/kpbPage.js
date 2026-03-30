@@ -49,9 +49,12 @@ export default class KpbPage extends LightningElement {
     createdDate;
     calculateFromDate;
     processStatus = 'In behandeling';
+    kpbStatus = '';
     consultant = '';
     fulltimeEquivalent = '';
     freelancerOtherCosts = null;
+    avgDaysPerWeekCost;
+    salesPricePerDay;
     mobilityRows = [];
     variableRows = [];
     variableAddValue = null;
@@ -233,9 +236,11 @@ export default class KpbPage extends LightningElement {
         this.salesPricePerHour    = cg.sales_price_per_hour ?? null;
         this.grossSalaryPerMonth  = cg.real_salary ?? null;
         this.avgHoursPerWeekCost  = cg.avg_hours_per_week_cost ?? null;
+        this.avgDaysPerWeekCost   = cg.avg_days_per_week_cost ?? null;
+        this.salesPricePerDay     = cg.sales_price_per_day ?? null;
         this.fulltimeEquivalent   = cg.fulltime_equivalent_id ?? '';
         this.calculateFromDate    = cg.calculate_from_date ?? null;
-        this.processStatus        = cg.process_status ?? 'In behandeling';
+        this.kpbStatus            = cg.status ?? '';
         if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
         if (cg.simulation_type)   this.simulationType = cg.simulation_type;
         if (Array.isArray(cg.components)) {
@@ -411,11 +416,14 @@ export default class KpbPage extends LightningElement {
         this.marginPct          = null;
         this.salesPricePerHour  = null;
         this.grossSalaryPerMonth = null;
-        this.avgHoursPerWeekCost = null;
-        this.createdDate        = new Date().toISOString().split('T')[0];
-        this.calculateFromDate  = null;
-        this.consultant         = '';
-        this.fulltimeEquivalent = '';
+        this.avgHoursPerWeekCost  = null;
+        this.avgDaysPerWeekCost   = null;
+        this.salesPricePerDay     = null;
+        this.createdDate          = new Date().toISOString().split('T')[0];
+        this.calculateFromDate    = null;
+        this.kpbStatus            = '';
+        this.consultant           = '';
+        this.fulltimeEquivalent   = '';
         this.freelancerOtherCosts = null;
         this._initRows();
     }
