@@ -8,6 +8,10 @@ export default class KpbGenericButton extends LightningElement {
     @api recordId;
     @api selectionCount = 0;
 
+    get hasSelection() {
+        return Number(this.selectionCount) === 1;
+    }
+
     _validate() {
         const count = Number(this.selectionCount);
         if (count === 0) {
