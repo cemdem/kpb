@@ -8,12 +8,6 @@ export default class KpbGenericButton extends LightningElement {
     @api recordId;
     @api selectionCount = 0;
 
-    get _safeRecordId() {
-        if (!this.recordId) return null;
-        const match = this.recordId.match(/\/([a-zA-Z0-9]{15,18})\/view/);
-        return match ? match[1] : this.recordId;
-    }
-
     get hasSelection() {
         return Number(this.selectionCount) === 1;
     }
@@ -40,7 +34,7 @@ export default class KpbGenericButton extends LightningElement {
     }
 
     _open(action) {
-        KpbPageModal.open({ recordId: this._safeRecordId, action, size: 'large' });
+        KpbPageModal.open({ recordId: this.recordId, action, size: 'large' });
     }
 
     handleNew() {
