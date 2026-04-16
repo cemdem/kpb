@@ -43,6 +43,7 @@ export default class KpbPage extends LightningElement {
     specialization = '';
     calculationMethod = '';
     avgHoursPerWeekSales;
+    avgDaysPerWeekSales;
     marginPct;
     salesPricePerHour;
     grossSalaryPerMonth;
@@ -258,6 +259,7 @@ export default class KpbPage extends LightningElement {
         this.calculationType      = cg.calculation_type_id ?? '';
         this.calculationMethod    = cg.calculation_method ?? '';
         this.avgHoursPerWeekSales = cg.avg_hours_per_week_sales ?? null;
+        this.avgDaysPerWeekSales  = cg.avg_days_per_week_sales ?? null;
         this.marginPct            = cg.margin ?? null;
         this.salesPricePerHour    = cg.sales_price_per_hour ?? null;
         this.grossSalaryPerMonth  = cg.real_salary ?? null;
@@ -444,6 +446,8 @@ export default class KpbPage extends LightningElement {
         this.grossSalaryPerMonth = null;
         this.avgHoursPerWeekCost  = null;
         this.avgDaysPerWeekCost   = null;
+        this.avgHoursPerWeekSales = null;
+        this.avgDaysPerWeekSales  = null;
         this.salesPricePerDay     = null;
         this.createdDate          = new Date().toISOString().split('T')[0];
         this.calculateFromDate    = null;

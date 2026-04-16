@@ -195,16 +195,6 @@
                                     </lightning-input>
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
-                                    <lightning-input
-                                        type="number"
-                                        label="Gem. dagen / week"
-                                        variant="label-inline"
-                                        value={avgDaysPerWeekCost}
-                                        data-field="avgDaysPerWeekCost"
-                                        onchange={handleFieldChange}>
-                                    </lightning-input>
-                                </div>
-                                <div class="slds-col slds-size_1-of-2">
                                     <lightning-combobox
                                         label="Voltijdse maatman"
                                         variant="label-inline"
@@ -213,6 +203,16 @@
                                         onchange={handleFulltimeEquivalentChange}
                                         required>
                                     </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
+                                        label="Gem. dagen / week"
+                                        variant="label-inline"
+                                        value={avgDaysPerWeekCost}
+                                        data-field="avgDaysPerWeekCost"
+                                        onchange={handleFieldChange}>
+                                    </lightning-input>
                                 </div>
                             </div>
                         </lightning-card>
@@ -247,6 +247,16 @@
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
                                         type="number"
+                                        label="Gem. dagen / week"
+                                        variant="label-inline"
+                                        value={avgDaysPerWeekSales}
+                                        data-field="avgDaysPerWeekSales"
+                                        onchange={handleFieldChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
+                                        type="number"
                                         label="Marge (%)"
                                         variant="label-inline"
                                         value={marginPct}
@@ -265,6 +275,8 @@
                                         disabled={salesPriceDisabled}
                                         onchange={handleFieldChange}>
                                     </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
