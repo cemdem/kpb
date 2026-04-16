@@ -16,7 +16,7 @@ const COMPONENT_ID_TO_KEY = {
     105:   'maaltijdcheques',
     108:   'gsm',
     113:   'andere_kosten',
-    114:   'parkeerkosten',
+    114:   'parkingkosten',
     11000: 'projectpremie_per_maand',
 };
 
@@ -24,6 +24,7 @@ export default class KpbPage extends LightningElement {
     @api recordId;
     @api action;
     @api json;
+    @api brand;
 
     isLoading = false;
     fetchError = null;
@@ -97,11 +98,10 @@ export default class KpbPage extends LightningElement {
         { key: 'keuze_lease_category', label: 'Keuze lease category', isPicklist: true, unit: '', options: [{ label: 'Categorie 1', value: 'Categorie 1' }, { label: 'Categorie 2', value: 'Categorie 2' }, { label: 'Categorie 3', value: 'Categorie 3' }, { label: 'Categorie 4', value: 'Categorie 4' }, { label: 'Categorie 1E', value: 'Categorie 1E' }, { label: 'Categorie 2E', value: 'Categorie 2E' }, { label: 'Categorie 3E', value: 'Categorie 3E' }, { label: 'Categorie 4E', value: 'Categorie 4E' }], defaultValue: null, disabled: false },
         { key: 'tankkaart_budget', label: 'Tankkaart budget', isPicklist: false, unit: '€ per maand', options: [], defaultValue: 300, disabled: false },
         { key: 'bedrijfswagen_netto_inhouding', label: 'Bedrijfswagen netto-inhouding', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
-        { key: 'mobiliteitsprogramma', label: 'Mobiliteitsprogramma', isPicklist: true, unit: '', options: [{ label: 'Fleet Family', value: 'Fleet Family' }, { label: 'Fleet Flex', value: 'Fleet Flex' }], defaultValue: null, disabled: false }
+        { key: 'mobiliteitsprogramma', label: 'Mobiliteitsprogramma', isPicklist: true, unit: '', options: [{ label: 'Fleet Family', value: 'Fleet Family' }, { label: 'Fleet Flex + Mobiliteitsbudget', value: 'Fleet Flex + Mobiliteitsbudget' }, { label: 'Fleet Flex', value: 'Fleet Flex' }, { label: 'Mobiliteitsbudget', value: 'Mobiliteitsbudget' }], defaultValue: null, disabled: false }
     ];
 
     variableDefinitions = [
-        { key: 'parkeerkosten', label: 'Parkeerkosten', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
         { key: 'maaltijdcheques', label: 'Maaltijdcheques', isPicklist: true, unit: '€ per dag', options: [{ label: '', value: '' }, { label: '6,91 WG + 1,09 WN', value: '6,91 WG + 1,09 WN' }], defaultValue: '', disabled: false },
         { key: 'gsm', label: 'GSM', isPicklist: true, unit: '€ per maand', options: [{ label: '0', value: '0' }, { label: '19', value: '19' }], defaultValue: '0', disabled: false },
         { key: '3de_betaler_trein_aantal_km_enkel', label: '3de betaler trein aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
@@ -129,7 +129,7 @@ export default class KpbPage extends LightningElement {
     ];
 
     defaultMobilityKeys = ['keuze_lease_category'];
-    defaultVariableKeys = ['parkeerkosten', 'maaltijdcheques', 'gsm'];
+    defaultVariableKeys = ['parkingkosten', 'maaltijdcheques', 'gsm'];
 
     get hasData() {
         return !this.isLoading && !this.fetchError;
@@ -156,6 +156,25 @@ export default class KpbPage extends LightningElement {
     }
 
     get calculationTypeOptions() {
+        if (this.brand === 'UNQ') {
+            return [
+                'Ad hoc consultant',
+                'Advanced consultant',
+                'Expert consultant',
+                'Project consultant',
+                'Project consultant BNP',
+                'Skilled consultant',
+                'Specialist/Gold consultant',
+                'Trainee consultant'
+            ].map(v => ({ label: v, value: v }));
+        }
+        if (this.brand === 'BPL') {
+            return [
+                'Junior',
+                'Medior',
+                'Senior'
+            ].map(v => ({ label: v, value: v }));
+        }
         if (!this.userBrand) return [];
         return [
             { label: `${this.userBrand}-BT1`, value: `${this.userBrand}-BT1` },

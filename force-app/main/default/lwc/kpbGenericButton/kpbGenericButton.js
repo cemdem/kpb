@@ -7,6 +7,7 @@ export default class KpbGenericButton extends LightningElement {
     @api action;
     @api recordId;
     @api selectionCount = 0;
+    @api brand;
 
     get hasSelection() {
         return Number(this.selectionCount) === 1;
@@ -34,7 +35,7 @@ export default class KpbGenericButton extends LightningElement {
     }
 
     _open(action) {
-        KpbPageModal.open({ recordId: this.recordId, action, size: 'large' });
+        KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, size: 'large' });
     }
 
     handleNew() {

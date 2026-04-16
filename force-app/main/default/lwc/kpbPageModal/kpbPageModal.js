@@ -4,6 +4,7 @@ import LightningModal from 'lightning/modal';
 export default class KpbPageModal extends LightningModal {
     @api recordId;
     @api action;
+    @api brand;
 
     get title() {
         return this.action === 'NEW' ? 'New Cost Group' : 'Edit Cost Group';

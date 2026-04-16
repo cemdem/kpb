@@ -7,8 +7,9 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="recordId"       type="String" label="Selected Record Id (formula)" />
+            <property name="recordId"       type="String"  label="Selected Record Id (formula)" />
             <property name="selectionCount" type="Integer" label="Aantal geselecteerde rijen (formule)" />
+            <property name="brand"          type="String"  label="Brand (RGF_Brand__c)" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
