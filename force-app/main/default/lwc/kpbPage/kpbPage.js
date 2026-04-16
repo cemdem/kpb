@@ -39,7 +39,7 @@ export default class KpbPage extends LightningElement {
     candidateId = null;
     candidate = '';
     candidateName = '';
-    _newCandidateId = null;
+    newCandidateId = null;
     candidateOptions = [];
     request = '';
     calculationType = '';
@@ -220,7 +220,7 @@ export default class KpbPage extends LightningElement {
         if (this.action === 'NEW') {
             if (this.recordId) {
                 this.candidateId = this.recordId;
-                this._newCandidateId = this.recordId;
+                this.newCandidateId = this.recordId;
             }
             return;
         }
@@ -319,7 +319,7 @@ export default class KpbPage extends LightningElement {
         if (data) this.userBrand = getFieldValue(data, USER_BRAND);
     }
 
-    @wire(getRecord, { recordId: '$_newCandidateId', fields: [CONTACT_NAME] })
+    @wire(getRecord, { recordId: '$newCandidateId', fields: [CONTACT_NAME] })
     _wiredCandidateRecord({ data }) {
         if (data) this.candidateName = getFieldValue(data, CONTACT_NAME);
     }
