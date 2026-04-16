@@ -322,7 +322,9 @@ export default class KpbPage extends LightningElement {
     _wiredContacts({ data }) {
         if (data) {
             this.candidateOptions = data.map(c => ({ label: c.Name, value: c.Id }));
-            if (this.candidate && !this.candidateId) {
+            if (this.action === 'NEW' && this.recordId) {
+                this.candidateId = this.recordId;
+            } else if (this.candidate && !this.candidateId) {
                 const match = this.candidateOptions.find(o => o.label === this.candidate);
                 if (match) this.candidateId = match.value;
             }
