@@ -3,6 +3,7 @@ import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
+import CONTACT_NAME from '@salesforce/schema/Contact.Name';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
@@ -37,6 +38,8 @@ export default class KpbPage extends LightningElement {
     description = '';
     candidateId = null;
     candidate = '';
+    candidateName = '';
+    _newCandidateId = null;
     candidateOptions = [];
     request = '';
     calculationType = '';
@@ -215,7 +218,10 @@ export default class KpbPage extends LightningElement {
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
-            if (this.recordId) this.candidateId = this.recordId;
+            if (this.recordId) {
+                this.candidateId = this.recordId;
+                this._newCandidateId = this.recordId;
+            }
             return;
         }
         if (this.recordId) {
@@ -311,6 +317,11 @@ export default class KpbPage extends LightningElement {
     @wire(getRecord, { recordId: USER_ID, fields: [USER_BRAND] })
     _wiredUser({ data }) {
         if (data) this.userBrand = getFieldValue(data, USER_BRAND);
+    }
+
+    @wire(getRecord, { recordId: '$_newCandidateId', fields: [CONTACT_NAME] })
+    _wiredCandidateRecord({ data }) {
+        if (data) this.candidateName = getFieldValue(data, CONTACT_NAME);
     }
 
     @wire(getConsultantName)

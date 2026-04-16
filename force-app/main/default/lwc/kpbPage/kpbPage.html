@@ -66,14 +66,23 @@
                                     </lightning-input>
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
-                                    <lightning-combobox
-                                        label="Kandidaat"
-                                        variant="label-inline"
-                                        value={candidateId}
-                                        options={candidateOptions}
-                                        disabled={candidateLocked}
-                                        onchange={handleCandidateChange}>
-                                    </lightning-combobox>
+                                    <template lwc:if={candidateLocked}>
+                                        <lightning-input
+                                            label="Kandidaat"
+                                            variant="label-inline"
+                                            value={candidateName}
+                                            disabled>
+                                        </lightning-input>
+                                    </template>
+                                    <template lwc:else>
+                                        <lightning-combobox
+                                            label="Kandidaat"
+                                            variant="label-inline"
+                                            value={candidateId}
+                                            options={candidateOptions}
+                                            onchange={handleCandidateChange}>
+                                        </lightning-combobox>
+                                    </template>
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
@@ -247,21 +256,21 @@
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
                                         type="number"
-                                        label="Gem. dagen / week"
+                                        label="Marge (%)"
                                         variant="label-inline"
-                                        value={avgDaysPerWeekSales}
-                                        data-field="avgDaysPerWeekSales"
+                                        value={marginPct}
+                                        data-field="marginPct"
+                                        disabled={marginDisabled}
                                         onchange={handleFieldChange}>
                                     </lightning-input>
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
                                         type="number"
-                                        label="Marge (%)"
+                                        label="Gem. dagen / week"
                                         variant="label-inline"
-                                        value={marginPct}
-                                        data-field="marginPct"
-                                        disabled={marginDisabled}
+                                        value={avgDaysPerWeekSales}
+                                        data-field="avgDaysPerWeekSales"
                                         onchange={handleFieldChange}>
                                     </lightning-input>
                                 </div>
