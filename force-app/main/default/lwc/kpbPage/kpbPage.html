@@ -66,23 +66,12 @@
                                     </lightning-input>
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
-                                    <template lwc:if={candidateLocked}>
-                                        <lightning-input
-                                            label="Kandidaat"
-                                            variant="label-inline"
-                                            value={candidateName}
-                                            disabled>
-                                        </lightning-input>
-                                    </template>
-                                    <template lwc:else>
-                                        <lightning-combobox
-                                            label="Kandidaat"
-                                            variant="label-inline"
-                                            value={candidateId}
-                                            options={candidateOptions}
-                                            onchange={handleCandidateChange}>
-                                        </lightning-combobox>
-                                    </template>
+                                    <lightning-input
+                                        label="Kandidaat"
+                                        variant="label-inline"
+                                        value={candidateName}
+                                        disabled>
+                                    </lightning-input>
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input

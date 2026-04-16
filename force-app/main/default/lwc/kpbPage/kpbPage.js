@@ -3,7 +3,6 @@ import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
-import CONTACT_NAME from '@salesforce/schema/Contact.Name';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
@@ -26,6 +25,7 @@ export default class KpbPage extends LightningElement {
     @api action;
     @api json;
     @api brand;
+    @api candidateName;
 
     isLoading = false;
     fetchError = null;
@@ -38,8 +38,6 @@ export default class KpbPage extends LightningElement {
     description = '';
     candidateId = null;
     candidate = '';
-    candidateName = '';
-    newCandidateId = null;
     candidateOptions = [];
     request = '';
     calculationType = '';
@@ -218,10 +216,7 @@ export default class KpbPage extends LightningElement {
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
-            if (this.recordId) {
-                this.candidateId = this.recordId;
-                this.newCandidateId = this.recordId;
-            }
+            if (this.recordId) this.candidateId = this.recordId;
             return;
         }
         if (this.recordId) {
@@ -319,11 +314,6 @@ export default class KpbPage extends LightningElement {
         if (data) this.userBrand = getFieldValue(data, USER_BRAND);
     }
 
-    @wire(getRecord, { recordId: '$newCandidateId', fields: [CONTACT_NAME] })
-    _wiredCandidateRecord({ data }) {
-        if (data) this.candidateName = getFieldValue(data, CONTACT_NAME);
-    }
-
     @wire(getConsultantName)
     _wiredConsultant({ data }) {
         if (data) this.consultant = data;
@@ -333,9 +323,7 @@ export default class KpbPage extends LightningElement {
     _wiredContacts({ data }) {
         if (data) {
             this.candidateOptions = data.map(c => ({ label: c.Name, value: c.Id }));
-            if (this.action === 'NEW' && this.recordId) {
-                this.candidateId = this.recordId;
-            } else if (this.candidate && !this.candidateId) {
+            if (this.candidate && !this.candidateId) {
                 const match = this.candidateOptions.find(o => o.label === this.candidate);
                 if (match) this.candidateId = match.value;
             }
