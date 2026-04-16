@@ -139,6 +139,10 @@ export default class KpbPage extends LightningElement {
         return this.action === 'NEW';
     }
 
+    get candidateLocked() {
+        return this.action === 'NEW';
+    }
+
     get showEmployee() {
         return this.formType === 'Werknemer';
     }
@@ -209,7 +213,10 @@ export default class KpbPage extends LightningElement {
     connectedCallback() {
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
-        if (this.action === 'NEW') return;
+        if (this.action === 'NEW') {
+            if (this.recordId) this.candidateId = this.recordId;
+            return;
+        }
         if (this.recordId) {
             this._fetchKpb();
         } else if (this.json) {
