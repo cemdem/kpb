@@ -164,7 +164,8 @@ export default class KpbPage extends LightningElement {
     }
 
     get calculationTypeOptions() {
-        if (this.brand === 'UNQ') {
+        if (!this.userBrand) return [];
+        if (this.userBrand === 'UNQ') {
             return [
                 'Ad hoc consultant',
                 'Advanced consultant',
@@ -176,14 +177,13 @@ export default class KpbPage extends LightningElement {
                 'Trainee consultant'
             ].map(v => ({ label: v, value: v }));
         }
-        if (this.brand === 'BPL') {
+        if (this.userBrand === 'BPL') {
             return [
                 'Junior',
                 'Medior',
                 'Senior'
             ].map(v => ({ label: v, value: v }));
         }
-        if (!this.userBrand) return [];
         return [
             { label: `${this.userBrand}-BT1`, value: `${this.userBrand}-BT1` },
             { label: `${this.userBrand}-BT2`, value: `${this.userBrand}-BT2` }
