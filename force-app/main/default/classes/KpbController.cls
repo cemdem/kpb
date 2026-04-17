@@ -66,6 +66,7 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled(cacheable=true)
+    public static List<Contact> getContactsByBrand(String brand) {
         if (String.isBlank(brand)) return new List<Contact>();
         return [
             SELECT Id, Name
