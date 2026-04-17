@@ -10,7 +10,6 @@ export default class KpbGenericButton extends LightningElement {
     @api selectionCount = 0;
     @api brand;
     @api candidateName;
-    @api kpbId;
 
     get hasSelection() {
         return Number(this.selectionCount) === 1;
@@ -56,7 +55,7 @@ export default class KpbGenericButton extends LightningElement {
     async handleDelete() {
         if (!this._validate()) return;
         try {
-            const result = await deleteKpb({ kpbId: this.kpbId });
+            const result = await deleteKpb({ kpbId: this.recordId });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Kpb verwijderd',

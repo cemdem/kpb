@@ -11,7 +11,6 @@
             <property name="selectionCount" type="Integer" label="Aantal geselecteerde rijen (formule)" />
             <property name="brand"          type="String"  label="Brand (RGF_Brand__c)" />
             <property name="candidateName"  type="String"  label="Kandidaat naam" />
-            <property name="kpbId"          type="String"  label="Selected KPB Id (SPOT)" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
