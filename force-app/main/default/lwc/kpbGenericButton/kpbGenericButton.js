@@ -1,6 +1,6 @@
 import { LightningElement, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { RefreshEvent } from 'lightning/refresh';
+import { FlowNavigationNextEvent } from 'lightning/flowSupport';
 import KpbPageModal from 'c/kpbPageModal';
 import deleteKpb from '@salesforce/apex/KpbController.deleteKpb';
 
@@ -62,7 +62,7 @@ export default class KpbGenericButton extends LightningElement {
                     title: 'Kostprijsberekening verwijderd.',
                     variant: 'success'
                 }));
-                this.dispatchEvent(new RefreshEvent());
+                this.dispatchEvent(new FlowNavigationNextEvent());
             } else {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Kostprijsberekening verwijderen niet toegelaten.',
