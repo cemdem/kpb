@@ -1,5 +1,6 @@
 import { LightningElement, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { RefreshEvent } from 'lightning/refresh';
 import KpbPageModal from 'c/kpbPageModal';
 import deleteKpb from '@salesforce/apex/KpbController.deleteKpb';
 
@@ -58,19 +59,20 @@ export default class KpbGenericButton extends LightningElement {
             const result = await deleteKpb({ kpbId: this.recordId });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({
-                    title: 'Kpb verwijderd',
+                    title: 'Kostprijsberekening verwijderd.',
                     variant: 'success'
                 }));
+                this.dispatchEvent(new RefreshEvent());
             } else {
                 this.dispatchEvent(new ShowToastEvent({
-                    title: 'Fout bij verwijderen',
+                    title: 'Kostprijsberekening verwijderen niet toegelaten.',
                     message: `HTTP ${result.httpCode}: ${result.result}`,
                     variant: 'error'
                 }));
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
-                title: 'Fout bij verwijderen',
+                title: 'Kostprijsberekening verwijderen niet toegelaten.',
                 message: e.body?.message ?? e.message ?? 'Onbekende fout',
                 variant: 'error'
             }));
