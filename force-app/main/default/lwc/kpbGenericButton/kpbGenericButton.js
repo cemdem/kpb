@@ -1,6 +1,7 @@
 import { LightningElement, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import KpbPageModal from 'c/kpbPageModal';
+import deleteKpb from '@salesforce/apex/KpbController.deleteKpb';
 
 export default class KpbGenericButton extends LightningElement {
     @api label = 'Start';
@@ -9,6 +10,7 @@ export default class KpbGenericButton extends LightningElement {
     @api selectionCount = 0;
     @api brand;
     @api candidateName;
+    @api kpbId;
 
     get hasSelection() {
         return Number(this.selectionCount) === 1;
@@ -49,5 +51,30 @@ export default class KpbGenericButton extends LightningElement {
 
     handleEdit() {
         if (this._validate()) this._open('EDIT');
+    }
+
+    async handleDelete() {
+        if (!this._validate()) return;
+        try {
+            const result = await deleteKpb({ kpbId: this.kpbId });
+            if (result.success) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Kpb verwijderd',
+                    variant: 'success'
+                }));
+            } else {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Fout bij verwijderen',
+                    message: `HTTP ${result.httpCode}: ${result.result}`,
+                    variant: 'error'
+                }));
+            }
+        } catch (e) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Fout bij verwijderen',
+                message: e.body?.message ?? e.message ?? 'Onbekende fout',
+                variant: 'error'
+            }));
+        }
     }
 }
