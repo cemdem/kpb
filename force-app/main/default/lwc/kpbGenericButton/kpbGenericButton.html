@@ -6,24 +6,22 @@
             variant="brand"
             onclick={handleNew}>
         </lightning-button>
-        <template lwc:if={hasSelection}>
-            <lightning-button
-                class="slds-m-right_x-small"
-                label="Kopieer"
-                variant="neutral"
-                onclick={handleCopy}>
-            </lightning-button>
-            <lightning-button
-                class="slds-m-right_x-small"
-                label="Bewerk"
-                variant="neutral"
-                onclick={handleEdit}>
-            </lightning-button>
-            <lightning-button
-                label="Verwijderen"
-                variant="destructive"
-                onclick={handleDelete}>
-            </lightning-button>
-        </template>
+        <lightning-button
+            class="slds-m-right_x-small"
+            label="Kopieer"
+            variant="neutral"
+            onclick={handleCopy}>
+        </lightning-button>
+        <lightning-button
+            class="slds-m-right_x-small"
+            label="Bewerk"
+            variant="neutral"
+            onclick={handleEdit}>
+        </lightning-button>
+        <lightning-button
+            label="Verwijderen"
+            variant="destructive"
+            onclick={handleDelete}>
+        </lightning-button>
     </div>
 </template>
