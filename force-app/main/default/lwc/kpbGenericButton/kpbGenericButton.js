@@ -69,6 +69,7 @@ export default class KpbGenericButton extends LightningElement {
                     message: `HTTP ${result.httpCode}: ${result.result}`,
                     variant: 'error'
                 }));
+                this.dispatchEvent(new FlowNavigationNextEvent());
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
@@ -76,6 +77,7 @@ export default class KpbGenericButton extends LightningElement {
                 message: e.body?.message ?? e.message ?? 'Onbekende fout',
                 variant: 'error'
             }));
+            this.dispatchEvent(new FlowNavigationNextEvent());
         }
     }
 }
