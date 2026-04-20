@@ -31,25 +31,37 @@ public with sharing class KpbController {
         if (!oauthRes.success) {
             throw new AuraHandledException(oauthRes.error);
         }
-        String token = oauthRes.token;
 
-        OutboundCallFlow.Request req = new OutboundCallFlow.Request();
-        req.token                = token;
-        req.endpoint             = endpoint;
-        req.method               = method;
-        req.json                 = body;
-        req.xMessageIdIsRequired = xMessageIdIsRequired;
+        Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
+        String guid = EncodingUtil.convertToHex(b).substring(0, 8) + '-' +
+                      EncodingUtil.convertToHex(b).substring(8, 12) + '-' +
+                      EncodingUtil.convertToHex(b).substring(12, 16) + '-' +
+                      EncodingUtil.convertToHex(b).substring(16, 20) + '-' +
+                      EncodingUtil.convertToHex(b).substring(20, 32);
 
-        List<OutboundCallFlow.response> results =
-            OutboundCallFlow.createOutboundCall(new List<OutboundCallFlow.Request>{ req });
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('callout:RGF_SPOT_BaseURL' + endpoint);
+        req.setMethod(method);
+        req.setHeader('Content-Type', 'application/json');
+        req.setHeader('Authorization', 'Bearer ' + oauthRes.token);
+        req.setHeader('X-Caller-Ref', 'BHS');
+        req.setHeader('X-Identity', guid);
+        req.setHeader('X-Correlation-ID', guid);
+        req.setHeader('x-userrole', 'CONSULENT');
+        req.setHeader('Accept-Language', 'NL');
+        if (xMessageIdIsRequired) req.setHeader('X-Message-Id', UUID.randomUUID().toString());
+        req.setTimeout(120000);
+        if (body != null) req.setBody(body);
 
-        OutboundCallFlow.response r = results[0];
+        HttpResponse response = new Http().send(req);
 
         KpbCallResult out = new KpbCallResult();
-        out.success        = r.success;
-        out.httpCode       = r.httpCode;
-        out.result         = r.result;
-        out.headerLocation = r.headerLocation;
+        out.httpCode = response.getStatusCode();
+        out.result   = response.getBody();
+        out.success  = (out.httpCode == 200 || out.httpCode == 201 || out.httpCode == 202);
+        for (String key : response.getHeaderKeys()) {
+            if (key == 'Location') out.headerLocation = response.getHeader(key);
+        }
         return out;
     }
 
@@ -61,18 +73,12 @@ public with sharing class KpbController {
 
     @AuraEnabled
     public static KpbCallResult createKpb(String body) {
-        String endpoint = '/candidate-simulations/v1/candidate-costs';
-        KpbCallResult r = callSpot(endpoint, 'POST', body, true);
-        if (r.httpCode == 201) r.success = true;
-        return r;
+        return callSpot('/candidate-simulations/v1/candidate-costs', 'POST', body, true);
     }
 
     @AuraEnabled
     public static KpbCallResult updateKpb(String kpbId, String body) {
-        String endpoint = '/candidate-simulations/v1/candidate-costs/' + kpbId;
-        KpbCallResult r = callSpot(endpoint, 'PUT', body, true);
-        if (r.httpCode == 201) r.success = true;
-        return r;
+        return callSpot('/candidate-simulations/v1/candidate-costs/' + kpbId, 'PUT', body, true);
     }
 
     @AuraEnabled
