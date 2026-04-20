@@ -60,6 +60,22 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
+    public static KpbCallResult createKpb(String body) {
+        String endpoint = '/candidate-simulations/v1/candidate-costs';
+        KpbCallResult r = callSpot(endpoint, 'POST', body, true);
+        if (r.httpCode == 201) r.success = true;
+        return r;
+    }
+
+    @AuraEnabled
+    public static KpbCallResult updateKpb(String kpbId, String body) {
+        String endpoint = '/candidate-simulations/v1/candidate-costs/' + kpbId;
+        KpbCallResult r = callSpot(endpoint, 'PUT', body, true);
+        if (r.httpCode == 201) r.success = true;
+        return r;
+    }
+
+    @AuraEnabled
     public static KpbCallResult deleteKpb(String kpbId) {
         String endpoint = '/candidate-simulations/v1/candidate-costs/' + kpbId;
         return callSpot(endpoint, 'DELETE', null, true);

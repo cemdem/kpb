@@ -30,6 +30,7 @@ global with sharing class OutboundCallFlow {
         request.setHeader('X-Caller-Ref', req.callerRef);
         request.setHeader('X-Identity', req.identity);
         request.setHeader('X-Correlation-ID', req.identity);
+        request.setHeader('x-userrole', 'CONSULENT');
         request.setTimeout(120000);
         if(req.json != null){
             request.setBody(req.json);

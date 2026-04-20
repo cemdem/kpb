@@ -4,10 +4,18 @@ import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
+import createKpb from '@salesforce/apex/KpbController.createKpb';
+import updateKpb from '@salesforce/apex/KpbController.updateKpb';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 const SELECT_ALL_VALUE = '__ALL__';
+
+const COMPONENT_ID_TO_TYPE = {
+    1: 'CAR', 2: 'CAR', 3: 'CAR',
+    105: 'DIV', 108: 'DIV', 113: 'DIV', 114: 'DIV', 11000: 'DIV'
+};
 
 const COMPONENT_ID_TO_KEY = {
     1:     'keuze_lease_category',
@@ -19,6 +27,10 @@ const COMPONENT_ID_TO_KEY = {
     114:   'parkingkosten',
     11000: 'projectpremie_per_maand',
 };
+
+const KEY_TO_COMPONENT_ID = Object.fromEntries(
+    Object.entries(COMPONENT_ID_TO_KEY).map(([id, key]) => [key, Number(id)])
+);
 
 export default class KpbPage extends LightningElement {
     @api recordId;
@@ -62,6 +74,19 @@ export default class KpbPage extends LightningElement {
     variableRows = [];
     variableAddValue = null;
     simulationType = null;
+    kpbId = null;
+    unitId = null;
+    employeeSpotId = null;
+    employeeNumber = null;
+    employeeType = null;
+    employeeDeleteStatus = null;
+    labelId = null;
+    carCost = 0;
+    carCostUnit = 'H';
+    otherCostUnit = 'H';
+    leaveOfAbsence = false;
+    refSalaryUnit = 'M';
+    refSalaryUnitHours = 160;
 
     formTypeOptions = [
         { label: 'Werknemer', value: 'Werknemer' },
@@ -253,12 +278,25 @@ export default class KpbPage extends LightningElement {
     }
 
     _populate(cg) {
+        this.kpbId                = cg.id ?? null;
         this.number               = cg.payroll_id ?? null;
+        this.unitId               = cg.unit_id ?? null;
+        this.labelId              = cg.label_id ?? null;
+        this.carCost              = cg.car_cost ?? 0;
+        this.carCostUnit          = cg.car_cost_unit ?? 'H';
+        this.otherCostUnit        = cg.other_cost_unit ?? 'H';
+        this.leaveOfAbsence       = cg.leave_of_absence ?? false;
+        this.refSalaryUnit        = cg.reference_salary?.unit ?? 'M';
+        this.refSalaryUnitHours   = cg.reference_salary?.unit_hours ?? 160;
+        this.employeeSpotId       = cg.employee?.id ?? null;
+        this.employeeNumber       = cg.employee?.number ?? null;
+        this.employeeType         = cg.employee?.type ?? null;
+        this.employeeDeleteStatus = cg.employee?.delete_status ?? null;
         this.description          = cg.description ?? '';
         this.candidate            = cg.employee?.name ?? '';
         this.request              = cg.staffing_request?.name ?? '';
         this.calculationType      = cg.calculation_type_id ?? '';
-        this.calculationMethod    = cg.calculation_method ?? '';
+        this.calculationMethod    = cg.calculation_method === '1' ? 'Verkoopprijs' : cg.calculation_method === '2' ? 'Marge' : '';
         this.avgHoursPerWeekSales = cg.avg_hours_per_week_sales ?? null;
         this.avgDaysPerWeekSales  = cg.avg_days_per_week_sales ?? null;
         this.marginPct            = cg.margin ?? null;
@@ -464,6 +502,93 @@ export default class KpbPage extends LightningElement {
     }
 
     handleCalculate() {}
-    handleSave()      {}
-    handleApprove()   {}
+
+    async handleSave() {
+        this.isLoading = true;
+        try {
+            const body = this._buildPayload();
+            const isNew = this.action === 'NEW' || this.action === 'COPY';
+            const result = isNew
+                ? await createKpb({ body })
+                : await updateKpb({ kpbId: String(this.kpbId), body });
+            if (result.success) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
+                    variant: 'success'
+                }));
+                this.handleClose();
+            } else {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Fout bij bewaren',
+                    message: `HTTP ${result.httpCode}: ${result.result}`,
+                    variant: 'error'
+                }));
+            }
+        } catch (e) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Fout bij bewaren',
+                message: e.body?.message ?? e.message ?? 'Onbekende fout',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    _buildPayload() {
+        const isNew = this.action === 'NEW' || this.action === 'COPY';
+        const costgroup = {
+            payroll_id:              isNew ? (this.userBrand === 'UNQ' ? 6 : 14001) : this.number,
+            unit_id:                 isNew ? (this.userBrand === 'UNQ' ? 19 : 14023) : this.unitId,
+            simulation_type:         this.simulationType || 'ANO',
+            avg_days_per_week_cost:  this.avgDaysPerWeekCost,
+            avg_days_per_week_sales: this.avgDaysPerWeekSales,
+            avg_hours_per_week_cost: this.avgHoursPerWeekCost,
+            avg_hours_per_week_sales:this.avgHoursPerWeekSales,
+            calculate_from_date:     this.calculateFromDate || null,
+            calculation_method:      this.calculationMethod === 'Verkoopprijs' ? '1' : '2',
+            calculation_type_id:     isNew ? 13507 : this.calculationType,
+            car_cost:                isNew ? 0 : this.carCost,
+            car_cost_unit:           isNew ? 'H' : this.carCostUnit,
+            description:             this.description || null,
+            employee:                isNew
+                ? { id: 14040219, number: 15939651, name: 'Prijs, Kost', type: '2' }
+                : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName, type: this.employeeType, delete_status: this.employeeDeleteStatus },
+            fulltime_equivalent_id:  isNew ? 4 : this.fulltimeEquivalent,
+            label_id:                isNew ? 14014 : this.labelId,
+            leave_of_absence:        isNew ? false : this.leaveOfAbsence,
+            margin:                  this.marginPct,
+            other_cost:              this.freelancerOtherCosts,
+            other_cost_unit:         isNew ? 'H' : this.otherCostUnit,
+            reference_salary: {
+                salary:     this.grossSalaryPerMonth,
+                unit:       isNew ? 'M' : this.refSalaryUnit,
+                unit_hours: isNew ? 160 : this.refSalaryUnitHours
+            },
+            sales_price_per_day:  this.salesPricePerDay,
+            sales_price_per_hour: this.salesPricePerHour,
+            staffing_request: { id: null, name: this.request || null },
+            created_by:  'P-25554',
+            components:  this._buildComponents()
+        };
+        if (!isNew && this.kpbId) costgroup.id = this.kpbId;
+        return JSON.stringify({ costgroup });
+    }
+
+    _buildComponents() {
+        const result = [];
+        for (const row of [...this.mobilityRows, ...this.variableRows]) {
+            const componentId = KEY_TO_COMPONENT_ID[row.key];
+            if (!componentId || row.value == null) continue;
+            result.push({
+                component_id:        componentId,
+                component_type:      COMPONENT_ID_TO_TYPE[componentId] ?? 'DIV',
+                reference_type_code: null,
+                value: { unit: null, total: row.value }
+            });
+        }
+        return result;
+    }
+
+    handleApprove() {}
 }
