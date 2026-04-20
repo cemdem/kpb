@@ -501,6 +501,17 @@ export default class KpbPage extends LightningElement {
         this.dispatchEvent(new CustomEvent('close'));
     }
 
+    _apiError(result) {
+        try {
+            const body = JSON.parse(result.result);
+            const errors = body?.error_message?.errors;
+            if (Array.isArray(errors) && errors.length) {
+                return errors.map(e => e.error_message).join(' | ');
+            }
+        } catch (e) { /* fall through */ }
+        return `HTTP ${result.httpCode}: ${result.result}`;
+    }
+
     handleCalculate() {}
 
     async handleSave() {
@@ -520,7 +531,7 @@ export default class KpbPage extends LightningElement {
             } else {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Fout bij bewaren',
-                    message: `HTTP ${result.httpCode}: ${result.result}`,
+                    message: this._apiError(result),
                     variant: 'error'
                 }));
             }
