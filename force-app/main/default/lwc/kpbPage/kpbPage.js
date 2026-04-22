@@ -162,6 +162,9 @@ export default class KpbPage extends LightningElement {
         return !this.isLoading && !this.fetchError;
     }
 
+    get displayCandidateName() {
+        return this.candidateName || this.candidate || '';
+    }
     get showFormTypeSelector() {
         return this.action === 'NEW';
     }
@@ -568,7 +571,7 @@ export default class KpbPage extends LightningElement {
             description:             this.description || null,
             employee:                isNew
                 ? { id: 14040219, number: 15939651, name: 'Prijs, Kost', type: '2' }
-                : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName, type: this.employeeType, delete_status: this.employeeDeleteStatus },
+                : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName || this.candidate, type: this.employeeType, delete_status: this.employeeDeleteStatus },
             fulltime_equivalent_id:  isNew ? 4 : this.fulltimeEquivalent,
             label_id:                isNew ? 14014 : this.labelId,
             leave_of_absence:        isNew ? false : this.leaveOfAbsence,
