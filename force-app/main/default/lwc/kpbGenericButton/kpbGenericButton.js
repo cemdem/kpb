@@ -38,6 +38,7 @@ export default class KpbGenericButton extends LightningElement {
     }
 
     _open(action) {
+        console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId);
         KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, size: 'large' });
     }
 
