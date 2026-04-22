@@ -12,6 +12,19 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 const SELECT_ALL_VALUE = '__ALL__';
 
+const BRAND_MAP = {
+    'unique':     'UNQ',
+    'unq':        'UNQ',
+    'bright plus':'BPL',
+    'brightplus': 'BPL',
+    'bpl':        'BPL',
+};
+
+function normalizeBrand(raw) {
+    if (!raw) return null;
+    return BRAND_MAP[raw.toLowerCase().trim()] ?? raw;
+}
+
 const COMPONENT_ID_TO_TYPE = {
     1: 'CAR', 2: 'CAR', 3: 'CAR',
     105: 'DIV', 108: 'DIV', 113: 'DIV', 114: 'DIV', 11000: 'DIV'
@@ -190,7 +203,7 @@ export default class KpbPage extends LightningElement {
     }
 
     get calculationTypeOptions() {
-        const brand = this.brand || this.userBrand;
+        const brand = normalizeBrand(this.brand) || this.userBrand;
         if (!brand) return [];
         if (brand === 'UNQ') {
             return [
@@ -218,7 +231,7 @@ export default class KpbPage extends LightningElement {
     }
 
     get fulltimeEquivalentOptions() {
-        const brand = this.brand || this.userBrand;
+        const brand = normalizeBrand(this.brand) || this.userBrand;
         if (!brand) return [];
         return this.fulltimeEquivalentBaseOptions.map(opt => {
             const v = `${brand}-${opt}`;
@@ -354,7 +367,7 @@ export default class KpbPage extends LightningElement {
 
     @wire(getRecord, { recordId: USER_ID, fields: [USER_BRAND] })
     _wiredUser({ data }) {
-        if (data) this.userBrand = getFieldValue(data, USER_BRAND);
+        if (data) this.userBrand = normalizeBrand(getFieldValue(data, USER_BRAND));
     }
 
     @wire(getConsultantName)
@@ -394,7 +407,7 @@ export default class KpbPage extends LightningElement {
     handleFulltimeEquivalentChange(event) {
         const selected = event.detail.value;
         this.fulltimeEquivalent = selected;
-        const brand = this.brand || this.userBrand;
+        const brand = normalizeBrand(this.brand) || this.userBrand;
         const raw = selected && brand ? selected.replace(`${brand}-`, '') : selected;
         const hours = this._extractHoursFromUwk(raw);
         if (hours !== null) this.avgHoursPerWeekCost = hours;
@@ -554,7 +567,7 @@ export default class KpbPage extends LightningElement {
 
     _buildPayload() {
         const isNew = this.action === 'NEW' || this.action === 'COPY';
-        const brand = this.brand || this.userBrand;
+        const brand = normalizeBrand(this.brand) || this.userBrand;
         const costgroup = {
             payroll_id:              isNew ? (brand === 'UNQ' ? 6 : 14001) : this.number,
             unit_id:                 isNew ? (brand === 'UNQ' ? 19 : 14023) : this.unitId,
