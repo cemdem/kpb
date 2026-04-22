@@ -15,9 +15,11 @@ const SELECT_ALL_VALUE = '__ALL__';
 const BRAND_MAP = {
     'unique':     'UNQ',
     'unq':        'UNQ',
+    '3008':       'UNQ',
     'bright plus':'BPL',
     'brightplus': 'BPL',
     'bpl':        'BPL',
+    '3000':       'BPL',
 };
 
 function normalizeBrand(raw) {
