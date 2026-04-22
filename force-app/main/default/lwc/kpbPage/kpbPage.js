@@ -187,8 +187,9 @@ export default class KpbPage extends LightningElement {
     }
 
     get calculationTypeOptions() {
-        if (!this.userBrand) return [];
-        if (this.userBrand === 'UNQ') {
+        const brand = this.brand || this.userBrand;
+        if (!brand) return [];
+        if (brand === 'UNQ') {
             return [
                 'Ad hoc consultant',
                 'Advanced consultant',
@@ -200,7 +201,7 @@ export default class KpbPage extends LightningElement {
                 'Trainee consultant'
             ].map(v => ({ label: v, value: v }));
         }
-        if (this.userBrand === 'BPL') {
+        if (brand === 'BPL') {
             return [
                 'Junior',
                 'Medior',
@@ -208,15 +209,16 @@ export default class KpbPage extends LightningElement {
             ].map(v => ({ label: v, value: v }));
         }
         return [
-            { label: `${this.userBrand}-BT1`, value: `${this.userBrand}-BT1` },
-            { label: `${this.userBrand}-BT2`, value: `${this.userBrand}-BT2` }
+            { label: `${brand}-BT1`, value: `${brand}-BT1` },
+            { label: `${brand}-BT2`, value: `${brand}-BT2` }
         ];
     }
 
     get fulltimeEquivalentOptions() {
-        if (!this.userBrand) return [];
+        const brand = this.brand || this.userBrand;
+        if (!brand) return [];
         return this.fulltimeEquivalentBaseOptions.map(opt => {
-            const v = `${this.userBrand}-${opt}`;
+            const v = `${brand}-${opt}`;
             return { label: v, value: v };
         });
     }
@@ -389,7 +391,8 @@ export default class KpbPage extends LightningElement {
     handleFulltimeEquivalentChange(event) {
         const selected = event.detail.value;
         this.fulltimeEquivalent = selected;
-        const raw = selected && this.userBrand ? selected.replace(`${this.userBrand}-`, '') : selected;
+        const brand = this.brand || this.userBrand;
+        const raw = selected && brand ? selected.replace(`${brand}-`, '') : selected;
         const hours = this._extractHoursFromUwk(raw);
         if (hours !== null) this.avgHoursPerWeekCost = hours;
     }
@@ -548,9 +551,10 @@ export default class KpbPage extends LightningElement {
 
     _buildPayload() {
         const isNew = this.action === 'NEW' || this.action === 'COPY';
+        const brand = this.brand || this.userBrand;
         const costgroup = {
-            payroll_id:              isNew ? (this.userBrand === 'UNQ' ? 6 : 14001) : this.number,
-            unit_id:                 isNew ? (this.userBrand === 'UNQ' ? 19 : 14023) : this.unitId,
+            payroll_id:              isNew ? (brand === 'UNQ' ? 6 : 14001) : this.number,
+            unit_id:                 isNew ? (brand === 'UNQ' ? 19 : 14023) : this.unitId,
             simulation_type:         this.simulationType || 'ANO',
             avg_days_per_week_cost:  this.avgDaysPerWeekCost,
             avg_days_per_week_sales: this.avgDaysPerWeekSales,
