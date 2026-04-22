@@ -12,6 +12,10 @@ export default class KpbGenericButton extends LightningElement {
     @api brand;
     @api candidateName;
 
+    connectedCallback() {
+        console.log('[kpbGenericButton] connectedCallback — brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId);
+    }
+
     get hasSelection() {
         return Number(this.selectionCount) === 1;
     }
