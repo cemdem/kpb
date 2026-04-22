@@ -2,7 +2,7 @@ import { LightningElement, wire, api } from 'lwc';
 import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
-import USER_BRAND from '@salesforce/schema/User.RGF_BRAND__c';
+import USER_BRAND from '@salesforce/schema/User.RGF_Brand__c';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 import createKpb from '@salesforce/apex/KpbController.createKpb';
 import updateKpb from '@salesforce/apex/KpbController.updateKpb';
