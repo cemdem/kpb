@@ -204,6 +204,7 @@ export default class KpbPage extends LightningElement {
 
     get calculationTypeOptions() {
         const brand = normalizeBrand(this.brand) || this.userBrand;
+        console.log('[kpbPage] calculationTypeOptions — this.brand:', this.brand, '| this.userBrand:', this.userBrand, '| resolved brand:', brand);
         if (!brand) return [];
         if (brand === 'UNQ') {
             return [
@@ -256,6 +257,7 @@ export default class KpbPage extends LightningElement {
     }
 
     connectedCallback() {
+        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| candidateName:', this.candidateName);
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
@@ -367,7 +369,11 @@ export default class KpbPage extends LightningElement {
 
     @wire(getRecord, { recordId: USER_ID, fields: [USER_BRAND] })
     _wiredUser({ data }) {
-        if (data) this.userBrand = normalizeBrand(getFieldValue(data, USER_BRAND));
+        if (data) {
+            const raw = getFieldValue(data, USER_BRAND);
+            this.userBrand = normalizeBrand(raw);
+            console.log('[kpbPage] userBrand raw:', raw, '→ normalized:', this.userBrand);
+        }
     }
 
     @wire(getConsultantName)
