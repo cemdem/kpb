@@ -123,17 +123,18 @@ export default class KpbPage extends LightningElement {
     ];
 
     fulltimeEquivalentBaseOptions = [
-        '01 Bedienden 40 u/wk',
-        '02 Bedienden 38 u/wk',
-        '07 Bedienden 39 u/wk',
-        '20 Bedienden 39,5 u/wk',
-        '21 Bedienden 38,5 u/wk',
-        '24 Bedienden 39,65 u/wk',
-        '37,5 u/wk',
-        '38,67 u/wk',
-        '38,75 u/wk',
-        '39,17 u/wk',
-        '99 Bedienden 12 ADV 40 u/wk'
+        { id: 3,     label: '01 Bedienden 40 u/wk' },
+        { id: 4,     label: '02 Bedienden 38 u/wk' },
+        { id: 30,    label: '07 Bedienden 39 u/wk' },
+        { id: 30221, label: '20 Bedienden 39,5 u/wk' },
+        { id: 30222, label: '21 Bedienden 38,5 u/wk' },
+        { id: 30220, label: '24 Bedienden 38,75 u/wk' },
+        { id: 30224, label: '26 Bedienden 39,15 u/wk' },
+        { id: 30116, label: '28 Bedienden 39,75 u/wk' },
+        { id: 30544, label: '29 Bedienden 39,67 u/wk' },
+        { id: 30722, label: '30 Bedienden 38,82 u/wk' },
+        { id: 396,   label: '98 Bedienden 6 ADV 39 u/wk' },
+        { id: 30240, label: '99 Bedienden 12 ADV 40 u/wk' },
     ];
 
     mobilityDefinitions = [
@@ -234,12 +235,11 @@ export default class KpbPage extends LightningElement {
     }
 
     get fulltimeEquivalentOptions() {
-        const brand = normalizeBrand(this.brand) || this.userBrand;
-        if (!brand) return [];
-        return this.fulltimeEquivalentBaseOptions.map(opt => {
-            const v = `${brand}-${opt}`;
-            return { label: v, value: v };
-        });
+        return this.fulltimeEquivalentBaseOptions.map(o => ({ label: o.label, value: o.id }));
+    }
+
+    get fulltimeEquivalentDisabled() {
+        return this.action === 'EDIT' || this.action === 'COPY';
     }
 
     get availableMobilityOptions() {
@@ -415,9 +415,8 @@ export default class KpbPage extends LightningElement {
     handleFulltimeEquivalentChange(event) {
         const selected = event.detail.value;
         this.fulltimeEquivalent = selected;
-        const brand = normalizeBrand(this.brand) || this.userBrand;
-        const raw = selected && brand ? selected.replace(`${brand}-`, '') : selected;
-        const hours = this._extractHoursFromUwk(raw);
+        const opt = this.fulltimeEquivalentBaseOptions.find(o => o.id === selected);
+        const hours = opt ? this._extractHoursFromUwk(opt.label) : null;
         if (hours !== null) this.avgHoursPerWeekCost = hours;
     }
 
