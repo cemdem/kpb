@@ -12,7 +12,7 @@ export default class KpbPageModal extends LightningModal {
         return 'New Cost Group';
     }
 
-    handleClose() {
-        this.close();
+    handleClose(event) {
+        this.close(event?.detail ?? {});
     }
 }

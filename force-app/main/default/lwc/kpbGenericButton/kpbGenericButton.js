@@ -41,9 +41,12 @@ export default class KpbGenericButton extends LightningElement {
         return true;
     }
 
-    _open(action) {
+    async _open(action) {
         console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId);
-        KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, size: 'large' });
+        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, size: 'large' });
+        if (result?.saved) {
+            this.dispatchEvent(new FlowNavigationNextEvent());
+        }
     }
 
     handleNew() {

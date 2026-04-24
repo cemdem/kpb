@@ -526,7 +526,7 @@ export default class KpbPage extends LightningElement {
     }
 
     handleClose() {
-        this.dispatchEvent(new CustomEvent('close'));
+        this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
     }
 
     _apiError(result) {
@@ -556,7 +556,7 @@ export default class KpbPage extends LightningElement {
                     title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
                     variant: 'success'
                 }));
-                this.handleClose();
+                this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
             } else {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Fout bij bewaren',
