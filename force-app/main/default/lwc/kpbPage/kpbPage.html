@@ -439,6 +439,35 @@
                 </div>
             </template>
 
+            <template lwc:if={hasFixedRows}>
+                <div class="kpb-section">
+                    <div class="kpb-card">
+                        <lightning-card title="VASTE KOSTEN">
+                            <div class="slds-p-around_medium">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th style="width: 160px;">Waarde</th>
+                                            <th style="width: 160px;">Eenheid</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={fixedRows} for:item="row">
+                                            <tr key={row.key}>
+                                                <td>{row.label}</td>
+                                                <td>{row.value}</td>
+                                                <td>{row.unit}</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </lightning-card>
+                    </div>
+                </div>
+            </template>
+
         </template>
 
         <div class="kpb-action-bar slds-grid slds-grid_align-end slds-gutters">

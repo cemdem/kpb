@@ -37,6 +37,8 @@ const COMPONENT_ID_TO_TYPE = {
     10893: 'DIV', 10932: 'DIV', 10933: 'DIV', 10934: 'DIV', 10935: 'DIV',
     10936: 'DIV', 10937: 'DIV', 10938: 'DIV', 11000: 'DIV', 11010: 'DIV',
     11030: 'DIV', 11040: 'DIV', 11172: 'DIV',
+    124: 'FIX', 125: 'FIX', 10337: 'FIX', 10338: 'FIX', 10340: 'FIX',
+    10341: 'FIX', 10342: 'FIX', 10856: 'FIX', 10862: 'FIX',
 };
 
 const COMPONENT_ID_TO_KEY = {
@@ -78,6 +80,15 @@ const COMPONENT_ID_TO_KEY = {
     11030: 'brutopremie_mobiliteit',
     11040: 'kost_leasefiets',
     11172: '3e_betaler_tram_bus_metro',
+    124:   'hospitalisatie_verzekering',
+    125:   'groepsverzekering',
+    10337: 'ziektecontrole',
+    10338: 'uniform',
+    10340: 'kosten_sd',
+    10341: 'gelijkgestelde_rechten',
+    10342: 'koopkrachtpremie',
+    10856: 'opzegvergoeding_per_jaar',
+    10862: 'sport_en_cultuurcheques',
 };
 
 const KEY_TO_COMPONENT_ID = Object.fromEntries(
@@ -124,6 +135,7 @@ export default class KpbPage extends LightningElement {
     salesPricePerDay;
     mobilityRows = [];
     variableRows = [];
+    fixedRows = [];
     variableAddValue = null;
     simulationType = null;
     kpbId = null;
@@ -172,6 +184,18 @@ export default class KpbPage extends LightningElement {
         { id: 30722, label: '30 Bedienden 38,82 u/wk' },
         { id: 396,   label: '98 Bedienden 6 ADV 39 u/wk' },
         { id: 30240, label: '99 Bedienden 12 ADV 40 u/wk' },
+    ];
+
+    fixedDefinitions = [
+        { key: 'hospitalisatie_verzekering', label: 'Hospitalisatieverzekering' },
+        { key: 'groepsverzekering',          label: 'Groepsverzekering' },
+        { key: 'ziektecontrole',             label: 'Ziektecontrole' },
+        { key: 'uniform',                    label: 'Uniform' },
+        { key: 'kosten_sd',                  label: 'Kosten SD Worx' },
+        { key: 'gelijkgestelde_rechten',     label: 'Gelijkgestelde rechten' },
+        { key: 'koopkrachtpremie',           label: 'Koopkrachtpremie' },
+        { key: 'opzegvergoeding_per_jaar',   label: 'Opzegvergoeding per jaar' },
+        { key: 'sport_en_cultuurcheques',    label: 'Sport- en cultuurcheques' },
     ];
 
     mobilityDefinitions = [
@@ -242,6 +266,10 @@ export default class KpbPage extends LightningElement {
 
     get showApprove() {
         return this.action === 'EDIT';
+    }
+
+    get hasFixedRows() {
+        return this.fixedRows.length > 0;
     }
 
     get salesPriceDisabled() {
@@ -391,13 +419,30 @@ export default class KpbPage extends LightningElement {
     _populateRows(components) {
         const mobilityKeySet = new Set(this.mobilityDefinitions.map(d => d.key));
         const variableKeySet = new Set(this.variableDefinitions.map(d => d.key));
+        const fixedKeySet   = new Set(this.fixedDefinitions.map(d => d.key));
         const newMobility = [];
         const newVariable = [];
+        const newFixed    = [];
         for (const comp of components) {
-            if (comp.component_type === 'FIX') continue;
             const key = COMPONENT_ID_TO_KEY[comp.parent_component_id];
             if (!key) continue;
-            let value = comp.unit_quantity ?? comp.value?.per_month ?? comp.value?.total ?? null;
+            if (comp.component_type === 'FIX') {
+                const unitLabel = comp.unit === 'Y' ? '€ per jaar' : '€ per maand';
+                const value = comp.unit === 'Y'
+                    ? (comp.value?.total ?? null)
+                    : (comp.value?.per_month ?? null);
+                const def = this.fixedDefinitions.find(d => d.key === key);
+                if (def) newFixed.push({ key, label: def.label, value, unit: unitLabel });
+                continue;
+            }
+            let value;
+            if (comp.unit_quantity !== null && comp.unit_quantity !== -1) {
+                value = comp.unit_quantity;
+            } else {
+                value = comp.unit === 'M'
+                    ? (comp.value?.per_month ?? null)
+                    : (comp.value?.total ?? null);
+            }
             if (key === 'bedrijfswagen_netto_inhouding' && value != null) value = Math.abs(value);
             if (mobilityKeySet.has(key)) {
                 const def = this.mobilityDefinitions.find(d => d.key === key);
@@ -409,6 +454,7 @@ export default class KpbPage extends LightningElement {
         }
         if (newMobility.length > 0) this.mobilityRows = newMobility;
         if (newVariable.length > 0) this.variableRows = newVariable;
+        if (newFixed.length > 0)    this.fixedRows    = newFixed;
     }
 
     @wire(CurrentPageReference)
@@ -543,6 +589,7 @@ export default class KpbPage extends LightningElement {
             .map(k => this.variableDefinitions.find(d => d.key === k))
             .filter(Boolean)
             .map(d => this._defToRow(d));
+        this.fixedRows = [];
     }
 
     handleReset() {
