@@ -186,7 +186,7 @@ export default class KpbPage extends LightningElement {
     ];
 
     mobilityDefinitions = [
-        { key: 'keuze_lease_category',       label: 'Keuze lease category',         isPicklist: true,  unit: '',           options: [{ label: 'Categorie 1', value: 'Categorie 1' }, { label: 'Categorie 2', value: 'Categorie 2' }, { label: 'Categorie 3', value: 'Categorie 3' }, { label: 'Categorie 4', value: 'Categorie 4' }, { label: 'Categorie 1E', value: 'Categorie 1E' }, { label: 'Categorie 2E', value: 'Categorie 2E' }, { label: 'Categorie 3E', value: 'Categorie 3E' }, { label: 'Categorie 4E', value: 'Categorie 4E' }], defaultValue: null, disabled: false },
+        { key: 'keuze_lease_category',       label: 'Keuze lease category',         isPicklist: true,  unit: '',           options: [{ label: 'Categorie 1', value: '1' }, { label: 'Categorie 2', value: '2' }, { label: 'Categorie 3', value: '3' }, { label: 'Categorie 4', value: '4' }, { label: 'Categorie 1E', value: '6' }, { label: 'Categorie 2E', value: '7' }, { label: 'Categorie 3E', value: '8' }, { label: 'Categorie 4E', value: '9' }], defaultValue: null, disabled: false },
         { key: 'tankkaart_budget',            label: 'Tankkaart budget',              isPicklist: false, unit: '€ per maand', options: [], defaultValue: 300,  disabled: false },
         { key: 'bedrijfswagen_netto_inhouding', label: 'Bedrijfswagen netto-inhouding', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
         { key: 'woon_werkverkeer',            label: 'Woon-werkverkeer',              isPicklist: false, unit: 'km',          options: [], defaultValue: null, disabled: false },
@@ -429,9 +429,11 @@ export default class KpbPage extends LightningElement {
             if (key === 'bedrijfswagen_netto_inhouding' && value != null) value = Math.abs(value);
             if (mobilityKeySet.has(key)) {
                 const def = this.mobilityDefinitions.find(d => d.key === key);
+                if (def.isPicklist && value != null) value = String(value);
                 newMobility.push({ ...this._defToRow(def), value });
             } else if (variableKeySet.has(key)) {
                 const def = this.variableDefinitions.find(d => d.key === key);
+                if (def.isPicklist && value != null) value = String(value);
                 newVariable.push({ ...this._defToRow(def), value });
             }
         }
