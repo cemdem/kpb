@@ -279,6 +279,7 @@ export default class KpbPage extends LightningElement {
             const result = await getKpb({ recordId: this.recordId });
             if (result.success) {
                 const raw = JSON.parse(result.result);
+                console.log('[kpbPage] _fetchKpb response:', JSON.stringify(raw, null, 2));
                 this._populate(raw.costgroup || raw);
             } else {
                 this.fetchError = `HTTP ${result.httpCode}: ${result.result}`;
