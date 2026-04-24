@@ -87,6 +87,12 @@ public with sharing class KpbController {
         return callSpot(endpoint, 'DELETE', null, true);
     }
 
+    @AuraEnabled
+    public static KpbCallResult requestApproval(String kpbId, String body) {
+        String endpoint = '/candidate-simulations/v1/candidate-costs/' + kpbId + '/request-approval';
+        return callSpot(endpoint, 'POST', body, true);
+    }
+
     @AuraEnabled(cacheable=true)
     public static List<Contact> getContactsByBrand(String brand) {
         if (String.isBlank(brand)) return new List<Contact>();

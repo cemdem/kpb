@@ -6,6 +6,7 @@ import USER_BRAND from '@salesforce/schema/User.RGF_Brand__c';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 import createKpb from '@salesforce/apex/KpbController.createKpb';
 import updateKpb from '@salesforce/apex/KpbController.updateKpb';
+import requestApproval from '@salesforce/apex/KpbController.requestApproval';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -194,7 +195,7 @@ export default class KpbPage extends LightningElement {
     }
 
     get showApprove() {
-        return this.simulationType === 'WRK';
+        return this.action === 'EDIT';
     }
 
     get salesPriceDisabled() {
@@ -631,5 +632,31 @@ export default class KpbPage extends LightningElement {
         return result;
     }
 
-    handleApprove() {}
+    async handleApprove() {
+        this.isLoading = true;
+        try {
+            const body = JSON.stringify({ reason: 'Goedkeuring aangevraagd' });
+            const result = await requestApproval({ kpbId: String(this.kpbId), body });
+            if (result.success) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Goedkeuring aangevraagd.',
+                    variant: 'success'
+                }));
+            } else {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Goedkeuren niet toegelaten.',
+                    message: this._apiError(result),
+                    variant: 'error'
+                }));
+            }
+        } catch (e) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Goedkeuren niet toegelaten.',
+                message: e.body?.message ?? e.message ?? 'Onbekende fout',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
 }
