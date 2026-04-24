@@ -211,21 +211,21 @@ export default class KpbPage extends LightningElement {
         if (!brand) return [];
         if (brand === 'UNQ') {
             return [
-                { label: 'Ad hoc consultant',      value: 13508 },
-                { label: 'Advanced consultant',     value: 13510 },
-                { label: 'Expert consultant',       value: 13507 },
-                { label: 'Project consultant',      value: 13511 },
-                { label: 'Project consultant BNP',  value: 13504 },
-                { label: 'Skilled consultant',      value: 13513 },
-                { label: 'Specialist/Gold consultant', value: 13514 },
-                { label: 'Trainee consultant',      value: 13512 },
+                { label: 'Ad hoc consultant',         value: '13508' },
+                { label: 'Advanced consultant',      value: '13510' },
+                { label: 'Expert consultant',        value: '13507' },
+                { label: 'Project consultant',       value: '13511' },
+                { label: 'Project consultant BNP',   value: '13504' },
+                { label: 'Skilled consultant',       value: '13513' },
+                { label: 'Specialist/Gold consultant', value: '13514' },
+                { label: 'Trainee consultant',       value: '13512' },
             ];
         }
         if (brand === 'BPL') {
             return [
-                { label: 'Junior', value: 13506 },
-                { label: 'Medior', value: 13502 },
-                { label: 'Senior', value: 13503 },
+                { label: 'Junior', value: '13506' },
+                { label: 'Medior', value: '13502' },
+                { label: 'Senior', value: '13503' },
             ];
         }
         return [
@@ -235,7 +235,7 @@ export default class KpbPage extends LightningElement {
     }
 
     get fulltimeEquivalentOptions() {
-        return this.fulltimeEquivalentBaseOptions.map(o => ({ label: o.label, value: o.id }));
+        return this.fulltimeEquivalentBaseOptions.map(o => ({ label: o.label, value: String(o.id) }));
     }
 
     get fulltimeEquivalentDisabled() {
@@ -317,7 +317,7 @@ export default class KpbPage extends LightningElement {
         this.description          = cg.description ?? '';
         this.candidate            = cg.employee?.name ?? '';
         this.request              = cg.staffing_request?.name ?? '';
-        this.calculationType      = cg.calculation_type_id ?? '';
+        this.calculationType      = cg.calculation_type_id != null ? String(cg.calculation_type_id) : '';
         this.calculationMethod    = cg.calculation_method === '1' ? 'Verkoopprijs' : cg.calculation_method === '2' ? 'Marge' : '';
         this.avgHoursPerWeekSales = cg.avg_hours_per_week_sales ?? null;
         this.avgDaysPerWeekSales  = cg.avg_days_per_week_sales ?? null;
@@ -327,7 +327,7 @@ export default class KpbPage extends LightningElement {
         this.avgHoursPerWeekCost  = cg.avg_hours_per_week_cost ?? null;
         this.avgDaysPerWeekCost   = cg.avg_days_per_week_cost ?? null;
         this.salesPricePerDay     = cg.sales_price_per_day ?? null;
-        this.fulltimeEquivalent   = cg.fulltime_equivalent_id ?? '';
+        this.fulltimeEquivalent   = cg.fulltime_equivalent_id != null ? String(cg.fulltime_equivalent_id) : '';
         this.calculateFromDate    = cg.calculate_from_date ?? null;
         this.kpbStatus            = cg.status ?? '';
         if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
@@ -587,14 +587,14 @@ export default class KpbPage extends LightningElement {
             avg_hours_per_week_sales:this.avgHoursPerWeekSales,
             calculate_from_date:     this.calculateFromDate || null,
             calculation_method:      this.calculationMethod === 'Verkoopprijs' ? '1' : '2',
-            calculation_type_id:     this.calculationType || null,
+            calculation_type_id:     this.calculationType ? Number(this.calculationType) : null,
             car_cost:                isNew ? 0 : this.carCost,
             car_cost_unit:           isNew ? 'H' : this.carCostUnit,
             description:             this.description || null,
             employee:                isNew
                 ? { id: 14040219, number: 15939651, name: 'Prijs, Kost', type: '2' }
                 : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName || this.candidate, type: this.employeeType, delete_status: this.employeeDeleteStatus },
-            fulltime_equivalent_id:  isNew ? 4 : this.fulltimeEquivalent,
+            fulltime_equivalent_id:  this.fulltimeEquivalent ? Number(this.fulltimeEquivalent) : (isNew ? 4 : null),
             label_id:                isNew ? 14014 : this.labelId,
             leave_of_absence:        isNew ? false : this.leaveOfAbsence,
             margin:                  this.marginPct,
