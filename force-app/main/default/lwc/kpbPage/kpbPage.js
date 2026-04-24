@@ -211,22 +211,22 @@ export default class KpbPage extends LightningElement {
         if (!brand) return [];
         if (brand === 'UNQ') {
             return [
-                'Ad hoc consultant',
-                'Advanced consultant',
-                'Expert consultant',
-                'Project consultant',
-                'Project consultant BNP',
-                'Skilled consultant',
-                'Specialist/Gold consultant',
-                'Trainee consultant'
-            ].map(v => ({ label: v, value: v }));
+                { label: 'Ad hoc consultant',      value: 13508 },
+                { label: 'Advanced consultant',     value: 13510 },
+                { label: 'Expert consultant',       value: 13507 },
+                { label: 'Project consultant',      value: 13511 },
+                { label: 'Project consultant BNP',  value: 13504 },
+                { label: 'Skilled consultant',      value: 13513 },
+                { label: 'Specialist/Gold consultant', value: 13514 },
+                { label: 'Trainee consultant',      value: 13512 },
+            ];
         }
         if (brand === 'BPL') {
             return [
-                'Junior',
-                'Medior',
-                'Senior'
-            ].map(v => ({ label: v, value: v }));
+                { label: 'Junior', value: 13506 },
+                { label: 'Medior', value: 13502 },
+                { label: 'Senior', value: 13503 },
+            ];
         }
         return [
             { label: `${brand}-BT1`, value: `${brand}-BT1` },
@@ -585,7 +585,7 @@ export default class KpbPage extends LightningElement {
             avg_hours_per_week_sales:this.avgHoursPerWeekSales,
             calculate_from_date:     this.calculateFromDate || null,
             calculation_method:      this.calculationMethod === 'Verkoopprijs' ? '1' : '2',
-            calculation_type_id:     isNew ? 13507 : this.calculationType,
+            calculation_type_id:     this.calculationType || null,
             car_cost:                isNew ? 0 : this.carCost,
             car_cost_unit:           isNew ? 'H' : this.carCostUnit,
             description:             this.description || null,
