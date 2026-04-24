@@ -409,7 +409,8 @@ export default class KpbPage extends LightningElement {
     }
 
     handleFieldChange(event) {
-        this[event.target.dataset.field] = event.target.value;
+        const value = event.detail?.value !== undefined ? event.detail.value : event.target.value;
+        this[event.target.dataset.field] = value;
     }
 
     handleFulltimeEquivalentChange(event) {
@@ -544,6 +545,7 @@ export default class KpbPage extends LightningElement {
         this.isLoading = true;
         try {
             const body = this._buildPayload();
+            console.log('[kpbPage] handleSave payload:', body);
             const isNew = this.action === 'NEW' || this.action === 'COPY';
             const result = isNew
                 ? await createKpb({ body })
