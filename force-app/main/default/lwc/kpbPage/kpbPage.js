@@ -29,19 +29,55 @@ function normalizeBrand(raw) {
 }
 
 const COMPONENT_ID_TO_TYPE = {
-    1: 'CAR', 2: 'CAR', 3: 'CAR',
-    105: 'DIV', 108: 'DIV', 113: 'DIV', 114: 'DIV', 11000: 'DIV'
+    1: 'CAR', 2: 'CAR', 3: 'CAR', 4: 'CAR', 11020: 'CAR',
+    101: 'DIV', 102: 'DIV', 103: 'DIV', 104: 'DIV', 105: 'DIV',
+    106: 'DIV', 108: 'DIV', 110: 'DIV', 113: 'DIV', 114: 'DIV',
+    123: 'DIV', 10100: 'DIV', 10852: 'DIV', 10855: 'DIV', 10857: 'DIV',
+    10858: 'DIV', 10859: 'DIV', 10871: 'DIV', 10891: 'DIV', 10892: 'DIV',
+    10893: 'DIV', 10932: 'DIV', 10933: 'DIV', 10934: 'DIV', 10935: 'DIV',
+    10936: 'DIV', 10937: 'DIV', 10938: 'DIV', 11000: 'DIV', 11010: 'DIV',
+    11030: 'DIV', 11040: 'DIV', 11172: 'DIV',
 };
 
 const COMPONENT_ID_TO_KEY = {
     1:     'keuze_lease_category',
     2:     'tankkaart_budget',
     3:     'bedrijfswagen_netto_inhouding',
+    4:     'woon_werkverkeer',
+    101:   'soc_abon_trein_aantal_km_enkel',
+    102:   'soc_abon_tram_metro_bus_aantal_km_enkel',
+    103:   'fietsvergoeding_aantal_km_enkel',
+    104:   'soc_abon_prive_vervoer_auto_aantal_km_enkel',
     105:   'maaltijdcheques',
-    108:   'gsm',
-    113:   'andere_kosten',
-    114:   'parkingkosten',
-    11000: 'projectpremie_per_maand',
+    106:   'dagvergoeding',
+    108:   'internetvergoeding',
+    110:   'andere_kosten_per_maand',
+    113:   'ecocheques',
+    114:   'gsm',
+    123:   'televergoeding',
+    10100: '3de_betaler_trein_aantal_km_enkel',
+    10852: 'ploegenarbeid_volgens_voorwaarden',
+    10855: 'extra_opleiding',
+    10857: 'extra_opzegvergoeding',
+    10858: 'parkingkosten',
+    10859: 'gsm_tussenkomst_aankoop_toestel',
+    10871: 'correctie_standaard_leegloop',
+    10891: 'projectpremie_per_maand',
+    10892: 'bonus_commissies',
+    10893: 'andere_kosten',
+    10932: 'ancienniteitstoeslag',
+    10933: 'andere_premies',
+    10934: 'groepsverzekering_yn',
+    10935: 'wetsverzekering_yn',
+    10936: 'ploegen_nacht_premie',
+    10937: 'perc_ploegenarbeid',
+    10938: 'hospitalisatieverzekering_yn',
+    11000: 'forfaitaire_onkostenvergoeding_maand',
+    11010: 'auteursrechten',
+    11020: 'mobiliteitsprogramma',
+    11030: 'brutopremie_mobiliteit',
+    11040: 'kost_leasefiets',
+    11172: '3e_betaler_tram_bus_metro',
 };
 
 const KEY_TO_COMPONENT_ID = Object.fromEntries(
@@ -139,37 +175,47 @@ export default class KpbPage extends LightningElement {
     ];
 
     mobilityDefinitions = [
-        { key: 'keuze_lease_category', label: 'Keuze lease category', isPicklist: true, unit: '', options: [{ label: 'Categorie 1', value: 'Categorie 1' }, { label: 'Categorie 2', value: 'Categorie 2' }, { label: 'Categorie 3', value: 'Categorie 3' }, { label: 'Categorie 4', value: 'Categorie 4' }, { label: 'Categorie 1E', value: 'Categorie 1E' }, { label: 'Categorie 2E', value: 'Categorie 2E' }, { label: 'Categorie 3E', value: 'Categorie 3E' }, { label: 'Categorie 4E', value: 'Categorie 4E' }], defaultValue: null, disabled: false },
-        { key: 'tankkaart_budget', label: 'Tankkaart budget', isPicklist: false, unit: '€ per maand', options: [], defaultValue: 300, disabled: false },
+        { key: 'keuze_lease_category',       label: 'Keuze lease category',         isPicklist: true,  unit: '',           options: [{ label: 'Categorie 1', value: 'Categorie 1' }, { label: 'Categorie 2', value: 'Categorie 2' }, { label: 'Categorie 3', value: 'Categorie 3' }, { label: 'Categorie 4', value: 'Categorie 4' }, { label: 'Categorie 1E', value: 'Categorie 1E' }, { label: 'Categorie 2E', value: 'Categorie 2E' }, { label: 'Categorie 3E', value: 'Categorie 3E' }, { label: 'Categorie 4E', value: 'Categorie 4E' }], defaultValue: null, disabled: false },
+        { key: 'tankkaart_budget',            label: 'Tankkaart budget',              isPicklist: false, unit: '€ per maand', options: [], defaultValue: 300,  disabled: false },
         { key: 'bedrijfswagen_netto_inhouding', label: 'Bedrijfswagen netto-inhouding', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
-        { key: 'mobiliteitsprogramma', label: 'Mobiliteitsprogramma', isPicklist: true, unit: '', options: [{ label: 'Fleet Family', value: 'Fleet Family' }, { label: 'Fleet Flex + Mobiliteitsbudget', value: 'Fleet Flex + Mobiliteitsbudget' }, { label: 'Fleet Flex', value: 'Fleet Flex' }, { label: 'Mobiliteitsbudget', value: 'Mobiliteitsbudget' }], defaultValue: null, disabled: false }
+        { key: 'woon_werkverkeer',            label: 'Woon-werkverkeer',              isPicklist: false, unit: 'km',          options: [], defaultValue: null, disabled: false },
+        { key: 'mobiliteitsprogramma',        label: 'Mobiliteitsprogramma',          isPicklist: true,  unit: '',           options: [{ label: 'Fleet Family', value: 'Fleet Family' }, { label: 'Fleet Flex + Mobiliteitsbudget', value: 'Fleet Flex + Mobiliteitsbudget' }, { label: 'Fleet Flex', value: 'Fleet Flex' }, { label: 'Mobiliteitsbudget', value: 'Mobiliteitsbudget' }], defaultValue: null, disabled: false },
     ];
 
     variableDefinitions = [
-        { key: 'maaltijdcheques', label: 'Maaltijdcheques', isPicklist: true, unit: '€ per dag', options: [{ label: '', value: '' }, { label: '6,91 WG + 1,09 WN', value: '6,91 WG + 1,09 WN' }], defaultValue: '', disabled: false },
-        { key: 'gsm', label: 'GSM', isPicklist: true, unit: '€ per maand', options: [{ label: '0', value: '0' }, { label: '19', value: '19' }], defaultValue: '0', disabled: false },
-        { key: '3de_betaler_trein_aantal_km_enkel', label: '3de betaler trein aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: '3e_betaler_tram_bus_metro', label: '3e betaler (tram/bus/metro)', isPicklist: true, unit: '', options: [{ label: 'De Lijn', value: 'De Lijn' }, { label: 'MIVB', value: 'MIVB' }, { label: 'Tec', value: 'Tec' }], defaultValue: null, disabled: false },
-        { key: 'andere_kosten', label: 'Andere kosten', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: null, disabled: false },
-        { key: 'bonus_commissies', label: 'Bonus/Commissies', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: null, disabled: false },
-        { key: 'correctie_standaard_leegloop', label: 'Correctie standaard leegloop', isPicklist: false, unit: '', options: [], defaultValue: null, disabled: false },
-        { key: 'ecocheques', label: 'Ecocheques', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: 0, disabled: true },
-        { key: 'extra_opleiding', label: 'Extra opleiding', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: null, disabled: false },
-        { key: 'extra_opzegvergoeding', label: 'Extra opzegvergoeding', isPicklist: false, unit: '€ per jaar', options: [], defaultValue: null, disabled: false },
-        { key: 'fietsvergoeding_aantal_km_enkel', label: 'Fietsvergoeding aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: 'forfaitaire_onkostenvergoeding_maand', label: 'Forfaitaire onkostenvergoeding (maand)', isPicklist: false, unit: '€ per maand', options: [], defaultValue: 0, disabled: true },
-        { key: 'gsm_tussenkomst_aankoop_toestel', label: 'GSM tussenkomst aankoop toestel', isPicklist: true, unit: '€ per jaar', options: [{ label: '0', value: '0' }, { label: '100', value: '100' }, { label: '150', value: '150' }, { label: '300', value: '300' }], defaultValue: '0', disabled: false },
-        { key: 'internetvergoeding', label: 'Internetvergoeding', isPicklist: true, unit: '€ per maand', options: [{ label: '0', value: '0' }, { label: '20', value: '20' }], defaultValue: '0', disabled: false },
-        { key: 'parkingkosten', label: 'Parkingkosten', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
-        { key: 'ploegenarbeid_volgens_voorwaarden', label: 'Ploegenarbeid volgens voorwaarden', isPicklist: true, unit: '', options: [{ label: '', value: '' }, { label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: '', disabled: false },
-        { key: 'projectpremie_per_maand', label: 'Projectpremie per maand', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
-        { key: 'soc_abon_trein_aantal_km_enkel', label: 'Soc. abon. trein aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: 'soc_abon_tram_metro_bus_aantal_km_enkel', label: 'Soc. abon. aantal km enkel (tram, metro, bus)', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: 'maaltijdcheques',                           label: 'Maaltijdcheques',                              isPicklist: true,  unit: '€ per dag',        options: [{ label: '', value: '' }, { label: '6,91 WG + 1,09 WN', value: '6,91 WG + 1,09 WN' }], defaultValue: '', disabled: false },
+        { key: 'gsm',                                        label: 'GSM',                                          isPicklist: true,  unit: '€ per maand',      options: [{ label: '0', value: '0' }, { label: '19', value: '19' }], defaultValue: '0', disabled: false },
+        { key: '3de_betaler_trein_aantal_km_enkel',          label: '3de betaler trein aantal km enkel',            isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: '3e_betaler_tram_bus_metro',                  label: '3e betaler (tram/bus/metro)',                  isPicklist: true,  unit: '',                 options: [{ label: 'De Lijn', value: 'De Lijn' }, { label: 'MIVB', value: 'MIVB' }, { label: 'Tec', value: 'Tec' }], defaultValue: null, disabled: false },
+        { key: 'ancienniteitstoeslag',                       label: 'Anciënniteitstoeslag',                         isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
+        { key: 'andere_kosten',                              label: 'Andere kosten',                                isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
+        { key: 'andere_kosten_per_maand',                    label: 'Andere kosten per maand',                      isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'andere_premies',                             label: 'Andere premies',                               isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
+        { key: 'auteursrechten',                             label: 'Auteursrechten',                               isPicklist: false, unit: '%',                options: [], defaultValue: null, disabled: false },
+        { key: 'bonus_commissies',                           label: 'Bonus/Commissies',                             isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
+        { key: 'brutopremie_mobiliteit',                     label: 'Brutopremie Mobiliteit',                       isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'correctie_standaard_leegloop',               label: 'Correctie standaard leegloop',                 isPicklist: false, unit: '',                 options: [], defaultValue: null, disabled: false },
+        { key: 'dagvergoeding',                              label: 'Forfaitaire onkostenvergoeding (dag)',          isPicklist: false, unit: '€ per dag',        options: [], defaultValue: null, disabled: false },
+        { key: 'ecocheques',                                 label: 'Ecocheques',                                   isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: 0,    disabled: true },
+        { key: 'extra_opleiding',                            label: 'Extra opleiding',                              isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
+        { key: 'extra_opzegvergoeding',                      label: 'Extra opzegvergoeding',                        isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
+        { key: 'fietsvergoeding_aantal_km_enkel',            label: 'Fietsvergoeding aantal km enkel',              isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: 'forfaitaire_onkostenvergoeding_maand',       label: 'Forfaitaire onkostenvergoeding (maand)',       isPicklist: false, unit: '€ per maand',      options: [], defaultValue: 0,    disabled: true },
+        { key: 'groepsverzekering_yn',                       label: 'Groepsverzekering',                            isPicklist: true,  unit: '',                 options: [{ label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: null, disabled: false },
+        { key: 'gsm_tussenkomst_aankoop_toestel',            label: 'GSM tussenkomst aankoop toestel',              isPicklist: true,  unit: '€ per jaar',       options: [{ label: '0', value: '0' }, { label: '100', value: '100' }, { label: '150', value: '150' }, { label: '300', value: '300' }], defaultValue: '0', disabled: false },
+        { key: 'hospitalisatieverzekering_yn',               label: 'Hospitalisatieverzekering',                    isPicklist: true,  unit: '',                 options: [{ label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: null, disabled: false },
+        { key: 'internetvergoeding',                         label: 'Internetvergoeding',                           isPicklist: true,  unit: '€ per maand',      options: [{ label: '0', value: '0' }, { label: '20', value: '20' }], defaultValue: '0', disabled: false },
+        { key: 'kost_leasefiets',                            label: 'Kost leasefiets',                              isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'parkingkosten',                              label: 'Parkingkosten',                                isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'perc_ploegenarbeid',                         label: '% ploegenarbeid',                              isPicklist: false, unit: '%',                options: [], defaultValue: null, disabled: false },
+        { key: 'ploegenarbeid_volgens_voorwaarden',          label: 'Ploegenarbeid volgens voorwaarden',            isPicklist: true,  unit: '',                 options: [{ label: '', value: '' }, { label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: '', disabled: false },
+        { key: 'ploegen_nacht_premie',                       label: 'Premie per uur ploegen/nacht',                 isPicklist: false, unit: '€ per uur',        options: [], defaultValue: null, disabled: false },
+        { key: 'projectpremie_per_maand',                    label: 'Projectpremie per maand',                      isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'soc_abon_trein_aantal_km_enkel',             label: 'Soc. abon. trein aantal km enkel',             isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
+        { key: 'soc_abon_tram_metro_bus_aantal_km_enkel',    label: 'Soc. abon. aantal km enkel (tram, metro, bus)', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
         { key: 'soc_abon_prive_vervoer_auto_aantal_km_enkel', label: 'Soc. abon. privé vervoer auto aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: 'televergoeding', label: 'Televergoeding', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
-        { key: 'auteursrechten', label: 'Auteursrechten', isPicklist: false, unit: '%', options: [], defaultValue: null, disabled: false },
-        { key: 'brutopremie_mobiliteit', label: 'Brutopremie Mobiliteit', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
-        { key: 'kost_leasefiets', label: 'Kost leasefiets', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false }
+        { key: 'televergoeding',                             label: 'Televergoeding',                               isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'wetsverzekering_yn',                         label: 'Wetsverzekering',                              isPicklist: true,  unit: '',                 options: [{ label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: null, disabled: false },
     ];
 
     defaultMobilityKeys = ['keuze_lease_category'];
@@ -348,6 +394,7 @@ export default class KpbPage extends LightningElement {
         const newMobility = [];
         const newVariable = [];
         for (const comp of components) {
+            if (comp.component_type === 'FIX') continue;
             const key = COMPONENT_ID_TO_KEY[comp.parent_component_id];
             if (!key) continue;
             let value = comp.unit_quantity ?? comp.value?.per_month ?? comp.value?.total ?? null;
