@@ -135,7 +135,6 @@ export default class KpbPage extends LightningElement {
     salesPricePerDay;
     mobilityRows = [];
     variableRows = [];
-    fixedRows = [];
     variableAddValue = null;
     simulationType = null;
     kpbId = null;
@@ -186,18 +185,6 @@ export default class KpbPage extends LightningElement {
         { id: 30240, label: '99 Bedienden 12 ADV 40 u/wk' },
     ];
 
-    fixedDefinitions = [
-        { key: 'hospitalisatie_verzekering', label: 'Hospitalisatieverzekering' },
-        { key: 'groepsverzekering',          label: 'Groepsverzekering' },
-        { key: 'ziektecontrole',             label: 'Ziektecontrole' },
-        { key: 'uniform',                    label: 'Uniform' },
-        { key: 'kosten_sd',                  label: 'Kosten SD Worx' },
-        { key: 'gelijkgestelde_rechten',     label: 'Gelijkgestelde rechten' },
-        { key: 'koopkrachtpremie',           label: 'Koopkrachtpremie' },
-        { key: 'opzegvergoeding_per_jaar',   label: 'Opzegvergoeding per jaar' },
-        { key: 'sport_en_cultuurcheques',    label: 'Sport- en cultuurcheques' },
-    ];
-
     mobilityDefinitions = [
         { key: 'keuze_lease_category',       label: 'Keuze lease category',         isPicklist: true,  unit: '',           options: [{ label: 'Categorie 1', value: 'Categorie 1' }, { label: 'Categorie 2', value: 'Categorie 2' }, { label: 'Categorie 3', value: 'Categorie 3' }, { label: 'Categorie 4', value: 'Categorie 4' }, { label: 'Categorie 1E', value: 'Categorie 1E' }, { label: 'Categorie 2E', value: 'Categorie 2E' }, { label: 'Categorie 3E', value: 'Categorie 3E' }, { label: 'Categorie 4E', value: 'Categorie 4E' }], defaultValue: null, disabled: false },
         { key: 'tankkaart_budget',            label: 'Tankkaart budget',              isPicklist: false, unit: '€ per maand', options: [], defaultValue: 300,  disabled: false },
@@ -240,6 +227,15 @@ export default class KpbPage extends LightningElement {
         { key: 'soc_abon_prive_vervoer_auto_aantal_km_enkel', label: 'Soc. abon. privé vervoer auto aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
         { key: 'televergoeding',                             label: 'Televergoeding',                               isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
         { key: 'wetsverzekering_yn',                         label: 'Wetsverzekering',                              isPicklist: true,  unit: '',                 options: [{ label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: null, disabled: false },
+        { key: 'hospitalisatie_verzekering',                 label: 'Hospitalisatieverzekering',                    isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'groepsverzekering',                          label: 'Groepsverzekering',                            isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'ziektecontrole',                             label: 'Ziektecontrole',                               isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'uniform',                                    label: 'Uniform',                                      isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'kosten_sd',                                  label: 'Kosten SD Worx',                               isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'gelijkgestelde_rechten',                     label: 'Gelijkgestelde rechten',                       isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'koopkrachtpremie',                           label: 'Koopkrachtpremie',                             isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'opzegvergoeding_per_jaar',                   label: 'Opzegvergoeding per jaar',                     isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'sport_en_cultuurcheques',                    label: 'Sport- en cultuurcheques',                     isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
     ];
 
     defaultMobilityKeys = ['keuze_lease_category'];
@@ -266,10 +262,6 @@ export default class KpbPage extends LightningElement {
 
     get showApprove() {
         return this.action === 'EDIT';
-    }
-
-    get hasFixedRows() {
-        return this.fixedRows.length > 0;
     }
 
     get salesPriceDisabled() {
@@ -419,24 +411,15 @@ export default class KpbPage extends LightningElement {
     _populateRows(components) {
         const mobilityKeySet = new Set(this.mobilityDefinitions.map(d => d.key));
         const variableKeySet = new Set(this.variableDefinitions.map(d => d.key));
-        const fixedKeySet   = new Set(this.fixedDefinitions.map(d => d.key));
         const newMobility = [];
         const newVariable = [];
-        const newFixed    = [];
         for (const comp of components) {
             const key = COMPONENT_ID_TO_KEY[comp.parent_component_id];
             if (!key) continue;
-            if (comp.component_type === 'FIX') {
-                const unitLabel = comp.unit === 'Y' ? '€ per jaar' : '€ per maand';
-                const value = comp.unit === 'Y'
-                    ? (comp.value?.total ?? null)
-                    : (comp.value?.per_month ?? null);
-                const def = this.fixedDefinitions.find(d => d.key === key);
-                if (def) newFixed.push({ key, label: def.label, value, unit: unitLabel });
-                continue;
-            }
             let value;
-            if (comp.unit_quantity !== null && comp.unit_quantity !== -1) {
+            if (comp.component_type === 'FIX') {
+                value = comp.value?.per_month ?? null;
+            } else if (comp.unit_quantity !== null && comp.unit_quantity !== -1) {
                 value = comp.unit_quantity;
             } else {
                 value = comp.unit === 'M'
@@ -454,7 +437,6 @@ export default class KpbPage extends LightningElement {
         }
         if (newMobility.length > 0) this.mobilityRows = newMobility;
         if (newVariable.length > 0) this.variableRows = newVariable;
-        if (newFixed.length > 0)    this.fixedRows    = newFixed;
     }
 
     @wire(CurrentPageReference)
@@ -589,7 +571,6 @@ export default class KpbPage extends LightningElement {
             .map(k => this.variableDefinitions.find(d => d.key === k))
             .filter(Boolean)
             .map(d => this._defToRow(d));
-        this.fixedRows = [];
     }
 
     handleReset() {
