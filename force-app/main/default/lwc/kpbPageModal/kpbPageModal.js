@@ -8,7 +8,8 @@ export default class KpbPageModal extends LightningModal {
     @api candidateName;
 
     get title() {
-        return this.action === 'NEW' ? 'New Cost Group' : 'Edit Cost Group';
+        if (this.action === 'EDIT') return 'Edit Cost Group';
+        return 'New Cost Group';
     }
 
     handleClose() {
