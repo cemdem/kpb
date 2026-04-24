@@ -545,7 +545,7 @@ export default class KpbPage extends LightningElement {
         this.isLoading = true;
         try {
             const body = this._buildPayload();
-            console.log('[kpbPage] handleSave payload:', body);
+            console.log('[kpbPage] handleSave — action:', this.action, '| kpbId:', this.kpbId, '| payload:', body);
             const isNew = this.action === 'NEW' || this.action === 'COPY';
             const result = isNew
                 ? await createKpb({ body })
