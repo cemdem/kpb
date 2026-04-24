@@ -579,8 +579,8 @@ export default class KpbPage extends LightningElement {
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const brand = normalizeBrand(this.brand) || this.userBrand;
         const costgroup = {
-            payroll_id:              isNew ? (brand === 'UNQ' ? 6 : 14001) : this.number,
-            unit_id:                 isNew ? (brand === 'UNQ' ? 19 : 14023) : this.unitId,
+            payroll_id:              isNew ? (brand === 'UNQ' ? 14001 : 6) : this.number,
+            unit_id:                 isNew ? (brand === 'UNQ' ? 14023 : 19) : this.unitId,
             simulation_type:         this.simulationType || 'ANO',
             avg_days_per_week_cost:  this.avgDaysPerWeekCost,
             avg_days_per_week_sales: this.avgDaysPerWeekSales,
