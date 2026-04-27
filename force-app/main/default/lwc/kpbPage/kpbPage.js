@@ -639,6 +639,51 @@ export default class KpbPage extends LightningElement {
         return `HTTP ${result.httpCode}: ${result.result}`;
     }
 
+    async handleCalculate() {
+        this.isLoading = true;
+        try {
+            const body = this._buildPayload();
+            console.log('[kpbPage] handleCalculate — action:', this.action, '| kpbId:', this.kpbId, '| payload:', body);
+            const isNew = this.action === 'NEW' || this.action === 'COPY';
+            const result = isNew
+                ? await createKpb({ body })
+                : await updateKpb({ kpbId: String(this.kpbId), body });
+            if (result.success) {
+                let idToFetch = this.kpbId;
+                if (isNew && result.headerLocation) {
+                    const m = result.headerLocation.match(/candidate-costs\/(\d+)/);
+                    if (m) idToFetch = m[1];
+                }
+                if (idToFetch) {
+                    const fetched = await getKpb({ recordId: String(idToFetch) });
+                    if (fetched.success) {
+                        const raw = JSON.parse(fetched.result);
+                        this._populate(raw.costgroup || raw);
+                        if (isNew) this.action = 'EDIT';
+                    }
+                }
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Berekening uitgevoerd.',
+                    variant: 'success'
+                }));
+            } else {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Fout bij berekenen',
+                    message: this._apiError(result),
+                    variant: 'error'
+                }));
+            }
+        } catch (e) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Fout bij berekenen',
+                message: e.body?.message ?? e.message ?? 'Onbekende fout',
+                variant: 'error'
+            }));
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
     async handleSave() {
         this.isLoading = true;
         try {
