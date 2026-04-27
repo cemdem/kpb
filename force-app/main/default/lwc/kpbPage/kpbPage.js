@@ -274,6 +274,11 @@ export default class KpbPage extends LightningElement {
         return this.kpbId !== null;
     }
 
+    get kpbStatusLabel() {
+        const map = { BL: 'Blanco', T: 'Te valideren', V: 'Gevalideerd', GG: 'Goedgekeurd', VE: 'Verwerkt', GT: 'Goed te keuren', R: 'Afgekeurd' };
+        return map[this.kpbStatus] ?? this.kpbStatus ?? '';
+    }
+
     get salesPriceDisabled() {
         return this.calculationMethod !== 'Verkoopprijs';
     }
