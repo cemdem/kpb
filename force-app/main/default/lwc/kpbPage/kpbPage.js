@@ -445,6 +445,8 @@ export default class KpbPage extends LightningElement {
             if (key === 'bedrijfswagen_netto_inhouding' && value != null) value = Math.abs(value);
             const rawPerHour = comp.value?.per_hour;
             const perHour = (rawPerHour !== null && rawPerHour !== undefined && rawPerHour !== 0) ? rawPerHour : null;
+            const valueIsEmpty = value === null || value === undefined || value === 0 || value === '';
+            if (valueIsEmpty && !rawPerHour) continue;
             if (mobilityKeySet.has(key)) {
                 const def = this.mobilityDefinitions.find(d => d.key === key);
                 if (def.isPicklist && value != null) value = String(value);
