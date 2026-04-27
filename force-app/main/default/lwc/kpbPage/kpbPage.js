@@ -406,7 +406,7 @@ export default class KpbPage extends LightningElement {
         this.avgDaysPerWeekCost   = cg.avg_days_per_week_cost ?? null;
         this.salesPricePerDay     = cg.sales_price_per_day ?? null;
         this.fulltimeEquivalent   = cg.fulltime_equivalent_id != null ? String(cg.fulltime_equivalent_id) : '';
-        this.calculateFromDate    = this._toDateOnly(cg.calculate_from_date);
+        this.calculateFromDate    = cg.calculate_from_date ?? null;
         this.kpbStatus            = cg.status ?? '';
         this.totalCostPerHourExcl = cg.total_cost_per_hour_excl ?? null;
         this.totalCostPerDay      = cg.total_cost_per_day ?? null;
@@ -414,7 +414,7 @@ export default class KpbPage extends LightningElement {
         this.salaryCost           = cg.salary_cost ?? null;
         this.carCostCalc          = cg.car_cost ?? null;
         this.otherCostCalc        = cg.other_cost ?? null;
-        if (cg.first_approved_on) this.createdDate = this._toDateOnly(cg.first_approved_on);
+        if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
         if (cg.simulation_type)   this.simulationType = cg.simulation_type;
         if (Array.isArray(cg.components)) {
             this.formType = cg.components.some(c => c.component_type === 'CAR') ? 'Werknemer' : 'Freelancer';
@@ -735,7 +735,7 @@ export default class KpbPage extends LightningElement {
             avg_days_per_week_sales: this.avgDaysPerWeekSales,
             avg_hours_per_week_cost: this.avgHoursPerWeekCost,
             avg_hours_per_week_sales:this.avgHoursPerWeekSales,
-            calculate_from_date:     this.calculateFromDate || null,
+            calculate_from_date:     this._toDateOnly(this.calculateFromDate),
             calculation_method:      this.calculationMethod === 'Verkoopprijs' ? '1' : '2',
             calculation_type_id:     this.calculationType ? Number(this.calculationType) : null,
             car_cost:                isNew ? 0 : this.carCost,
