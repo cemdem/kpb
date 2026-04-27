@@ -572,13 +572,6 @@ export default class KpbPage extends LightningElement {
         }
     }
 
-    _toDateOnly(v) {
-        if (!v) return null;
-        const s = String(v);
-        const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
-        return m ? m[1] : s;
-    }
-
     _defToRow(def) {
         return {
             key: def.key,
@@ -735,7 +728,7 @@ export default class KpbPage extends LightningElement {
             avg_days_per_week_sales: this.avgDaysPerWeekSales,
             avg_hours_per_week_cost: this.avgHoursPerWeekCost,
             avg_hours_per_week_sales:this.avgHoursPerWeekSales,
-            calculate_from_date:     this._toDateOnly(this.calculateFromDate),
+            calculate_from_date:     this.calculateFromDate || null,
             calculation_method:      this.calculationMethod === 'Verkoopprijs' ? '1' : '2',
             calculation_type_id:     this.calculationType ? Number(this.calculationType) : null,
             car_cost:                isNew ? 0 : this.carCost,
