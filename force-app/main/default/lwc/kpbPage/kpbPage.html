@@ -214,6 +214,26 @@
                                         required>
                                     </lightning-input>
                                 </div>
+                                <template lwc:if={hasCalcResults}>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Totale kosten/uur" variant="label-inline" value={totalCostPerHourExcl} disabled></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Totale kosten/dag" variant="label-inline" value={totalCostPerDay} disabled></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Totale kosten/maand" variant="label-inline" value={totalCostPerMonth} disabled></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Loonkosten" variant="label-inline" value={salaryCost} disabled></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Transport" variant="label-inline" value={carCostCalc} disabled></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-input label="Andere kosten" variant="label-inline" value={otherCostCalc} disabled></lightning-input>
+                                    </div>
+                                </template>
                             </div>
                         </lightning-card>
                     </div>
@@ -306,6 +326,7 @@
                                                 <th>Type</th>
                                                 <th style="width: 220px;">Aantal</th>
                                                 <th style="width: 140px;">Eenheid</th>
+                                                <th style="width: 110px;">Kostprijs/u</th>
                                                 <th style="width: 48px;"></th>
                                             </tr>
                                         </thead>
@@ -332,6 +353,7 @@
                                                         </template>
                                                     </td>
                                                     <td>{row.unit}</td>
+                                                    <td>{row.perHour}</td>
                                                     <td class="slds-text-align_center kpb-trash">
                                                         <lightning-button-icon
                                                             icon-name="utility:delete"
@@ -364,7 +386,8 @@
                                             <tr>
                                                 <th>Type</th>
                                                 <th style="width: 220px;">Aantal</th>
-                                                <th style="width: 180px;">Eenheid</th>
+                                                <th style="width: 140px;">Eenheid</th>
+                                                <th style="width: 110px;">Kostprijs/u</th>
                                                 <th style="width: 48px;"></th>
                                             </tr>
                                         </thead>
@@ -393,6 +416,7 @@
                                                         </template>
                                                     </td>
                                                     <td>{row.unit}</td>
+                                                    <td>{row.perHour}</td>
                                                     <td class="slds-text-align_center kpb-trash">
                                                         <lightning-button-icon
                                                             icon-name="utility:delete"

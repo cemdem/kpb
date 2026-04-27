@@ -136,6 +136,12 @@ export default class KpbPage extends LightningElement {
     mobilityRows = [];
     variableRows = [];
     variableAddValue = null;
+    totalCostPerHourExcl = null;
+    totalCostPerDay = null;
+    totalCostPerMonth = null;
+    salaryCost = null;
+    carCostCalc = null;
+    otherCostCalc = null;
     simulationType = null;
     kpbId = null;
     unitId = null;
@@ -194,7 +200,7 @@ export default class KpbPage extends LightningElement {
     ];
 
     variableDefinitions = [
-        { key: 'maaltijdcheques',                           label: 'Maaltijdcheques',                              isPicklist: true,  unit: '€ per dag',        options: [{ label: '', value: '' }, { label: '6,91 WG + 1,09 WN', value: '6,91 WG + 1,09 WN' }], defaultValue: '', disabled: false },
+        { key: 'maaltijdcheques',                           label: 'Maaltijdcheques',                              isPicklist: true,  unit: '€ per dag',        options: [{ label: '', value: '' }, { label: '6,91 WG + 1,09 WN', value: '325' }], defaultValue: '', disabled: false },
         { key: 'gsm',                                        label: 'GSM',                                          isPicklist: true,  unit: '€ per maand',      options: [{ label: '0', value: '0' }, { label: '19', value: '19' }], defaultValue: '0', disabled: false },
         { key: '3de_betaler_trein_aantal_km_enkel',          label: '3de betaler trein aantal km enkel',            isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
         { key: '3e_betaler_tram_bus_metro',                  label: '3e betaler (tram/bus/metro)',                  isPicklist: true,  unit: '',                 options: [{ label: 'De Lijn', value: 'De Lijn' }, { label: 'MIVB', value: 'MIVB' }, { label: 'Tec', value: 'Tec' }], defaultValue: null, disabled: false },
@@ -262,6 +268,10 @@ export default class KpbPage extends LightningElement {
 
     get showApprove() {
         return this.action === 'EDIT';
+    }
+
+    get hasCalcResults() {
+        return this.kpbId !== null;
     }
 
     get salesPriceDisabled() {
@@ -398,6 +408,12 @@ export default class KpbPage extends LightningElement {
         this.fulltimeEquivalent   = cg.fulltime_equivalent_id != null ? String(cg.fulltime_equivalent_id) : '';
         this.calculateFromDate    = cg.calculate_from_date ?? null;
         this.kpbStatus            = cg.status ?? '';
+        this.totalCostPerHourExcl = cg.total_cost_per_hour_excl ?? null;
+        this.totalCostPerDay      = cg.total_cost_per_day ?? null;
+        this.totalCostPerMonth    = cg.total_cost_per_month ?? null;
+        this.salaryCost           = cg.salary_cost ?? null;
+        this.carCostCalc          = cg.car_cost ?? null;
+        this.otherCostCalc        = cg.other_cost ?? null;
         if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
         if (cg.simulation_type)   this.simulationType = cg.simulation_type;
         if (Array.isArray(cg.components)) {
@@ -427,14 +443,16 @@ export default class KpbPage extends LightningElement {
                     : (comp.value?.total ?? null);
             }
             if (key === 'bedrijfswagen_netto_inhouding' && value != null) value = Math.abs(value);
+            const rawPerHour = comp.value?.per_hour;
+            const perHour = (rawPerHour !== null && rawPerHour !== undefined && rawPerHour !== 0) ? rawPerHour : null;
             if (mobilityKeySet.has(key)) {
                 const def = this.mobilityDefinitions.find(d => d.key === key);
                 if (def.isPicklist && value != null) value = String(value);
-                newMobility.push({ ...this._defToRow(def), value });
+                newMobility.push({ ...this._defToRow(def), value, perHour });
             } else if (variableKeySet.has(key)) {
                 const def = this.variableDefinitions.find(d => d.key === key);
                 if (def.isPicklist && value != null) value = String(value);
-                newVariable.push({ ...this._defToRow(def), value });
+                newVariable.push({ ...this._defToRow(def), value, perHour });
             }
         }
         if (newMobility.length > 0) this.mobilityRows = newMobility;
@@ -560,7 +578,8 @@ export default class KpbPage extends LightningElement {
             unit: def.unit,
             options: def.options,
             value: def.defaultValue,
-            disabled: !!def.disabled
+            disabled: !!def.disabled,
+            perHour: null
         };
     }
 
