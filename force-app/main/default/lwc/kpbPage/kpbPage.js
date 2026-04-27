@@ -377,7 +377,7 @@ export default class KpbPage extends LightningElement {
         }
     }
 
-    _populate(cg) {
+    _populate(cg, updateFormType = true) {
         this.kpbId                = cg.id ?? null;
         this.number               = cg.payroll_id ?? null;
         this.unitId               = cg.unit_id ?? null;
@@ -416,7 +416,7 @@ export default class KpbPage extends LightningElement {
         this.otherCostCalc        = cg.other_cost ?? null;
         if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
         if (cg.simulation_type)   this.simulationType = cg.simulation_type;
-        if (Array.isArray(cg.components)) {
+        if (updateFormType && Array.isArray(cg.components)) {
             this.formType = cg.components.some(c => c.component_type === 'CAR') ? 'Werknemer' : 'Freelancer';
         }
         if (Array.isArray(cg.components) && cg.components.length > 0) {
@@ -652,7 +652,7 @@ export default class KpbPage extends LightningElement {
                 if (result.result) {
                     try {
                         const raw = JSON.parse(result.result);
-                        this._populate(raw.costgroup || raw);
+                        this._populate(raw.costgroup || raw, false);
                     } catch (parseErr) {
                         console.warn('[kpbPage] handleCalculate — could not parse response:', parseErr);
                     }
