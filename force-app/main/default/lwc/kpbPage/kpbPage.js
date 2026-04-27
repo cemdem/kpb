@@ -406,9 +406,7 @@ export default class KpbPage extends LightningElement {
         this.avgDaysPerWeekCost   = cg.avg_days_per_week_cost ?? null;
         this.salesPricePerDay     = cg.sales_price_per_day ?? null;
         this.fulltimeEquivalent   = cg.fulltime_equivalent_id != null ? String(cg.fulltime_equivalent_id) : '';
-        console.log('[kpbPage] _populate — raw calculate_from_date:', JSON.stringify(cg.calculate_from_date), '| typeof:', typeof cg.calculate_from_date);
         this.calculateFromDate    = cg.calculate_from_date ?? null;
-        console.log('[kpbPage] _populate — assigned this.calculateFromDate:', JSON.stringify(this.calculateFromDate));
         this.kpbStatus            = cg.status ?? '';
         this.totalCostPerHourExcl = cg.total_cost_per_hour_excl ?? null;
         this.totalCostPerDay      = cg.total_cost_per_day ?? null;
@@ -511,11 +509,7 @@ export default class KpbPage extends LightningElement {
 
     handleFieldChange(event) {
         const value = event.detail?.value !== undefined ? event.detail.value : event.target.value;
-        const field = event.target.dataset.field;
-        if (field === 'calculateFromDate') {
-            console.log('[kpbPage] handleFieldChange — calculateFromDate input:', JSON.stringify(value), '| typeof:', typeof value, '| event.detail:', JSON.stringify(event.detail));
-        }
-        this[field] = value;
+        this[event.target.dataset.field] = value;
     }
 
     handleFulltimeEquivalentChange(event) {
@@ -576,6 +570,13 @@ export default class KpbPage extends LightningElement {
         } else {
             this.variableRows = this.variableRows.filter(r => r.key !== key);
         }
+    }
+
+    _toDateOnly(v) {
+        if (!v) return null;
+        const s = String(v);
+        const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+        return m ? m[1] : s;
     }
 
     _defToRow(def) {
@@ -695,7 +696,6 @@ export default class KpbPage extends LightningElement {
             const result = isNew
                 ? await createKpb({ body })
                 : await updateKpb({ kpbId: String(this.kpbId), body });
-            console.log('[kpbPage] handleSave — response success:', result.success, '| httpCode:', result.httpCode, '| result:', result.result);
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({
                     title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
@@ -703,7 +703,6 @@ export default class KpbPage extends LightningElement {
                 }));
                 this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
             } else {
-                console.error('[kpbPage] handleSave — API error body:', result.result);
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Fout bij bewaren',
                     message: this._apiError(result),
@@ -732,7 +731,7 @@ export default class KpbPage extends LightningElement {
             avg_days_per_week_sales: this.avgDaysPerWeekSales,
             avg_hours_per_week_cost: this.avgHoursPerWeekCost,
             avg_hours_per_week_sales:this.avgHoursPerWeekSales,
-            calculate_from_date:     (() => { const v = this.calculateFromDate || null; console.log('[kpbPage] _buildPayload — sending calculate_from_date:', JSON.stringify(v), '| typeof:', typeof v); return v; })(),
+            calculate_from_date:     this._toDateOnly(this.calculateFromDate),
             calculation_method:      this.calculationMethod === 'Verkoopprijs' ? '1' : '2',
             calculation_type_id:     this.calculationType ? Number(this.calculationType) : null,
             car_cost:                isNew ? 0 : this.carCost,
