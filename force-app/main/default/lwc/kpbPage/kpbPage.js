@@ -649,19 +649,15 @@ export default class KpbPage extends LightningElement {
                 ? await createKpb({ body })
                 : await updateKpb({ kpbId: String(this.kpbId), body });
             if (result.success) {
-                let idToFetch = this.kpbId;
-                if (isNew && result.headerLocation) {
-                    const m = result.headerLocation.match(/candidate-costs\/(\d+)/);
-                    if (m) idToFetch = m[1];
-                }
-                if (idToFetch) {
-                    const fetched = await getKpb({ recordId: String(idToFetch) });
-                    if (fetched.success) {
-                        const raw = JSON.parse(fetched.result);
+                if (result.result) {
+                    try {
+                        const raw = JSON.parse(result.result);
                         this._populate(raw.costgroup || raw);
-                        if (isNew) this.action = 'EDIT';
+                    } catch (parseErr) {
+                        console.warn('[kpbPage] handleCalculate — could not parse response:', parseErr);
                     }
                 }
+                if (isNew) this.action = 'EDIT';
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Berekening uitgevoerd.',
                     variant: 'success'
