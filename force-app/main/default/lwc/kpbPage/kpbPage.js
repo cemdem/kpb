@@ -639,8 +639,6 @@ export default class KpbPage extends LightningElement {
         return `HTTP ${result.httpCode}: ${result.result}`;
     }
 
-    handleCalculate() {}
-
     async handleSave() {
         this.isLoading = true;
         try {
