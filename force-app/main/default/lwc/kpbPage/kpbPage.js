@@ -727,6 +727,12 @@ export default class KpbPage extends LightningElement {
         }
     }
 
+    _toNumber(v) {
+        if (v === null || v === undefined || v === '') return null;
+        const n = Number(v);
+        return Number.isFinite(n) ? n : null;
+    }
+
     _buildPayload() {
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const brand = normalizeBrand(this.brand) || this.userBrand;
@@ -734,10 +740,10 @@ export default class KpbPage extends LightningElement {
             payroll_id:              isNew ? (brand === 'UNQ' ? 14001 : 6) : this.number,
             unit_id:                 isNew ? (brand === 'UNQ' ? 14023 : 19) : this.unitId,
             simulation_type:         this.simulationType || 'ANO',
-            avg_days_per_week_cost:  this.avgDaysPerWeekCost,
-            avg_days_per_week_sales: this.avgDaysPerWeekSales,
-            avg_hours_per_week_cost: this.avgHoursPerWeekCost,
-            avg_hours_per_week_sales:this.avgHoursPerWeekSales,
+            avg_days_per_week_cost:  this._toNumber(this.avgDaysPerWeekCost),
+            avg_days_per_week_sales: this._toNumber(this.avgDaysPerWeekSales),
+            avg_hours_per_week_cost: this._toNumber(this.avgHoursPerWeekCost),
+            avg_hours_per_week_sales:this._toNumber(this.avgHoursPerWeekSales),
             calculate_from_date:     this._toDateOnly(this.calculateFromDate),
             calculation_method:      this.calculationMethod === 'Verkoopprijs' ? '1' : '2',
             calculation_type_id:     this.calculationType ? Number(this.calculationType) : null,
@@ -750,16 +756,16 @@ export default class KpbPage extends LightningElement {
             fulltime_equivalent_id:  this.fulltimeEquivalent ? Number(this.fulltimeEquivalent) : (isNew ? 4 : null),
             label_id:                isNew ? 14014 : this.labelId,
             leave_of_absence:        isNew ? false : this.leaveOfAbsence,
-            margin:                  this.marginPct,
-            other_cost:              this.freelancerOtherCosts,
+            margin:                  this._toNumber(this.marginPct),
+            other_cost:              this._toNumber(this.freelancerOtherCosts),
             other_cost_unit:         isNew ? 'H' : this.otherCostUnit,
             reference_salary: {
-                salary:     this.grossSalaryPerMonth,
+                salary:     this._toNumber(this.grossSalaryPerMonth),
                 unit:       isNew ? 'M' : this.refSalaryUnit,
                 unit_hours: isNew ? 160 : this.refSalaryUnitHours
             },
-            sales_price_per_day:  this.salesPricePerDay,
-            sales_price_per_hour: this.salesPricePerHour,
+            sales_price_per_day:  this._toNumber(this.salesPricePerDay),
+            sales_price_per_hour: this._toNumber(this.salesPricePerHour),
             staffing_request: { id: null, name: this.request || null },
             created_by:  this.pNumber,
             components:  this._buildComponents()
@@ -777,7 +783,7 @@ export default class KpbPage extends LightningElement {
                 component_id:        componentId,
                 component_type:      COMPONENT_ID_TO_TYPE[componentId] ?? 'DIV',
                 reference_type_code: null,
-                value: { unit: null, total: row.value }
+                value: { unit: null, total: row.isPicklist ? row.value : this._toNumber(row.value) }
             });
         }
         return result;
