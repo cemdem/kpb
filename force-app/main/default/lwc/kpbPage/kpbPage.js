@@ -101,6 +101,7 @@ export default class KpbPage extends LightningElement {
     @api json;
     @api brand;
     @api candidateName;
+    @api pNumber;
 
     isLoading = false;
     fetchError = null;
@@ -759,7 +760,7 @@ export default class KpbPage extends LightningElement {
             sales_price_per_day:  this.salesPricePerDay,
             sales_price_per_hour: this.salesPricePerHour,
             staffing_request: { id: null, name: this.request || null },
-            created_by:  'P-25554',
+            created_by:  this.pNumber || 'P-25554',
             components:  this._buildComponents()
         };
         if (!isNew && this.kpbId) costgroup.id = this.kpbId;
