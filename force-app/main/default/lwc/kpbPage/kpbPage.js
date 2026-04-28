@@ -783,7 +783,7 @@ export default class KpbPage extends LightningElement {
                 component_id:        componentId,
                 component_type:      COMPONENT_ID_TO_TYPE[componentId] ?? 'DIV',
                 reference_type_code: null,
-                value: { unit: null, total: row.isPicklist ? row.value : this._toNumber(row.value) }
+                value: { unit: null, total: this._toNumber(row.value) ?? row.value }
             });
         }
         return result;
