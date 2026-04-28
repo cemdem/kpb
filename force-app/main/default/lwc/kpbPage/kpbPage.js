@@ -239,7 +239,7 @@ export default class KpbPage extends LightningElement {
         { key: 'uniform',                                    label: 'Uniform',                                      isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
         { key: 'kosten_sd',                                  label: 'Kosten SD Worx',                               isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
         { key: 'gelijkgestelde_rechten',                     label: 'Gelijkgestelde rechten',                       isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
-        { key: 'koopkrachtpremie',                           label: 'Koopkrachtpremie',                             isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'koopkrachtpremie',                           label: 'Koopkrachtpremie',                             isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
         { key: 'opzegvergoeding_per_jaar',                   label: 'Opzegvergoeding per jaar',                     isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
         { key: 'sport_en_cultuurcheques',                    label: 'Sport- en cultuurcheques',                     isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
     ];
