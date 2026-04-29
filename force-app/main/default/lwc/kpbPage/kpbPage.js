@@ -652,6 +652,21 @@ export default class KpbPage extends LightningElement {
         return `HTTP ${result.httpCode}: ${result.result}`;
     }
 
+    _showQualityChecks(raw) {
+        const checks = (raw?.costgroup || raw)?.quality_checks;
+        if (!Array.isArray(checks)) return;
+        for (const check of checks) {
+            if (check.message) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Opgelet',
+                    message: check.message,
+                    variant: 'warning',
+                    mode: 'sticky'
+                }));
+            }
+        }
+    }
+
     async handleCalculate() {
         this.isLoading = true;
         try {
@@ -666,6 +681,7 @@ export default class KpbPage extends LightningElement {
                     try {
                         const raw = JSON.parse(result.result);
                         this._populate(raw.costgroup || raw, false);
+                        this._showQualityChecks(raw);
                     } catch (parseErr) {
                         console.warn('[kpbPage] handleCalculate — could not parse response:', parseErr);
                     }
@@ -706,6 +722,9 @@ export default class KpbPage extends LightningElement {
                 : await updateKpb({ kpbId: String(this.kpbId), body });
             console.log('[kpbPage] handleSave — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
             if (result.success) {
+                if (result.result) {
+                    try { this._showQualityChecks(JSON.parse(result.result)); } catch (_) { /* ignore */ }
+                }
                 this.dispatchEvent(new ShowToastEvent({
                     title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
                     variant: 'success'
