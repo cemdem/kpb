@@ -717,42 +717,35 @@ export default class KpbPage extends LightningElement {
         }
     }
 
-    async handleSave() {
-        this.isLoading = true;
+    async _performSave() {
+        const isNew = this.action === 'NEW' || this.action === 'COPY';
+        const body = this._buildPayload();
+        console.log('[kpbPage] _performSave — action:', this.action, '| kpbId:', this.kpbId, '| payload:', body);
         try {
-            const body = this._buildPayload();
-            console.log('[kpbPage] handleSave — action:', this.action, '| kpbId:', this.kpbId, '| payload:', body);
-            const isNew = this.action === 'NEW' || this.action === 'COPY';
             const result = isNew
                 ? await createKpb({ body })
                 : await updateKpb({ kpbId: String(this.kpbId), body });
-            console.log('[kpbPage] handleSave — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
-            if (result.success) {
-                let qualityChecks = [];
-                if (result.result) {
-                    try {
-                        const raw = JSON.parse(result.result);
-                        qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
-                        this._showQualityChecks(raw);
-                        if (isNew) this.action = 'EDIT';
-                        if (raw?.costgroup?.id) this.kpbId = raw.costgroup.id;
-                    } catch (_) { /* ignore */ }
-                }
-                if (qualityChecks.length === 0) {
-                    this.dispatchEvent(new ShowToastEvent({
-                        title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
-                        variant: 'success'
-                    }));
-                    this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
-                }
-            } else {
+            console.log('[kpbPage] _performSave — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
+            if (!result.success) {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Fout bij bewaren',
                     message: this._apiError(result),
                     variant: 'error',
                     mode: 'sticky'
                 }));
+                return { ok: false, isNew };
             }
+            let qualityChecks = [];
+            if (result.result) {
+                try {
+                    const raw = JSON.parse(result.result);
+                    qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
+                    this._showQualityChecks(raw);
+                    if (isNew) this.action = 'EDIT';
+                    if (raw?.costgroup?.id) this.kpbId = raw.costgroup.id;
+                } catch (_) { /* ignore */ }
+            }
+            return { ok: qualityChecks.length === 0, isNew };
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Fout bij bewaren',
@@ -760,6 +753,21 @@ export default class KpbPage extends LightningElement {
                 variant: 'error',
                 mode: 'sticky'
             }));
+            return { ok: false, isNew };
+        }
+    }
+
+    async handleSave() {
+        this.isLoading = true;
+        try {
+            const { ok, isNew } = await this._performSave();
+            if (ok) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
+                    variant: 'success'
+                }));
+                this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
+            }
         } finally {
             this.isLoading = false;
         }
@@ -827,10 +835,18 @@ export default class KpbPage extends LightningElement {
         return result;
     }
 
-    handleApprove() {
-        console.log('[kpbPage] handleApprove — kpbId:', this.kpbId, '| showApprovalForm →', true);
-        this.approvalReason = '';
-        this.showApprovalForm = true;
+    async handleApprove() {
+        console.log('[kpbPage] handleApprove — kpbId:', this.kpbId);
+        this.isLoading = true;
+        try {
+            const { ok } = await this._performSave();
+            if (ok) {
+                this.approvalReason = '';
+                this.showApprovalForm = true;
+            }
+        } finally {
+            this.isLoading = false;
+        }
     }
 
     handleApprovalReasonChange(event) {
