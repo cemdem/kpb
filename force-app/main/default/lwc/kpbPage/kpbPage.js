@@ -1,4 +1,5 @@
-import { LightningElement, wire, api } from 'lwc';
+import { wire, api } from 'lwc';
+import LightningModal from 'lightning/modal';
 import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
@@ -95,7 +96,7 @@ const KEY_TO_COMPONENT_ID = Object.fromEntries(
     Object.entries(COMPONENT_ID_TO_KEY).map(([id, key]) => [key, Number(id)])
 );
 
-export default class KpbPage extends LightningElement {
+export default class KpbPage extends LightningModal {
     @api recordId;
     @api action;
     @api json;
@@ -249,6 +250,11 @@ export default class KpbPage extends LightningElement {
 
     defaultMobilityKeys = ['keuze_lease_category'];
     defaultVariableKeys = ['parkingkosten', 'maaltijdcheques', 'gsm'];
+
+    get modalTitle() {
+        if (this.action === 'EDIT') return 'Edit Cost Group';
+        return 'New Cost Group';
+    }
 
     get hasData() {
         return !this.isLoading && !this.fetchError;
@@ -644,7 +650,7 @@ export default class KpbPage extends LightningElement {
     }
 
     handleClose() {
-        this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
+        this.close({ saved: false });
     }
 
     _apiError(result) {
@@ -743,7 +749,7 @@ export default class KpbPage extends LightningElement {
                         title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
                         variant: 'success'
                     }));
-                    this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
+                    this.close({ saved: true });
                 }
             } else {
                 this.dispatchEvent(new ShowToastEvent({
