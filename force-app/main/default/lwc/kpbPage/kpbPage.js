@@ -413,7 +413,7 @@ export default class KpbPage extends LightningElement {
         this.avgDaysPerWeekSales  = cg.avg_days_per_week_sales ?? null;
         this.marginPct            = cg.margin ?? null;
         this.salesPricePerHour    = cg.sales_price_per_hour ?? null;
-        this.grossSalaryPerMonth  = cg.real_salary ?? null;
+        this.grossSalaryPerMonth  = cg.reference_salary?.salary ?? cg.real_salary ?? null;
         this.avgHoursPerWeekCost  = cg.avg_hours_per_week_cost ?? null;
         this.avgDaysPerWeekCost   = cg.avg_days_per_week_cost ?? null;
         this.salesPricePerDay     = cg.sales_price_per_day ?? null;
@@ -825,11 +825,15 @@ export default class KpbPage extends LightningElement {
         for (const row of [...this.mobilityRows, ...this.variableRows]) {
             const componentId = KEY_TO_COMPONENT_ID[row.key];
             if (!componentId || row.value == null) continue;
+            const componentType = COMPONENT_ID_TO_TYPE[componentId] ?? 'DIV';
+            const total = componentType === 'FIX'
+                ? 1
+                : (this._toNumber(row.value) ?? row.value);
             result.push({
                 component_id:        componentId,
-                component_type:      COMPONENT_ID_TO_TYPE[componentId] ?? 'DIV',
+                component_type:      componentType,
                 reference_type_code: null,
-                value: { unit: null, total: this._toNumber(row.value) ?? row.value }
+                value: { unit: null, total }
             });
         }
         return result;
