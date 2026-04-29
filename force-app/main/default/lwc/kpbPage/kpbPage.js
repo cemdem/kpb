@@ -679,14 +679,16 @@ export default class KpbPage extends LightningElement {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Fout bij berekenen',
                     message: this._apiError(result),
-                    variant: 'error'
+                    variant: 'error',
+                    mode: 'sticky'
                 }));
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Fout bij berekenen',
                 message: e.body?.message ?? e.message ?? 'Onbekende fout',
-                variant: 'error'
+                variant: 'error',
+                mode: 'sticky'
             }));
         } finally {
             this.isLoading = false;
@@ -713,14 +715,16 @@ export default class KpbPage extends LightningElement {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Fout bij bewaren',
                     message: this._apiError(result),
-                    variant: 'error'
+                    variant: 'error',
+                    mode: 'sticky'
                 }));
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Fout bij bewaren',
                 message: e.body?.message ?? e.message ?? 'Onbekende fout',
-                variant: 'error'
+                variant: 'error',
+                mode: 'sticky'
             }));
         } finally {
             this.isLoading = false;
@@ -803,14 +807,16 @@ export default class KpbPage extends LightningElement {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Goedkeuren niet toegelaten.',
                     message: this._apiError(result),
-                    variant: 'error'
+                    variant: 'error',
+                    mode: 'sticky'
                 }));
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Goedkeuren niet toegelaten.',
                 message: e.body?.message ?? e.message ?? 'Onbekende fout',
-                variant: 'error'
+                variant: 'error',
+                mode: 'sticky'
             }));
         } finally {
             this.isLoading = false;

@@ -27,7 +27,8 @@ export default class KpbGenericButton extends LightningElement {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Ongeldige selectie',
                 message: 'Selecteer eerst een rij in één van de tabellen.',
-                variant: 'warning'
+                variant: 'warning',
+                mode: 'sticky'
             }));
             return false;
         }
@@ -35,7 +36,8 @@ export default class KpbGenericButton extends LightningElement {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Ongeldige selectie',
                 message: 'Selecteer een rij in slechts één tabel.',
-                variant: 'warning'
+                variant: 'warning',
+                mode: 'sticky'
             }));
             return false;
         }
@@ -87,14 +89,16 @@ export default class KpbGenericButton extends LightningElement {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Kostprijsberekening verwijderen niet toegelaten.',
                     message: this._apiError(result),
-                    variant: 'error'
+                    variant: 'error',
+                mode: 'sticky'
                 }));
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Kostprijsberekening verwijderen niet toegelaten.',
                 message: e.body?.message ?? e.message ?? 'Onbekende fout',
-                variant: 'error'
+                variant: 'error',
+                mode: 'sticky'
             }));
         }
     }
