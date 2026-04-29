@@ -1,7 +1,7 @@
 import { LightningElement, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { FlowNavigationNextEvent } from 'lightning/flowSupport';
-import KpbPage from 'c/kpbPage';
+import KpbPageModal from 'c/kpbPageModal';
 import deleteKpb from '@salesforce/apex/KpbController.deleteKpb';
 
 export default class KpbGenericButton extends LightningElement {
@@ -46,7 +46,7 @@ export default class KpbGenericButton extends LightningElement {
 
     async _open(action) {
         console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId);
-        const result = await KpbPage.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, size: 'large' });
+        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, size: 'large' });
         if (result?.saved) {
             this.dispatchEvent(new FlowNavigationNextEvent());
         }
