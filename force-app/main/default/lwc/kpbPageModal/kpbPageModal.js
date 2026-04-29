@@ -1,5 +1,7 @@
 import { api } from 'lwc';
 import LightningModal from 'lightning/modal';
+import KpbApprovalModal from 'c/kpbApprovalModal';
+import requestApproval from '@salesforce/apex/KpbController.requestApproval';
 
 export default class KpbPageModal extends LightningModal {
     @api recordId;
@@ -15,5 +17,34 @@ export default class KpbPageModal extends LightningModal {
 
     handleClose(event) {
         this.close(event?.detail ?? {});
+    }
+
+    async handleApprove(event) {
+        const { kpbId } = event.detail;
+        const reason = await KpbApprovalModal.open({ size: 'small' });
+        if (!reason) return;
+        try {
+            const body = JSON.stringify({ reason });
+            const result = await requestApproval({ kpbId: String(kpbId), body });
+            const kpbPage = this.template.querySelector('c-kpb-page');
+            if (result.success) {
+                kpbPage?.showApproveResult(true, null);
+            } else {
+                const err = this._apiError(result);
+                kpbPage?.showApproveResult(false, err);
+            }
+        } catch (e) {
+            const kpbPage = this.template.querySelector('c-kpb-page');
+            kpbPage?.showApproveResult(false, e.body?.message ?? e.message ?? 'Onbekende fout');
+        }
+    }
+
+    _apiError(result) {
+        try {
+            const body = JSON.parse(result.result);
+            const errors = body?.error_message?.errors;
+            if (Array.isArray(errors) && errors.length) return errors.map(e => e.error_message).join(' | ');
+        } catch (_) { /* fall through */ }
+        return `HTTP ${result.httpCode}: ${result.result}`;
     }
 }
