@@ -10,6 +10,7 @@ import requestApproval from '@salesforce/apex/KpbController.requestApproval';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import KpbApprovalModal from 'c/kpbApprovalModal';
 
 const SELECT_ALL_VALUE = '__ALL__';
 
@@ -145,8 +146,6 @@ export default class KpbPage extends LightningElement {
     otherCostCalc = null;
     simulationType = null;
     kpbId = null;
-    showApprovalForm = false;
-    approvalReason = '';
     unitId = null;
     employeeSpotId = null;
     employeeNumber = null;
@@ -271,10 +270,6 @@ export default class KpbPage extends LightningElement {
 
     get approveDisabled() {
         return this.kpbId === null;
-    }
-
-    get approvalSubmitDisabled() {
-        return !this.approvalReason.trim();
     }
 
     get hasCalcResults() {
@@ -827,26 +822,12 @@ export default class KpbPage extends LightningElement {
         return result;
     }
 
-    handleApprove() {
-        this.approvalReason = '';
-        this.showApprovalForm = true;
-    }
-
-    handleApprovalReasonChange(event) {
-        this.approvalReason = event.target.value;
-    }
-
-    handleApprovalCancel() {
-        this.showApprovalForm = false;
-        this.approvalReason = '';
-    }
-
-    async handleApprovalSubmit() {
-        if (!this.approvalReason.trim()) return;
-        this.showApprovalForm = false;
+    async handleApprove() {
+        const reason = await KpbApprovalModal.open({ size: 'small' });
+        if (!reason) return;
         this.isLoading = true;
         try {
-            const body = JSON.stringify({ reason: this.approvalReason.trim() });
+            const body = JSON.stringify({ reason });
             const result = await requestApproval({ kpbId: String(this.kpbId), body });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({
@@ -870,7 +851,6 @@ export default class KpbPage extends LightningElement {
             }));
         } finally {
             this.isLoading = false;
-            this.approvalReason = '';
         }
     }
 }
