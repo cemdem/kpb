@@ -722,14 +722,23 @@ export default class KpbPage extends LightningElement {
                 : await updateKpb({ kpbId: String(this.kpbId), body });
             console.log('[kpbPage] handleSave — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
             if (result.success) {
+                let qualityChecks = [];
                 if (result.result) {
-                    try { this._showQualityChecks(JSON.parse(result.result)); } catch (_) { /* ignore */ }
+                    try {
+                        const raw = JSON.parse(result.result);
+                        qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
+                        this._showQualityChecks(raw);
+                        if (isNew) this.action = 'EDIT';
+                        if (raw?.costgroup?.id) this.kpbId = raw.costgroup.id;
+                    } catch (_) { /* ignore */ }
                 }
-                this.dispatchEvent(new ShowToastEvent({
-                    title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
-                    variant: 'success'
-                }));
-                this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
+                if (qualityChecks.length === 0) {
+                    this.dispatchEvent(new ShowToastEvent({
+                        title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
+                        variant: 'success'
+                    }));
+                    this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
+                }
             } else {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Fout bij bewaren',
