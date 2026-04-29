@@ -828,6 +828,7 @@ export default class KpbPage extends LightningElement {
     }
 
     handleApprove() {
+        console.log('[kpbPage] handleApprove — kpbId:', this.kpbId, '| showApprovalForm →', true);
         this.approvalReason = '';
         this.showApprovalForm = true;
     }
