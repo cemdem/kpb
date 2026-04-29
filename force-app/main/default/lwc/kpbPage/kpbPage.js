@@ -10,6 +10,7 @@ import requestApproval from '@salesforce/apex/KpbController.requestApproval';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import KpbApprovalModal from 'c/kpbApprovalModal';
 
 const SELECT_ALL_VALUE = '__ALL__';
 
@@ -267,8 +268,8 @@ export default class KpbPage extends LightningElement {
         return this.formType === 'Werknemer';
     }
 
-    get showApprove() {
-        return this.action === 'EDIT';
+    get approveDisabled() {
+        return this.kpbId === null;
     }
 
     get hasCalcResults() {
@@ -822,9 +823,11 @@ export default class KpbPage extends LightningElement {
     }
 
     async handleApprove() {
+        const reason = await KpbApprovalModal.open({});
+        if (!reason) return;
         this.isLoading = true;
         try {
-            const body = JSON.stringify({ reason: 'Goedkeuring aangevraagd' });
+            const body = JSON.stringify({ reason });
             const result = await requestApproval({ kpbId: String(this.kpbId), body });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({

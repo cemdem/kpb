@@ -492,14 +492,13 @@
                 class="kpb-btn"
                 onclick={handleSave}>
             </lightning-button>
-            <template lwc:if={showApprove}>
-                <lightning-button
-                    label="Goedkeuren"
-                    variant="brand"
-                    class="kpb-btn"
-                    onclick={handleApprove}>
-                </lightning-button>
-            </template>
+            <lightning-button
+                label="Goedkeuren"
+                variant="brand"
+                class="kpb-btn"
+                disabled={approveDisabled}
+                onclick={handleApprove}>
+            </lightning-button>
         </div>
 
     </div>
