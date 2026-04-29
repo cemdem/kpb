@@ -20,8 +20,15 @@ export default class KpbPageModal extends LightningModal {
     }
 
     async handleApprove(event) {
+        console.log('[kpbPageModal] handleApprove — event received, kpbId:', event.detail?.kpbId);
         const { kpbId } = event.detail;
-        const reason = await KpbApprovalModal.open({ size: 'small' });
+        let reason;
+        try {
+            reason = await KpbApprovalModal.open({ size: 'small' });
+        } catch (modalErr) {
+            console.error('[kpbPageModal] KpbApprovalModal.open failed (nested modal not supported?):', modalErr);
+            return;
+        }
         if (!reason) return;
         try {
             const body = JSON.stringify({ reason });

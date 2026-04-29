@@ -822,6 +822,7 @@ export default class KpbPage extends LightningElement {
     }
 
     handleApprove() {
+        console.log('[kpbPage] handleApprove — kpbId:', this.kpbId);
         this.dispatchEvent(new CustomEvent('approve', { detail: { kpbId: this.kpbId }, bubbles: true, composed: true }));
     }
 
