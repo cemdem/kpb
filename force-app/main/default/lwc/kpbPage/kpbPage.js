@@ -145,6 +145,8 @@ export default class KpbPage extends LightningElement {
     otherCostCalc = null;
     simulationType = null;
     kpbId = null;
+    showApprovalForm = false;
+    approvalReason = '';
     unitId = null;
     employeeSpotId = null;
     employeeNumber = null;
@@ -268,7 +270,11 @@ export default class KpbPage extends LightningElement {
     }
 
     get approveDisabled() {
-        return this.kpbId === null;
+        return this.kpbId === null || this.showApprovalForm;
+    }
+
+    get approvalSubmitDisabled() {
+        return !this.approvalReason.trim();
     }
 
     get hasCalcResults() {
@@ -822,15 +828,36 @@ export default class KpbPage extends LightningElement {
     }
 
     handleApprove() {
-        console.log('[kpbPage] handleApprove — kpbId:', this.kpbId);
-        this.dispatchEvent(new CustomEvent('approve', { detail: { kpbId: this.kpbId }, bubbles: true, composed: true }));
+        this.approvalReason = '';
+        this.showApprovalForm = true;
     }
 
-    showApproveResult(success, message) {
-        if (success) {
-            this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuring aangevraagd.', variant: 'success' }));
-        } else {
-            this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message, variant: 'error', mode: 'sticky' }));
+    handleApprovalReasonChange(event) {
+        this.approvalReason = event.target.value;
+    }
+
+    handleApprovalCancel() {
+        this.showApprovalForm = false;
+        this.approvalReason = '';
+    }
+
+    async handleApprovalSubmit() {
+        if (!this.approvalReason.trim()) return;
+        this.showApprovalForm = false;
+        this.isLoading = true;
+        try {
+            const body = JSON.stringify({ reason: this.approvalReason.trim() });
+            const result = await requestApproval({ kpbId: String(this.kpbId), body });
+            if (result.success) {
+                this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuring aangevraagd.', variant: 'success' }));
+            } else {
+                this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message: this._apiError(result), variant: 'error', mode: 'sticky' }));
+            }
+        } catch (e) {
+            this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message: e.body?.message ?? e.message ?? 'Onbekende fout', variant: 'error', mode: 'sticky' }));
+        } finally {
+            this.isLoading = false;
+            this.approvalReason = '';
         }
     }
 }

@@ -467,6 +467,31 @@
 
         </template>
 
+        <template lwc:if={showApprovalForm}>
+            <div class="slds-box slds-m-around_small slds-theme_shade">
+                <lightning-input
+                    label="Reden aanvraag goedkeuring"
+                    value={approvalReason}
+                    required
+                    onchange={handleApprovalReasonChange}>
+                </lightning-input>
+                <div class="slds-m-top_small slds-grid slds-grid_align-end">
+                    <lightning-button
+                        label="Annuleren"
+                        variant="neutral"
+                        class="slds-m-right_x-small"
+                        onclick={handleApprovalCancel}>
+                    </lightning-button>
+                    <lightning-button
+                        label="Versturen"
+                        variant="brand"
+                        disabled={approvalSubmitDisabled}
+                        onclick={handleApprovalSubmit}>
+                    </lightning-button>
+                </div>
+            </div>
+        </template>
+
         <div class="kpb-action-bar slds-grid slds-grid_align-end slds-p-around_small slds-gutters_small">
             <lightning-button
                 label="Sluiten"
