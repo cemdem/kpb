@@ -703,7 +703,7 @@ export default class KpbPage extends LightningElement {
         try {
             const body = this._buildPayload();
             console.log('[kpbPage] handleCalculate — action:', this.action, '| kpbId:', this.kpbId);
-            console.log('[kpbPage] handleCalculate — full payload:', JSON.parse(body));
+            console.log('[kpbPage] handleCalculate — full payload:', body);
             const isNew = this.action === 'NEW' || this.action === 'COPY';
             const result = isNew
                 ? await createKpb({ body })
@@ -747,7 +747,7 @@ export default class KpbPage extends LightningElement {
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const body = this._buildPayload();
         console.log('[kpbPage] _performSave — action:', this.action, '| kpbId:', this.kpbId);
-        console.log('[kpbPage] _performSave — full payload:', JSON.parse(body));
+        console.log('[kpbPage] _performSave — full payload:', body);
         try {
             const result = isNew
                 ? await createKpb({ body })
