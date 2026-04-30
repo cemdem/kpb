@@ -181,6 +181,18 @@
                                         required>
                                     </lightning-input>
                                 </div>
+                                <template lwc:if={showFreelancer}>
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-combobox
+                                            label="Eenheid tarief"
+                                            variant="label-inline"
+                                            placeholder="-- Selecteer --"
+                                            value={refSalaryUnit}
+                                            options={refSalaryUnitOptions}
+                                            onchange={handleRefSalaryUnitChange}>
+                                        </lightning-combobox>
+                                    </div>
+                                </template>
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
                                         type="number"

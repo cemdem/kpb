@@ -269,7 +269,20 @@ export default class KpbPage extends LightningElement {
         return this.formType === 'Werknemer';
     }
 
-    get approveDisabled() {
+    get showFreelancer() {
+        return this.formType === 'Freelancer';
+    }
+
+    get refSalaryUnitOptions() {
+        return [
+            { label: 'Per uur',   value: 'H' },
+            { label: 'Per dag',   value: 'D' },
+            { label: 'Per week',  value: 'W' },
+            { label: 'Per maand', value: 'M' },
+        ];
+    }
+
+
         return this.kpbId === null || this.showApprovalForm;
     }
 
@@ -518,7 +531,12 @@ export default class KpbPage extends LightningElement {
         this.formType = event.detail.value;
         if (this.formType === 'Freelancer') {
             this.calculationType = '8';
+            this.refSalaryUnit = '';
         }
+    }
+
+    handleRefSalaryUnitChange(event) {
+        this.refSalaryUnit = event.detail.value;
     }
 
     handleFreelancerNameChange(event) {
@@ -813,8 +831,8 @@ export default class KpbPage extends LightningElement {
             other_cost_unit:         isNew ? 'H' : this.otherCostUnit,
             reference_salary: {
                 salary:     this._toNumber(this.grossSalaryPerMonth),
-                unit:       isNew ? 'M' : this.refSalaryUnit,
-                unit_hours: isNew ? 160 : this.refSalaryUnitHours
+                unit:       this.refSalaryUnit || null,
+                unit_hours: this.refSalaryUnitHours || 160
             },
             sales_price_per_day:  this._toNumber(this.salesPricePerDay),
             sales_price_per_hour: this._toNumber(this.salesPricePerHour),
