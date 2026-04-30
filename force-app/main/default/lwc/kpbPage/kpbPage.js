@@ -828,7 +828,7 @@ export default class KpbPage extends LightningElement {
             label_id:                isNew ? 14014 : this.labelId,
             leave_of_absence:        isNew ? false : this.leaveOfAbsence,
             margin:                  this._toNumber(this.marginPct),
-            other_cost:              this.formType === 'Freelancer' ? null : this._toNumber(this.freelancerOtherCosts),
+            other_cost:              this._toNumber(this.freelancerOtherCosts),
             other_cost_unit:         isNew ? 'H' : this.otherCostUnit,
             reference_salary: {
                 salary:     this._toNumber(this.grossSalaryPerMonth),
@@ -847,6 +847,17 @@ export default class KpbPage extends LightningElement {
 
     _buildComponents() {
         const result = [];
+        if (this.formType === 'Freelancer') {
+            if (this.freelancerOtherCosts != null && this.freelancerOtherCosts !== '') {
+                result.push({
+                    component_id:        110,
+                    component_type:      'DIV',
+                    reference_type_code: null,
+                    value: { total: this._toNumber(this.freelancerOtherCosts) }
+                });
+            }
+            return result;
+        }
         for (const row of [...this.mobilityRows, ...this.variableRows]) {
             const componentId = KEY_TO_COMPONENT_ID[row.key];
             if (!componentId || row.value == null) continue;
@@ -859,14 +870,6 @@ export default class KpbPage extends LightningElement {
                 component_type:      componentType,
                 reference_type_code: null,
                 value: { unit: null, total }
-            });
-        }
-        if (this.formType === 'Freelancer' && this.freelancerOtherCosts != null && this.freelancerOtherCosts !== '') {
-            result.push({
-                component_id:        110,
-                component_type:      'DIV',
-                reference_type_code: null,
-                value: { total: this._toNumber(this.freelancerOtherCosts) }
             });
         }
         return result;
