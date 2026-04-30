@@ -4,6 +4,7 @@ import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
 import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_Brand__c';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
+import listCandidateCosts from '@salesforce/apex/KpbController.listCandidateCosts';
 import createKpb from '@salesforce/apex/KpbController.createKpb';
 import updateKpb from '@salesforce/apex/KpbController.updateKpb';
 import requestApproval from '@salesforce/apex/KpbController.requestApproval';
@@ -372,6 +373,7 @@ export default class KpbPage extends LightningElement {
         this._initRows();
         if (this.action === 'NEW') {
             if (this.recordId) this.candidateId = this.recordId;
+            if (this.genericEmployeeId) this._fetchOvk();
             return;
         }
         if (this.recordId) {
@@ -394,6 +396,30 @@ export default class KpbPage extends LightningElement {
             }
         } catch (e) {
             this.fetchError = e.body?.message ?? e.message ?? 'Unknown error';
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    async _fetchOvk() {
+        const brand = normalizeBrand(this.brand) || this.userBrand;
+        const payrollId = String(brand === 'UNQ' ? 14001 : 6);
+        this.isLoading = true;
+        try {
+            const listResult = await listCandidateCosts({ employeeId: String(this.genericEmployeeId), payrollId });
+            if (!listResult.success) return;
+            const list = JSON.parse(listResult.result);
+            const first = list?.cost_groups?.[0];
+            if (!first?.id) return;
+            console.log('[kpbPage] _fetchOvk — found OVK id:', first.id);
+            const detailResult = await getKpb({ recordId: String(first.id) });
+            if (!detailResult.success) return;
+            const raw = JSON.parse(detailResult.result);
+            this._populate(raw.costgroup || raw);
+            this.kpbId = null;
+            this.simulationType = 'ANO';
+        } catch (e) {
+            console.warn('[kpbPage] _fetchOvk error:', e.body?.message ?? e.message);
         } finally {
             this.isLoading = false;
         }

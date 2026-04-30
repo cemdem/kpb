@@ -88,6 +88,14 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
+    public static KpbCallResult listCandidateCosts(String employeeId, String payrollId) {
+        String endpoint = '/candidate-simulations/v1/candidate-costs?employee_id=' + employeeId
+                        + '&payroll_id=' + payrollId
+                        + '&simulation_type=OVK';
+        return callSpot(endpoint, 'GET', null, false);
+    }
+
+    @AuraEnabled
     public static KpbCallResult requestApproval(String kpbId, String body) {
         String endpoint = '/candidate-simulations/v1/candidate-costs/' + kpbId + '/request-approval';
         return callSpot(endpoint, 'POST', body, true);
