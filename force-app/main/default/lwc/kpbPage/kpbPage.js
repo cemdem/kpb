@@ -283,6 +283,7 @@ export default class KpbPage extends LightningElement {
     }
 
 
+    get approveDisabled() {
         return this.kpbId === null || this.showApprovalForm;
     }
 
