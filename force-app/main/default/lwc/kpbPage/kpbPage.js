@@ -295,6 +295,9 @@ export default class KpbPage extends LightningElement {
     }
 
     get calculationTypeOptions() {
+        if (this.formType === 'Freelancer') {
+            return [{ label: 'Freelancer', value: '8' }];
+        }
         const brand = normalizeBrand(this.brand) || this.userBrand;
         console.log('[kpbPage] calculationTypeOptions — this.brand:', this.brand, '| this.userBrand:', this.userBrand, '| resolved brand:', brand);
         if (!brand) return [];
@@ -513,6 +516,9 @@ export default class KpbPage extends LightningElement {
 
     handleFormTypeChange(event) {
         this.formType = event.detail.value;
+        if (this.formType === 'Freelancer') {
+            this.calculationType = '8';
+        }
     }
 
     handleFreelancerNameChange(event) {
