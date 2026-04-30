@@ -830,7 +830,7 @@ export default class KpbPage extends LightningElement {
             label_id:                isNew ? 14014 : this.labelId,
             leave_of_absence:        isNew ? false : this.leaveOfAbsence,
             margin:                  this._toNumber(this.marginPct),
-            other_cost:              this._toNumber(this.freelancerOtherCosts),
+            other_cost:              this.formType === 'Freelancer' ? null : this._toNumber(this.freelancerOtherCosts),
             other_cost_unit:         isNew ? 'H' : this.otherCostUnit,
             reference_salary: {
                 salary:     this._toNumber(this.grossSalaryPerMonth),
