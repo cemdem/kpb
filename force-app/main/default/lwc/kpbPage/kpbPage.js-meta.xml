@@ -12,11 +12,13 @@
             <actionType>ScreenAction</actionType>
         </targetConfig>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="recordId"      type="String" label="Record Id" />
-            <property name="action"        type="String" label="Action (EDIT | COPY | NEW)" />
-            <property name="json"          type="String" label="JSON (legacy)" />
-            <property name="brand"         type="String" label="Brand" />
-            <property name="candidateName" type="String" label="Kandidaat naam" />
+            <property name="recordId"             type="String"  label="Record Id" />
+            <property name="action"               type="String"  label="Action (EDIT | COPY | NEW)" />
+            <property name="json"                 type="String"  label="JSON (legacy)" />
+            <property name="brand"                type="String"  label="Brand" />
+            <property name="candidateName"        type="String"  label="Kandidaat naam" />
+            <property name="genericEmployeeId"    type="String"  label="Generic Employee Id (NEW)" />
+            <property name="genericEmployeeNumber" type="String" label="Generic Employee Number (NEW)" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

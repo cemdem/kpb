@@ -102,6 +102,8 @@ export default class KpbPage extends LightningElement {
     @api brand;
     @api candidateName;
     @api pNumber;
+    @api genericEmployeeId;
+    @api genericEmployeeNumber;
 
     isLoading = false;
     fetchError = null;
@@ -824,7 +826,7 @@ export default class KpbPage extends LightningElement {
             car_cost_unit:           isNew ? 'H' : this.carCostUnit,
             description:             this.description || null,
             employee:                isNew
-                ? { id: 14040219, number: 15939651, name: 'Prijs, Kost', type: this.formType === 'Freelancer' ? '1' : '2' }
+                ? { id: Number(this.genericEmployeeId), number: Number(this.genericEmployeeNumber), type: this.formType === 'Freelancer' ? '1' : '2' }
                 : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName || this.candidate, type: this.employeeType, delete_status: this.employeeDeleteStatus },
             fulltime_equivalent_id:  this.fulltimeEquivalent ? Number(this.fulltimeEquivalent) : (isNew ? 4 : null),
             label_id:                isNew ? 14014 : this.labelId,
