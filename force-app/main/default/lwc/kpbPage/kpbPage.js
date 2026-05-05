@@ -414,12 +414,13 @@ export default class KpbPage extends LightningElement {
         const payrollId = String(brand === 'UNQ' ? 14001 : 6);
         this.isLoading = true;
         try {
-            await triggerPjsCreation({
+            const triggerResult = await triggerPjsCreation({
                 employeeId: String(this.genericEmployeeId),
                 payrollId,
                 contactSfId: this.recordId
             });
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation httpCode:', triggerResult.httpCode, '| success:', triggerResult.success);
+            await new Promise(resolve => setTimeout(resolve, 5000));
             const pjsNumber = await getContactPjsNumber({ contactId: this.recordId });
             console.log('[kpbPage] _ensurePjsNumber — RGF_IFOrce_Number_PJS__c:', pjsNumber);
             if (pjsNumber) this.resolvedEmployeeNumber = pjsNumber;
