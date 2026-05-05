@@ -107,6 +107,7 @@ export default class KpbPage extends LightningElement {
     @api pNumber;
     @api genericEmployeeId;
     @api genericEmployeeNumber;
+    @api contactId;
 
     isLoading = false;
     fetchError = null;
@@ -406,7 +407,7 @@ export default class KpbPage extends LightningElement {
     }
 
     async _initNew() {
-        if (!this.genericEmployeeNumber && this.recordId) await this._ensurePjsNumber();
+        if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) await this._ensurePjsNumber();
         await this._fetchOvk();
     }
 
@@ -415,14 +416,15 @@ export default class KpbPage extends LightningElement {
         const payrollId = String(brand === 'UNQ' ? 14001 : 6);
         this.isLoading = true;
         try {
+            const resolvedContactId = this.contactId || this.recordId;
             const triggerResult = await triggerPjsCreation({
                 employeeId: String(this.genericEmployeeId),
                 payrollId,
-                contactSfId: this.recordId
+                contactSfId: resolvedContactId
             });
             console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation httpCode:', triggerResult.httpCode, '| success:', triggerResult.success);
             await new Promise(resolve => setTimeout(resolve, 5000));
-            const pjsNumber = await getContactPjsNumber({ contactId: this.recordId });
+            const pjsNumber = await getContactPjsNumber({ contactId: resolvedContactId });
             console.log('[kpbPage] _ensurePjsNumber — RGF_IFOrce_Number_PJS__c:', pjsNumber);
             if (pjsNumber) this.resolvedEmployeeNumber = pjsNumber;
         } catch (e) {
