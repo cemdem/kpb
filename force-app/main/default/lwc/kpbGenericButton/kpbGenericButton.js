@@ -14,10 +14,10 @@ export default class KpbGenericButton extends LightningElement {
     @api pNumber;
     @api genericEmployeeId;
     @api genericEmployeeNumber;
-    @api contactId;
+    @api sfContactId;
 
     connectedCallback() {
-        console.log('[kpbGenericButton] connectedCallback — brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId);
+        console.log('[kpbGenericButton] connectedCallback — brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| sfContactId:', this.sfContactId);
     }
 
     get hasSelection() {
@@ -48,8 +48,8 @@ export default class KpbGenericButton extends LightningElement {
     }
 
     async _open(action) {
-        console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId);
-        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, contactId: this.contactId, size: 'large' });
+        console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| sfContactId:', this.sfContactId);
+        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, sfContactId: this.sfContactId, size: 'large' });
         if (result?.saved) {
             this.dispatchEvent(new FlowNavigationNextEvent());
         }

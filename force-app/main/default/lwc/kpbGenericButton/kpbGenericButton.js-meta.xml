@@ -14,7 +14,7 @@
             <property name="pNumber"               type="String"  label="P-nummer consultant" />
             <property name="genericEmployeeId"     type="String"  label="Generic Employee Id (NEW)" />
             <property name="genericEmployeeNumber" type="String"  label="Generic Employee Number (NEW)" />
-            <property name="contactId"             type="String"  label="Contact Salesforce Id" />
+            <property name="sfContactId"             type="String"  label="Contact Salesforce Id" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
