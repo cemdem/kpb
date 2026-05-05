@@ -376,7 +376,7 @@ export default class KpbPage extends LightningElement {
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
-            console.log('[kpbPage] NEW — recordId:', this.recordId);
+            console.log('[kpbPage] NEW — recordId:', this.recordId, '| contactId:', this.contactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
             if (this.recordId) this.candidateId = this.recordId;
             if (this.genericEmployeeId) this._initNew();
             return;
