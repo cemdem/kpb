@@ -669,7 +669,6 @@ export default class KpbPage extends LightningElement {
     }
 
     handleReset() {
-        this.formType             = 'Werknemer';
         this.freelancerName       = '';
         this.description          = '';
         this.candidateId          = null;
