@@ -107,7 +107,7 @@ export default class KpbPage extends LightningElement {
     @api pNumber;
     @api genericEmployeeId;
     @api genericEmployeeNumber;
-    @api sfContactId;
+    @api contactId;
 
     isLoading = false;
     fetchError = null;
@@ -376,7 +376,7 @@ export default class KpbPage extends LightningElement {
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
-            console.log('[kpbPage] NEW — recordId:', this.recordId, '| sfContactId:', this.sfContactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
+            console.log('[kpbPage] NEW — recordId:', this.recordId, '| contactId:', this.contactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
             if (this.recordId) this.candidateId = this.recordId;
             if (this.genericEmployeeId) this._initNew();
             return;
@@ -407,7 +407,7 @@ export default class KpbPage extends LightningElement {
     }
 
     async _initNew() {
-        if (!this.genericEmployeeNumber && (this.recordId || this.sfContactId)) await this._ensurePjsNumber();
+        if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) await this._ensurePjsNumber();
         await this._fetchOvk();
     }
 
@@ -416,7 +416,7 @@ export default class KpbPage extends LightningElement {
         const payrollId = String(brand === 'UNQ' ? 14001 : 6);
         this.isLoading = true;
         try {
-            const resolvedContactId = this.sfContactId || this.recordId;
+            const resolvedContactId = this.contactId || this.recordId;
             const triggerResult = await triggerPjsCreation({
                 employeeId: String(this.genericEmployeeId),
                 payrollId,
@@ -554,7 +554,7 @@ export default class KpbPage extends LightningElement {
     @wire(CurrentPageReference)
     _readPageRef(pageRef) {
         if (pageRef?.state?.c__recordId) {
-            this.contactId = pageRef.state.c__recordId;
+            this._pageRefRecordId = pageRef.state.c__recordId;
         }
     }
 
