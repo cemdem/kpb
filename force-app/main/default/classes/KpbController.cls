@@ -106,13 +106,6 @@ public with sharing class KpbController {
         OAuthFlowController.Results oauthRes = OAuthFlowController.OauthToken(new List<OAuthFlowController.Request>{ oauthReq })[0];
         if (!oauthRes.success) throw new AuraHandledException(oauthRes.error);
 
-        Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
-        String guid = EncodingUtil.convertToHex(b).substring(0, 8) + '-' +
-                      EncodingUtil.convertToHex(b).substring(8, 12) + '-' +
-                      EncodingUtil.convertToHex(b).substring(12, 16) + '-' +
-                      EncodingUtil.convertToHex(b).substring(16, 20) + '-' +
-                      EncodingUtil.convertToHex(b).substring(20, 32);
-
         String now = Datetime.now().format('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
         String body = JSON.serialize(new Map<String, Object>{
             'payload' => new Map<String, Object>{
@@ -138,22 +131,18 @@ public with sharing class KpbController {
             'source'   => 'BHS'
         });
 
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint('callout:RGF_SPOT_BaseURL/ingress-event-gateway/v1/atsidentity');
-        req.setMethod('POST');
-        req.setHeader('Content-Type', 'application/json');
-        req.setHeader('Authorization', 'Bearer ' + oauthRes.token);
-        req.setHeader('X-Caller-Ref', 'bullhorn_for_salesforce');
-        req.setHeader('X-Identity', guid);
-        req.setHeader('X-Correlation-ID', guid);
-        req.setTimeout(120000);
-        req.setBody(body);
+        OutboundCallFlow.Request flowReq = new OutboundCallFlow.Request();
+        flowReq.token     = oauthRes.token;
+        flowReq.endpoint  = '/ingress-event-gateway/v1/atsidentity';
+        flowReq.method    = 'POST';
+        flowReq.callerRef = 'bullhorn_for_salesforce';
+        flowReq.json      = body;
+        OutboundCallFlow.response flowRes = OutboundCallFlow.createOutboundCall(new List<OutboundCallFlow.Request>{ flowReq })[0];
 
-        HttpResponse response = new Http().send(req);
         KpbCallResult out = new KpbCallResult();
-        out.httpCode = response.getStatusCode();
-        out.result   = response.getBody();
-        out.success  = (out.httpCode == 200 || out.httpCode == 201 || out.httpCode == 202);
+        out.httpCode = flowRes.httpCode;
+        out.result   = flowRes.result;
+        out.success  = flowRes.success;
         return out;
     }
 
