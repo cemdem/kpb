@@ -405,7 +405,7 @@ export default class KpbPage extends LightningElement {
     }
 
     async _initNew() {
-        if (!this.genericEmployeeNumber) await this._ensurePjsNumber();
+        if (!this.genericEmployeeNumber && this.recordId) await this._ensurePjsNumber();
         await this._fetchOvk();
     }
 
