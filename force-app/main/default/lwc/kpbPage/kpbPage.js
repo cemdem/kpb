@@ -669,30 +669,40 @@ export default class KpbPage extends LightningElement {
     }
 
     handleReset() {
-        this.formType           = 'Werknemer';
-        this.freelancerName     = '';
-        this.description        = '';
-        this.candidateId        = null;
-        this.candidate          = '';
-        this.request            = '';
-        this.calculationType    = '';
-        this.specialization     = '';
-        this.calculationMethod  = '';
-        this.avgHoursPerWeekSales = null;
-        this.marginPct          = null;
-        this.salesPricePerHour  = null;
-        this.grossSalaryPerMonth = null;
-        this.avgHoursPerWeekCost  = null;
-        this.avgDaysPerWeekCost   = null;
+        this.formType             = 'Werknemer';
+        this.freelancerName       = '';
+        this.description          = '';
+        this.candidateId          = null;
+        this.candidate            = '';
+        this.request              = '';
+        this.calculationType      = '';
+        this.specialization       = '';
+        this.calculationMethod    = '';
         this.avgHoursPerWeekSales = null;
         this.avgDaysPerWeekSales  = null;
+        this.avgHoursPerWeekCost  = null;
+        this.avgDaysPerWeekCost   = null;
+        this.marginPct            = null;
+        this.salesPricePerHour    = null;
         this.salesPricePerDay     = null;
+        this.grossSalaryPerMonth  = null;
+        this.refSalaryUnit        = '';
+        this.refSalaryUnitHours   = 160;
+        this.carCost              = 0;
+        this.carCostUnit          = 'H';
+        this.leaveOfAbsence       = false;
         this.createdDate          = new Date().toISOString().split('T')[0];
         this.calculateFromDate    = null;
         this.kpbStatus            = '';
         this.consultant           = '';
         this.fulltimeEquivalent   = '';
         this.freelancerOtherCosts = null;
+        this.totalCostPerHourExcl = null;
+        this.totalCostPerDay      = null;
+        this.totalCostPerMonth    = null;
+        this.salaryCost           = null;
+        this.carCostCalc          = null;
+        this.otherCostCalc        = null;
         this._initRows();
     }
 
