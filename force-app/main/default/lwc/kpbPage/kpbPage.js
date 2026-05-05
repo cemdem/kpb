@@ -422,7 +422,7 @@ export default class KpbPage extends LightningElement {
                 payrollId,
                 contactSfId: resolvedContactId
             });
-            console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation httpCode:', triggerResult.httpCode, '| success:', triggerResult.success);
+            console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation httpCode:', triggerResult.httpCode, '| success:', triggerResult.success, '| body:', triggerResult.result);
             await new Promise(resolve => setTimeout(resolve, 5000));
             const pjsNumber = await getContactPjsNumber({ contactId: resolvedContactId });
             console.log('[kpbPage] _ensurePjsNumber — RGF_IFOrce_Number_PJS__c:', pjsNumber);
