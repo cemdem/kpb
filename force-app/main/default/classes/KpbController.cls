@@ -96,6 +96,75 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
+    public static KpbCallResult triggerPjsCreation(String employeeId, String payrollId, String contactSfId) {
+        SPOT_Settings__c s = SPOT_Settings__c.getInstance();
+        OAuthFlowController.Request oauthReq = new OAuthFlowController.Request();
+        oauthReq.client_id     = s.client_id__c;
+        oauthReq.client_secret = s.client_secret__c;
+        oauthReq.grant_type    = s.grant_type__c;
+        oauthReq.URL           = s.url__c;
+        OAuthFlowController.Results oauthRes = OAuthFlowController.OauthToken(new List<OAuthFlowController.Request>{ oauthReq })[0];
+        if (!oauthRes.success) throw new AuraHandledException(oauthRes.error);
+
+        Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
+        String guid = EncodingUtil.convertToHex(b).substring(0, 8) + '-' +
+                      EncodingUtil.convertToHex(b).substring(8, 12) + '-' +
+                      EncodingUtil.convertToHex(b).substring(12, 16) + '-' +
+                      EncodingUtil.convertToHex(b).substring(16, 20) + '-' +
+                      EncodingUtil.convertToHex(b).substring(20, 32);
+
+        String now = Datetime.now().format('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
+        String body = JSON.serialize(new Map<String, Object>{
+            'payload' => new Map<String, Object>{
+                'employee_id' => employeeId,
+                'payroll_id'  => payrollId,
+                'applications' => new List<Object>{
+                    new Map<String, Object>{
+                        'internal'       => true,
+                        'modified_on'    => now,
+                        'application_id' => 'no application',
+                        'op'             => 'add'
+                    }
+                },
+                'external_system_ids' => new List<Object>{
+                    new Map<String, Object>{
+                        'external_system_identifier' => contactSfId,
+                        'external_system'            => 'BHS'
+                    }
+                }
+            },
+            'datetime' => now,
+            'type'     => 'push_to_ifo_event_v1',
+            'source'   => 'BHS'
+        });
+
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('callout:RGF_SPOT_BaseURL/ingress-event-gateway/v1/atsidentity');
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setHeader('Authorization', 'Bearer ' + oauthRes.token);
+        req.setHeader('X-Caller-Ref', 'bullhorn_for_salesforce');
+        req.setHeader('X-Identity', guid);
+        req.setHeader('X-Correlation-ID', guid);
+        req.setHeader('X-Message-Id', guid);
+        req.setTimeout(120000);
+        req.setBody(body);
+
+        HttpResponse response = new Http().send(req);
+        KpbCallResult out = new KpbCallResult();
+        out.httpCode = response.getStatusCode();
+        out.result   = response.getBody();
+        out.success  = (out.httpCode == 200 || out.httpCode == 201 || out.httpCode == 202);
+        return out;
+    }
+
+    @AuraEnabled
+    public static String getContactPjsNumber(String contactId) {
+        List<Contact> contacts = [SELECT RGF_IFOrce_Number_PJS__c FROM Contact WHERE Id = :contactId LIMIT 1];
+        return contacts.isEmpty() ? null : contacts[0].RGF_IFOrce_Number_PJS__c;
+    }
+
+    @AuraEnabled
     public static KpbCallResult requestApproval(String kpbId, String body) {
         String endpoint = '/candidate-simulations/v1/candidate-costs/' + kpbId + '/request-approval';
         return callSpot(endpoint, 'POST', body, true);

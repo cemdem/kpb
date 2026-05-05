@@ -5,6 +5,8 @@ import { CurrentPageReference } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_Brand__c';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 import listCandidateCosts from '@salesforce/apex/KpbController.listCandidateCosts';
+import triggerPjsCreation from '@salesforce/apex/KpbController.triggerPjsCreation';
+import getContactPjsNumber from '@salesforce/apex/KpbController.getContactPjsNumber';
 import createKpb from '@salesforce/apex/KpbController.createKpb';
 import updateKpb from '@salesforce/apex/KpbController.updateKpb';
 import requestApproval from '@salesforce/apex/KpbController.requestApproval';
@@ -111,6 +113,7 @@ export default class KpbPage extends LightningElement {
     parseError = null;
     userBrand;
     number = null;
+    resolvedEmployeeNumber = null;
     formType = 'Werknemer';
     freelancerName = '';
     typeLabel = 'Werknemer';
@@ -373,7 +376,7 @@ export default class KpbPage extends LightningElement {
         this._initRows();
         if (this.action === 'NEW') {
             if (this.recordId) this.candidateId = this.recordId;
-            if (this.genericEmployeeId) this._fetchOvk();
+            if (this.genericEmployeeId) this._initNew();
             return;
         }
         if (this.recordId) {
@@ -396,6 +399,32 @@ export default class KpbPage extends LightningElement {
             }
         } catch (e) {
             this.fetchError = e.body?.message ?? e.message ?? 'Unknown error';
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    async _initNew() {
+        if (!this.genericEmployeeNumber) await this._ensurePjsNumber();
+        await this._fetchOvk();
+    }
+
+    async _ensurePjsNumber() {
+        const brand = normalizeBrand(this.brand) || this.userBrand;
+        const payrollId = String(brand === 'UNQ' ? 14001 : 6);
+        this.isLoading = true;
+        try {
+            await triggerPjsCreation({
+                employeeId: String(this.genericEmployeeId),
+                payrollId,
+                contactSfId: this.recordId
+            });
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            const pjsNumber = await getContactPjsNumber({ contactId: this.recordId });
+            console.log('[kpbPage] _ensurePjsNumber — RGF_IFOrce_Number_PJS__c:', pjsNumber);
+            if (pjsNumber) this.resolvedEmployeeNumber = pjsNumber;
+        } catch (e) {
+            console.warn('[kpbPage] _ensurePjsNumber error:', e.body?.message ?? e.message);
         } finally {
             this.isLoading = false;
         }
@@ -861,7 +890,7 @@ export default class KpbPage extends LightningElement {
             car_cost_unit:           isNew ? 'H' : this.carCostUnit,
             description:             this.description || null,
             employee:                isNew
-                ? { id: Number(this.genericEmployeeId), number: Number(this.genericEmployeeNumber), type: this.formType === 'Freelancer' ? '1' : '2' }
+                ? { id: Number(this.genericEmployeeId), number: Number(this.resolvedEmployeeNumber ?? this.genericEmployeeNumber), type: this.formType === 'Freelancer' ? '1' : '2' }
                 : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName || this.candidate, type: this.employeeType, delete_status: this.employeeDeleteStatus },
             fulltime_equivalent_id:  this.fulltimeEquivalent ? Number(this.fulltimeEquivalent) : (isNew ? 4 : null),
             label_id:                isNew ? 14014 : this.labelId,
