@@ -97,15 +97,6 @@ public with sharing class KpbController {
 
     @AuraEnabled
     public static KpbCallResult triggerPjsCreation(String employeeId, String payrollId, String contactSfId) {
-        SPOT_Settings__c s = SPOT_Settings__c.getInstance();
-        OAuthFlowController.Request oauthReq = new OAuthFlowController.Request();
-        oauthReq.client_id     = s.client_id__c;
-        oauthReq.client_secret = s.client_secret__c;
-        oauthReq.grant_type    = s.grant_type__c;
-        oauthReq.URL           = s.url__c;
-        OAuthFlowController.Results oauthRes = OAuthFlowController.OauthToken(new List<OAuthFlowController.Request>{ oauthReq })[0];
-        if (!oauthRes.success) throw new AuraHandledException(oauthRes.error);
-
         String now = Datetime.now().format('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
         String body = JSON.serialize(new Map<String, Object>{
             'payload' => new Map<String, Object>{
@@ -130,20 +121,7 @@ public with sharing class KpbController {
             'type'     => 'push_to_ifo_event_v1',
             'source'   => 'BHS'
         });
-
-        OutboundCallFlow.Request flowReq = new OutboundCallFlow.Request();
-        flowReq.token     = oauthRes.token;
-        flowReq.endpoint  = '/ingress-event-gateway/v1/atsidentity';
-        flowReq.method    = 'POST';
-        flowReq.callerRef = 'bullhorn_for_salesforce';
-        flowReq.json      = body;
-        OutboundCallFlow.response flowRes = OutboundCallFlow.createOutboundCall(new List<OutboundCallFlow.Request>{ flowReq })[0];
-
-        KpbCallResult out = new KpbCallResult();
-        out.httpCode = flowRes.httpCode;
-        out.result   = flowRes.result;
-        out.success  = flowRes.success;
-        return out;
+        return callSpot('/ingress-event-gateway/v1/atsidentity', 'POST', body, false);
     }
 
     @AuraEnabled
