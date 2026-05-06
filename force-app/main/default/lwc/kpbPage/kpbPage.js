@@ -417,16 +417,27 @@ export default class KpbPage extends LightningElement {
         this.isLoading = true;
         try {
             const resolvedContactId = this.contactId || this.recordId;
+            const existing = await getContactPjsNumber({ contactId: resolvedContactId });
+            if (existing) {
+                console.log('[kpbPage] _ensurePjsNumber — already has PJS number:', existing);
+                this.resolvedEmployeeNumber = existing;
+                return;
+            }
             const triggerResult = await triggerPjsCreation({
                 employeeId: String(this.genericEmployeeId),
                 payrollId,
                 contactSfId: resolvedContactId
             });
             console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation httpCode:', triggerResult.httpCode, '| success:', triggerResult.success, '| body:', triggerResult.result);
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            const pjsNumber = await getContactPjsNumber({ contactId: resolvedContactId });
-            console.log('[kpbPage] _ensurePjsNumber — RGF_IFOrce_Number_PJS__c:', pjsNumber);
-            if (pjsNumber) this.resolvedEmployeeNumber = pjsNumber;
+            for (let attempt = 1; attempt <= 15; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                const pjsNumber = await getContactPjsNumber({ contactId: resolvedContactId });
+                console.log(`[kpbPage] _ensurePjsNumber — poll ${attempt}/15 — RGF_IFOrce_Number_PJS__c:`, pjsNumber);
+                if (pjsNumber) {
+                    this.resolvedEmployeeNumber = pjsNumber;
+                    return;
+                }
+            }
         } catch (e) {
             console.warn('[kpbPage] _ensurePjsNumber error:', e.body?.message ?? e.message);
         } finally {
