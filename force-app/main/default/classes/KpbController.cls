@@ -146,6 +146,8 @@ public with sharing class KpbController {
         req.setHeader('X-Caller-Ref', 'bullhorn_for_salesforce');
         req.setHeader('X-Identity', guid);
         req.setHeader('X-Correlation-ID', guid);
+        req.setHeader('X-Message-Id', UUID.randomUUID().toString());
+        req.setHeader('Accept-Language', 'NL');
         req.setTimeout(120000);
         req.setBody(body);
 
