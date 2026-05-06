@@ -155,7 +155,12 @@ public with sharing class KpbController {
         req.setBody(body);
 
         HttpResponse response = new Http().send(req);
-        System.debug('triggerPjsCreationAsync httpCode: ' + response.getStatusCode() + ' body: ' + response.getBody());
+        Integer code = response.getStatusCode();
+        String responseBody = response.getBody();
+        System.debug('triggerPjsCreationAsync httpCode: ' + code + ' body: ' + responseBody);
+        if (code != 200 && code != 201 && code != 202) {
+            throw new CalloutException('triggerPjsCreationAsync HTTP ' + code + ': ' + responseBody);
+        }
     }
 
     @AuraEnabled
