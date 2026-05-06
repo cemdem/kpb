@@ -407,8 +407,11 @@ export default class KpbPage extends LightningElement {
     }
 
     async _initNew() {
-        if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) await this._ensurePjsNumber();
-        await this._fetchOvk();
+        const tasks = [this._fetchOvk()];
+        if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) {
+            tasks.push(this._ensurePjsNumber());
+        }
+        await Promise.all(tasks);
     }
 
     async _ensurePjsNumber() {
@@ -450,11 +453,18 @@ export default class KpbPage extends LightningElement {
         const payrollId = String(brand === 'UNQ' ? 14001 : 6);
         this.isLoading = true;
         try {
+            console.log('[kpbPage] _fetchOvk — listCandidateCosts employeeId:', this.genericEmployeeId, '| payrollId:', payrollId);
             const listResult = await listCandidateCosts({ employeeId: String(this.genericEmployeeId), payrollId });
-            if (!listResult.success) return;
+            if (!listResult.success) {
+                console.warn('[kpbPage] _fetchOvk — listCandidateCosts failed:', listResult.httpCode, listResult.result);
+                return;
+            }
             const list = JSON.parse(listResult.result);
             const first = list?.cost_groups?.[0];
-            if (!first?.id) return;
+            if (!first?.id) {
+                console.log('[kpbPage] _fetchOvk — no OVK cost group found');
+                return;
+            }
             console.log('[kpbPage] _fetchOvk — found OVK id:', first.id);
             const detailResult = await getKpb({ recordId: String(first.id) });
             if (!detailResult.success) return;
