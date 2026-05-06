@@ -97,10 +97,22 @@ public with sharing class KpbController {
 
     @AuraEnabled
     public static KpbCallResult triggerPjsCreation(String employeeId, String payrollId, String contactSfId) {
-        // The atsidentity endpoint is behind AWS API Gateway and requires SigV4 auth.
-        // The named credential RGF_SPOT_BaseURL generates SigV4 itself, but only if we
-        // do NOT manually set the Authorization header (manual headers override the
-        // named credential's generated auth).
+        // Fire the actual HTTP callout asynchronously. @future(callout=true) runs in a separate
+        // execution context where named credential External Credential Principal resolution may
+        // succeed even when it fails in @AuraEnabled context (where @InvocableMethod-from-Flow
+        // works but direct @AuraEnabled does not).
+        triggerPjsCreationAsync(employeeId, payrollId, contactSfId);
+        // The LWC already waits 5 seconds and polls Contact.RGF_IFOrce_Number_PJS__c, so the
+        // synchronous response from this method doesn't carry the actual API status.
+        KpbCallResult out = new KpbCallResult();
+        out.httpCode = 202;
+        out.success  = true;
+        out.result   = '{"async":true}';
+        return out;
+    }
+
+    @future(callout=true)
+    public static void triggerPjsCreationAsync(String employeeId, String payrollId, String contactSfId) {
         Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
         String hex = EncodingUtil.convertToHex(b);
         String guid = hex.substring(0, 8) + '-' + hex.substring(8, 12) + '-' + hex.substring(12, 16) + '-' + hex.substring(16, 20) + '-' + hex.substring(20, 32);
@@ -143,11 +155,7 @@ public with sharing class KpbController {
         req.setBody(body);
 
         HttpResponse response = new Http().send(req);
-        KpbCallResult out = new KpbCallResult();
-        out.httpCode = response.getStatusCode();
-        out.result   = response.getBody();
-        out.success  = (out.httpCode == 200 || out.httpCode == 201 || out.httpCode == 202);
-        return out;
+        System.debug('triggerPjsCreationAsync httpCode: ' + response.getStatusCode() + ' body: ' + response.getBody());
     }
 
     @AuraEnabled
