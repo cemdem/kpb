@@ -92,7 +92,7 @@ public with sharing class KpbController {
         String endpoint = '/candidate-simulations/v1/candidate-costs?employee_id=' + employeeId
                         + '&payroll_id=' + payrollId
                         + '&simulation_type=OVK';
-        return callSpot(endpoint, 'GET', null, false);
+        return callSpot(endpoint, 'GET', null, true);
     }
 
     @AuraEnabled
