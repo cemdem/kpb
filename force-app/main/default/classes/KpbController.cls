@@ -2,17 +2,18 @@ public with sharing class KpbController {
 
     @AuraEnabled
     public static KpbCallResult callSpot(String endpoint, String method, String body, Boolean xMessageIdIsRequired) {
+        String token = getSpotAccessToken();
+
         Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
-        String guid = EncodingUtil.convertToHex(b).substring(0, 8) + '-' +
-                      EncodingUtil.convertToHex(b).substring(8, 12) + '-' +
-                      EncodingUtil.convertToHex(b).substring(12, 16) + '-' +
-                      EncodingUtil.convertToHex(b).substring(16, 20) + '-' +
-                      EncodingUtil.convertToHex(b).substring(20, 32);
+        String hex = EncodingUtil.convertToHex(b);
+        String guid = hex.substring(0, 8) + '-' + hex.substring(8, 12) + '-' +
+                      hex.substring(12, 16) + '-' + hex.substring(16, 20) + '-' + hex.substring(20, 32);
 
         HttpRequest req = new HttpRequest();
         req.setEndpoint('callout:RGF_SPOT_BaseURL' + endpoint);
         req.setMethod(method);
         req.setHeader('Content-Type', 'application/json');
+        req.setHeader('Authorization', 'Bearer ' + token);
         req.setHeader('X-Caller-Ref', 'BHS');
         req.setHeader('X-Identity', guid);
         req.setHeader('X-Correlation-ID', guid);
@@ -32,6 +33,30 @@ public with sharing class KpbController {
             if (key == 'Location') out.headerLocation = response.getHeader(key);
         }
         return out;
+    }
+
+    // Returns a cached OAuth access token; fetches a fresh one only on cache miss.
+    // Uses Platform Cache (Cache.Org) so the token is shared across requests and
+    // automatically expires rather than making a new OAuth call on every callout.
+    private static String getSpotAccessToken() {
+        final String CACHE_KEY = 'local.KpbSpot.accessToken';
+        String cached;
+        try { cached = (String) Cache.Org.get(CACHE_KEY); } catch (Exception ignored) {}
+        if (String.isNotBlank(cached)) return cached;
+
+        SPOT_Settings__c s = SPOT_Settings__c.getInstance();
+        OAuthFlowController.Request req = new OAuthFlowController.Request();
+        req.client_id     = s.client_id__c;
+        req.client_secret = s.client_secret__c;
+        req.grant_type    = s.grant_type__c;
+        req.URL           = s.url__c;
+        List<OAuthFlowController.Results> results =
+            OAuthFlowController.OauthToken(new List<OAuthFlowController.Request>{ req });
+        OAuthFlowController.Results res = results[0];
+        if (!res.success) throw new AuraHandledException(res.error);
+
+        try { Cache.Org.put(CACHE_KEY, res.token, 3000); } catch (Exception ignored) {}
+        return res.token;
     }
 
     @AuraEnabled
