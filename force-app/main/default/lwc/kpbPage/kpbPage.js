@@ -910,7 +910,7 @@ export default class KpbPage extends LightningElement {
         const brand = normalizeBrand(this.brand) || this.userBrand;
         const costgroup = {
             payroll_id:              isNew ? (brand === 'UNQ' ? 14001 : 6) : this.number,
-            unit_id:                 isNew ? (brand === 'UNQ' ? 14023 : 19) : this.unitId,
+            unit_id:                 isNew ? (brand === 'UNQ' ? 14023 : 12) : this.unitId,
             simulation_type:         this.simulationType || 'ANO',
             avg_days_per_week_cost:  this._toNumber(this.avgDaysPerWeekCost),
             avg_days_per_week_sales: this._toNumber(this.avgDaysPerWeekSales),
@@ -926,7 +926,7 @@ export default class KpbPage extends LightningElement {
                 ? { id: Number(this.genericEmployeeId), number: Number(this.resolvedEmployeeNumber ?? this.genericEmployeeNumber), type: this.formType === 'Freelancer' ? '1' : '2' }
                 : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName || this.candidate, type: this.employeeType, delete_status: this.employeeDeleteStatus },
             fulltime_equivalent_id:  this.fulltimeEquivalent ? Number(this.fulltimeEquivalent) : (isNew ? 4 : null),
-            label_id:                isNew ? 14014 : this.labelId,
+            label_id:                isNew ? (brand === 'UNQ' ? 14014 : 14) : this.labelId,
             leave_of_absence:        isNew ? false : this.leaveOfAbsence,
             margin:                  this._toNumber(this.marginPct),
             other_cost:              this.formType === 'Freelancer' ? null : this._toNumber(this.freelancerOtherCosts),
