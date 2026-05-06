@@ -107,6 +107,8 @@ public with sharing class KpbController {
 
     @future(callout=true)
     public static void triggerPjsCreationAsync(String employeeId, String payrollId, String contactSfId) {
+        String token = getSpotAccessToken();
+
         Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
         String hex = EncodingUtil.convertToHex(b);
         String guid = hex.substring(0, 8) + '-' + hex.substring(8, 12) + '-' + hex.substring(12, 16) + '-' + hex.substring(16, 20) + '-' + hex.substring(20, 32);
@@ -137,9 +139,10 @@ public with sharing class KpbController {
         });
 
         HttpRequest req = new HttpRequest();
-        req.setEndpoint('callout:RGF_SPOT_BaseURL/ingress-event-gateway/v1/atsidentity');
+        req.setEndpoint('callout:RGF_SPOT_BaseURL/ingress-event-gateway/v1/ats');
         req.setMethod('POST');
         req.setHeader('Content-Type', 'application/json');
+        req.setHeader('Authorization', 'Bearer ' + token);
         req.setHeader('X-Caller-Ref', 'bullhorn_for_salesforce');
         req.setHeader('X-Identity', guid);
         req.setHeader('X-Correlation-ID', guid);
