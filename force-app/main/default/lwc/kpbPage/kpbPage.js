@@ -413,11 +413,9 @@ export default class KpbPage extends LightningElement {
     }
 
     async _initNew() {
-        const tasks = [this._fetchOvk()];
         if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) {
-            tasks.push(this._ensurePjsNumber());
+            await this._ensurePjsNumber();
         }
-        await Promise.all(tasks);
     }
 
     async _ensurePjsNumber() {
