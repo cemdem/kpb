@@ -155,6 +155,7 @@ export default class KpbPage extends LightningElement {
     showApprovalForm = false;
     approvalReason = '';
     unitId = null;
+    staffingRequestId = null;
     employeeSpotId = null;
     employeeNumber = null;
     employeeType = null;
@@ -505,7 +506,8 @@ export default class KpbPage extends LightningElement {
         this.employeeDeleteStatus = cg.employee?.delete_status ?? null;
         this.description          = cg.description ?? '';
         this.candidate            = cg.employee?.name ?? '';
-        this.request              = cg.staffing_request?.name ?? '';
+        this.staffingRequestId    = cg.staffing_request?.id ?? null;
+        this.request              = cg.staffing_request?.number != null ? String(cg.staffing_request.number) : (cg.staffing_request?.name ?? '');
         this.calculationType      = cg.calculation_type_id != null ? String(cg.calculation_type_id) : '';
         this.calculationMethod    = cg.calculation_method === '1' ? 'Verkoopprijs' : cg.calculation_method === '2' ? 'Marge' : '';
         this.avgHoursPerWeekSales = cg.avg_hours_per_week_sales ?? null;
@@ -728,6 +730,7 @@ export default class KpbPage extends LightningElement {
         this.candidateId          = null;
         this.candidate            = '';
         this.request              = '';
+        this.staffingRequestId    = null;
         this.calculationType      = '';
         this.specialization       = '';
         this.calculationMethod    = '';
@@ -930,7 +933,7 @@ export default class KpbPage extends LightningElement {
             },
             sales_price_per_day:  this._toNumber(this.salesPricePerDay),
             sales_price_per_hour: this._toNumber(this.salesPricePerHour),
-            staffing_request: { id: null, name: this.request || null },
+            staffing_request: { id: this.staffingRequestId ?? null, number: this.request ? Number(this.request) : null },
             created_by:  this.pNumber,
             components:  this._buildComponents()
         };
