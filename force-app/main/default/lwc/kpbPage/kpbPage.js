@@ -872,7 +872,7 @@ export default class KpbPage extends LightningElement {
                     if (raw?.costgroup?.id) this.kpbId = raw.costgroup.id;
                 } catch (_) { /* ignore */ }
             }
-            return { ok: qualityChecks.length === 0, isNew };
+            return { ok: qualityChecks.filter(c => c.constraint !== 'PSG_APPROVE_MARGIN').length === 0, isNew };
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Fout bij bewaren',
