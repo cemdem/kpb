@@ -85,7 +85,7 @@ public with sharing class KpbController {
     public static KpbCallResult listCandidateCosts(String employeeId, String payrollId) {
         String endpoint = '/candidate-simulations/v1/candidate-costs?employee_id=' + employeeId
                         + '&payroll_id=' + payrollId
-                        + '&simulation_type=OVK';
+                        + '&cost_group_type=OVK';
         return callSpot(endpoint, 'GET', null, true);
     }
 
