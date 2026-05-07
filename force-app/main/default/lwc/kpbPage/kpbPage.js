@@ -807,6 +807,7 @@ export default class KpbPage extends LightningElement {
             const result = isNew
                 ? await createKpb({ body })
                 : await updateKpb({ kpbId: String(this.kpbId), body });
+            console.log('[kpbPage] handleCalculate — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
             if (result.success) {
                 if (result.result) {
                     try {
