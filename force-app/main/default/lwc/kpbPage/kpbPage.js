@@ -98,6 +98,42 @@ const KEY_TO_COMPONENT_ID = Object.fromEntries(
     Object.entries(COMPONENT_ID_TO_KEY).map(([id, key]) => [key, Number(id)])
 );
 
+const BPL_CALC_DEFAULTS = {
+    '13506': { // Junior
+        fulltimeEquivalent: '3', avgHoursPerWeekCost: 40,
+        mobility: { keuze_lease_category: '1', tankkaart_budget: 350 },
+        variable: {
+            maaltijdcheques: '325', gsm: '19', ecocheques: 250,
+            forfaitaire_onkostenvergoeding_maand: 75,
+            gelijkgestelde_rechten: 287.88, groepsverzekering_yn: 'Ja',
+            hospitalisatieverzekering_yn: 'Ja', kosten_sd: 72,
+            opzegvergoeding_per_jaar: 200, ziektecontrole: 81
+        }
+    },
+    '13502': { // Medior
+        fulltimeEquivalent: '3', avgHoursPerWeekCost: 40,
+        mobility: { keuze_lease_category: '2', tankkaart_budget: 350 },
+        variable: {
+            maaltijdcheques: '325', gsm: '19', ecocheques: 250,
+            forfaitaire_onkostenvergoeding_maand: 105,
+            gelijkgestelde_rechten: 287.88, groepsverzekering_yn: 'Ja',
+            hospitalisatieverzekering_yn: 'Ja', kosten_sd: 72,
+            opzegvergoeding_per_jaar: 200, ziektecontrole: 81
+        }
+    },
+    '13503': { // Senior
+        fulltimeEquivalent: '3', avgHoursPerWeekCost: 40,
+        mobility: { keuze_lease_category: '3', tankkaart_budget: 350 },
+        variable: {
+            maaltijdcheques: '325', gsm: '19', ecocheques: 250,
+            forfaitaire_onkostenvergoeding_maand: 135,
+            gelijkgestelde_rechten: 287.88, groepsverzekering_yn: 'Ja',
+            hospitalisatieverzekering_yn: 'Ja', kosten_sd: 72,
+            opzegvergoeding_per_jaar: 200, ziektecontrole: 81
+        }
+    }
+};
+
 export default class KpbPage extends LightningElement {
     @api recordId;
     @api action;
@@ -636,6 +672,26 @@ export default class KpbPage extends LightningElement {
     handleFieldChange(event) {
         const value = event.detail?.value !== undefined ? event.detail.value : event.target.value;
         this[event.target.dataset.field] = value;
+        if (event.target.dataset.field === 'calculationType' && this.action === 'NEW') {
+            const brand = normalizeBrand(this.brand) || this.userBrand;
+            if (brand === 'BPL') this._applyBplDefaults(value);
+        }
+    }
+
+    _applyBplDefaults(typeId) {
+        const defaults = BPL_CALC_DEFAULTS[typeId];
+        if (!defaults) return;
+        this.fulltimeEquivalent = defaults.fulltimeEquivalent;
+        this.avgHoursPerWeekCost = defaults.avgHoursPerWeekCost;
+        const toRows = (defs, values) =>
+            Object.entries(values)
+                .map(([key, value]) => {
+                    const def = defs.find(d => d.key === key);
+                    return def ? { ...this._defToRow(def), value } : null;
+                })
+                .filter(Boolean);
+        this.mobilityRows = toRows(this.mobilityDefinitions, defaults.mobility);
+        this.variableRows = toRows(this.variableDefinitions, defaults.variable);
     }
 
     handleFulltimeEquivalentChange(event) {
