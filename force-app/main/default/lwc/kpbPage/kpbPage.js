@@ -1022,7 +1022,7 @@ export default class KpbPage extends LightningElement {
             const componentType = COMPONENT_ID_TO_TYPE[componentId] ?? 'DIV';
             const total = componentType === 'FIX'
                 ? 1
-                : (this._toNumber(row.value) ?? row.value);
+                : (this._toNumber(row.value) ?? (row.value === 'Ja' ? 1 : row.value === 'Nee' ? 0 : row.value));
             result.push({
                 component_id:        componentId,
                 component_type:      componentType,
