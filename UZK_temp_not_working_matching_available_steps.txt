@@ -1,0 +1,152 @@
+Implementation Steps: UZK niet werkend beschikbaar maken voor matching
+======================================================================
+
+Goal
+----
+Candidates (UZK) that have been in IFO TMP status = `temp_not_working` for
+more than 60 days must automatically be moved to a new IFO TMP status
+`temp_not_working_matching_available`, which remaps the Candidate Status to
+`Active` so they become available again for matching via TK after the
+automatic re-indexation.
+
+
+1. Add new picklist value to RGF_IFOrce_Status_TMP__c
+-----------------------------------------------------
+Object: Contact
+Field:  RGF_IFOrce_Status_TMP__c (picklist / global value set)
+
+Steps:
+  a. Setup -> Object Manager -> Contact -> Fields & Relationships ->
+     RGF_IFOrce_Status_TMP__c.
+  b. If the field uses a Global Value Set: Setup -> Picklist Value Sets ->
+     open the value set used by RGF_IFOrce_Status_TMP__c.
+  c. Click "New" and add value:
+        API/Label: temp_not_working_matching_available
+  d. Save. Make sure the value is active and available for all
+     Record Types that use this field (multibrand: activate for every
+     brand record type).
+  e. Add a translation/label per locale if required (NL/FR/EN).
+
+
+2. Update Status remapping logic (link with PMAATS-3735)
+--------------------------------------------------------
+PMAATS-3735 already introduces remapping logic from IFO TMP status to
+Candidate Status. Extend it so that:
+
+   IFO TMP status = temp_not_working_matching_available
+       => Candidate Status = Active
+
+Conditions for the remapping (only apply when IFO PJS status is one of):
+   - null / blank
+   - preregistration
+   - in_followup
+   - candidate
+   - inactif
+   - reactivated
+
+Implementation:
+  a. Locate the existing remapping component delivered by PMAATS-3735
+     (Flow / Apex / metadata-driven mapping table).
+  b. Add the new mapping row:
+        TMP status: temp_not_working_matching_available
+        PJS status: (null, preregistration, in_followup, candidate,
+                     inactif, reactivated)
+        => Status: Active
+  c. Deploy together with this change set.
+
+
+3. Create Record-Triggered Flow on Contact
+------------------------------------------
+Name:    Contact_UZK_TempNotWorking_60Days_To_MatchingAvailable
+Object:  Contact
+Trigger: A record is updated
+Optimize the flow for: Actions and Related Records
+
+Entry Criteria:
+   Condition Requirements:  All Conditions Are Met (AND)
+   - RGF_IFOrce_Status_TMP__c  Equals  temp_not_working
+
+When to Run the Flow for Updated Records:
+   "Only when a record is updated to meet the condition requirements"
+   (this prevents the 60-day timer from restarting on every other update)
+
+Scheduled Path:
+  a. Add Scheduled Path.
+     - Name:                Update_To_Matching_Available
+     - Time Source:         When Contact is updated to meet the condition
+                            (default for the trigger)
+     - Offset:              60 Days After
+  b. On the scheduled path, add a Decision to re-validate (defensive):
+       - RGF_IFOrce_Status_TMP__c still Equals temp_not_working
+     If True -> Update Records element:
+       - Record:             $Record (Contact)
+       - Field to update:    RGF_IFOrce_Status_TMP__c
+       - Value:              temp_not_working_matching_available
+     If False -> End (do nothing; status changed in the meantime).
+  c. Activate the flow.
+
+Notes:
+  - Do NOT add logic in the immediate (non-scheduled) path.
+  - Run As: Default (System Context with Sharing recommended).
+  - Make sure the running user / automated user has FLS on the field.
+
+
+4. Re-indexation for matching (TK)
+----------------------------------
+The standard automatic re-indexation job picks up the changed status and
+exposes the candidate to TK matching again. No additional work needed
+beyond confirming:
+  - The indexer reads RGF_IFOrce_Status_TMP__c and Candidate Status.
+  - Candidates with TMP = temp_not_working_matching_available AND
+    Status = Active appear in matching results.
+
+
+5. Multibrand
+-------------
+  - Activate the new picklist value for every brand record type on Contact.
+  - Verify the Flow trigger fires for all brands (no record-type filter
+    in entry criteria unless explicitly required).
+  - Confirm remapping works per brand if PMAATS-3735 is brand-aware.
+
+
+6. Test plan (UAT)
+------------------
+  T1. Create Contact with IFO TMP = temp_not_working, IFO PJS = candidate.
+      - Verify Flow scheduled path is queued (Setup -> Scheduled Jobs /
+        Time-Based Workflow / Paused & Waiting Interviews).
+  T2. Fast-forward / wait 60 days (or temporarily set offset to a few
+      minutes in a sandbox).
+      - Verify TMP status auto-updates to
+        temp_not_working_matching_available.
+      - Verify Candidate Status remaps to Active.
+  T3. Update the Contact within the 60-day window with an unrelated change.
+      - Verify the timer is NOT reset (because of "Only when a record is
+        updated to meet the condition requirements").
+  T4. Change TMP status away from temp_not_working before 60 days.
+      - Verify the scheduled path either does not execute the update
+        (Decision guard) or no remap occurs.
+  T5. IFO PJS status NOT in allowed list (e.g. employee).
+      - Verify remapping to Active does NOT happen.
+  T6. Re-indexation: confirm candidate is found via TK matching after
+      the status change.
+  T7. Repeat T1-T6 per brand record type.
+
+
+7. Deployment / Release Steps
+-----------------------------
+  1. Deploy picklist value `temp_not_working_matching_available` to UAT.
+  2. Deploy/extend remapping configuration (with PMAATS-3735 baseline).
+  3. Deploy Record-Triggered Flow (active version).
+  4. Activate picklist value for all brand record types.
+  5. Smoke test in UAT (T1-T7 above, using shortened offset where useful).
+  6. Promote to Production via standard release pipeline.
+  7. Post-deploy: monitor "Paused and Waiting Interviews" for the new
+     flow during the first 60+ days.
+
+
+8. Rollback
+-----------
+  - Deactivate the Flow.
+  - Remove the new mapping row (revert PMAATS-3735 extension).
+  - Deactivate the picklist value (do not delete; existing records may
+    reference it).
