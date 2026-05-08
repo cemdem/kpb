@@ -329,7 +329,7 @@ export default class KpbPage extends LightningElement {
 
 
     get approveDisabled() {
-        return this.kpbId === null || this.showApprovalForm;
+        return this.kpbId === null || this.showApprovalForm || this.simulationType === 'EMP';
     }
 
     get approvalSubmitDisabled() {
