@@ -1138,7 +1138,7 @@ IF(NOT(ISBLANK({!tableWRKConsultant.firstSelectedRow.id})), 1, 0)</expression>
                     <inputParameters>
                         <name>columnReferences</name>
                         <value>
-                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostsForCandidate_GetCandidateCosts_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;description&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsPRJ&quot;}</complexValue>
+                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostsForCandidate_GetCandidateCosts_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;description&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsPRJ&quot;}</complexValue>
                             <complexValueType>ComplexObjectFieldDetails</complexValueType>
                         </value>
                     </inputParameters>
@@ -1202,7 +1202,7 @@ IF(NOT(ISBLANK({!tableWRKConsultant.firstSelectedRow.id})), 1, 0)</expression>
                     <inputParameters>
                         <name>columnReferences</name>
                         <value>
-                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostsForCandidate_GetCandidateCosts_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;description&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsOVK&quot;}</complexValue>
+                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostsForCandidate_GetCandidateCosts_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;description&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsOVK&quot;}</complexValue>
                             <complexValueType>ComplexObjectFieldDetails</complexValueType>
                         </value>
                     </inputParameters>
@@ -1296,7 +1296,7 @@ IF(NOT(ISBLANK({!tableWRKConsultant.firstSelectedRow.id})), 1, 0)</expression>
                     <inputParameters>
                         <name>columnReferences</name>
                         <value>
-                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostsForCandidate_GetCandidateCosts_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;description&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsWRK&quot;}</complexValue>
+                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostsForCandidate_GetCandidateCosts_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;description&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsWRK&quot;}</complexValue>
                             <complexValueType>ComplexObjectFieldDetails</complexValueType>
                         </value>
                     </inputParameters>
@@ -1372,7 +1372,7 @@ IF(NOT(ISBLANK({!tableWRKConsultant.firstSelectedRow.id})), 1, 0)</expression>
                     <inputParameters>
                         <name>columnReferences</name>
                         <value>
-                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostsForCandidate_GetCandidateCosts_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;description&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsEMP&quot;}</complexValue>
+                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostsForCandidate_GetCandidateCosts_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;description&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsEMP&quot;}</complexValue>
                             <complexValueType>ComplexObjectFieldDetails</complexValueType>
                         </value>
                     </inputParameters>
@@ -1517,7 +1517,7 @@ IF(NOT(ISBLANK({!tableWRKConsultant.firstSelectedRow.id})), 1, 0)</expression>
                     <inputParameters>
                         <name>columnReferences</name>
                         <value>
-                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostWithId_Getx20Costx20Withx20Id_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;description&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsPRJConsultant&quot;}</complexValue>
+                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostWithId_Getx20Costx20Withx20Id_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;description&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsPRJConsultant&quot;}</complexValue>
                             <complexValueType>ComplexObjectFieldDetails</complexValueType>
                         </value>
                     </inputParameters>
@@ -1593,7 +1593,7 @@ IF(NOT(ISBLANK({!tableWRKConsultant.firstSelectedRow.id})), 1, 0)</expression>
                     <inputParameters>
                         <name>columnReferences</name>
                         <value>
-                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostWithId_Getx20Costx20Withx20Id_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;description&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsOVKConsultant&quot;}</complexValue>
+                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostWithId_Getx20Costx20Withx20Id_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;description&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsOVKConsultant&quot;}</complexValue>
                             <complexValueType>ComplexObjectFieldDetails</complexValueType>
                         </value>
                     </inputParameters>
@@ -1669,7 +1669,7 @@ IF(NOT(ISBLANK({!tableWRKConsultant.firstSelectedRow.id})), 1, 0)</expression>
                     <inputParameters>
                         <name>columnReferences</name>
                         <value>
-                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostWithId_Getx20Costx20Withx20Id_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;description&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsWRKConsultant&quot;}</complexValue>
+                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostWithId_Getx20Costx20Withx20Id_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;description&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsWRKConsultant&quot;}</complexValue>
                             <complexValueType>ComplexObjectFieldDetails</complexValueType>
                         </value>
                     </inputParameters>
@@ -1745,7 +1745,7 @@ IF(NOT(ISBLANK({!tableWRKConsultant.firstSelectedRow.id})), 1, 0)</expression>
                     <inputParameters>
                         <name>columnReferences</name>
                         <value>
-                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostWithId_Getx20Costx20Withx20Id_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;description&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsEMPConsultant&quot;}</complexValue>
+                            <complexValue>{&quot;dataType&quot;:&quot;Apex&quot;,&quot;objectType&quot;:&quot;ExternalService__GetCostWithId_Getx20Costx20Withx20Id_OUT_2XX_costx5fgroups&quot;,&quot;fieldReferences&quot;:[&quot;id&quot;,&quot;status&quot;,&quot;totalx5fcostx5fperx5fhour&quot;,&quot;margin&quot;,&quot;salesx5fpricex5fperx5fhour&quot;,&quot;salesx5fpricex5fperx5fday&quot;,&quot;description&quot;,&quot;simulationx5ftype&quot;],&quot;elementReference&quot;:&quot;costsEMPConsultant&quot;}</complexValue>
                             <complexValueType>ComplexObjectFieldDetails</complexValueType>
                         </value>
                     </inputParameters>
