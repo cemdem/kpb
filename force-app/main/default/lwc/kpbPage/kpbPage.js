@@ -150,6 +150,7 @@ export default class KpbPage extends LightningElement {
     fetchError = null;
     parseError = null;
     _maatmanUnlocked = false;
+    _qualityChecks = [];
     userBrand;
     number = null;
     resolvedEmployeeNumber = null;
@@ -330,7 +331,9 @@ export default class KpbPage extends LightningElement {
 
 
     get approveDisabled() {
-        return this.kpbId === null || this.showApprovalForm || this.simulationType === 'EMP';
+        if (this.kpbId === null || this.showApprovalForm || this.simulationType === 'EMP') return true;
+        if (!this._qualityChecks.length) return true;
+        return this._qualityChecks.some(c => c.constraint !== 'PSG_APPROVE_MARGIN');
     }
 
     get approvalSubmitDisabled() {
@@ -807,6 +810,7 @@ export default class KpbPage extends LightningElement {
 
     handleReset() {
         this._maatmanUnlocked     = false;
+        this._qualityChecks       = [];
         this.freelancerName       = '';
         this.description          = '';
         this.candidateId          = null;
@@ -907,6 +911,7 @@ export default class KpbPage extends LightningElement {
                     try {
                         const raw = JSON.parse(result.result);
                         this._populate(raw.costgroup || raw, false);
+                        this._qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
                         this._showQualityChecks(raw);
                     } catch (parseErr) {
                         console.warn('[kpbPage] handleCalculate — could not parse response:', parseErr);
@@ -963,6 +968,7 @@ export default class KpbPage extends LightningElement {
                 try {
                     const raw = JSON.parse(result.result);
                     qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
+                    this._qualityChecks = qualityChecks;
                     this._showQualityChecks(raw);
                     if (isNew) this.action = 'EDIT';
                     if (raw?.costgroup?.id) this.kpbId = raw.costgroup.id;
