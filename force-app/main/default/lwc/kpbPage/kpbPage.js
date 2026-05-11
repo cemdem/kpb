@@ -547,7 +547,7 @@ export default class KpbPage extends LightningElement {
         this.employeeDeleteStatus = cg.employee?.delete_status ?? null;
         this.description          = cg.description ?? '';
         this.candidate            = cg.employee?.name ?? '';
-        this.staffingRequestId    = this.vacancyId ?? cg.staffing_request?.id ?? null;
+        this.staffingRequestId    = cg.staffing_request?.id ?? null;
         this.request              = this.vacancyId ?? (cg.staffing_request?.number != null ? String(cg.staffing_request.number) : (cg.staffing_request?.name ?? ''));
         this.calculationType      = cg.calculation_type_id != null ? String(cg.calculation_type_id) : '';
         this.calculationMethod    = cg.calculation_method === '1' ? 'Verkoopprijs' : cg.calculation_method === '2' ? 'Marge' : '';
@@ -995,7 +995,7 @@ export default class KpbPage extends LightningElement {
             },
             sales_price_per_day:  this._toNumber(this.salesPricePerDay),
             sales_price_per_hour: this._toNumber(this.salesPricePerHour),
-            staffing_request: { id: this.staffingRequestId ?? null, number: this.vacancyId ? null : (this.request ? Number(this.request) : null) },
+            staffing_request: { id: this.staffingRequestId ?? null, number: this.request ? Number(this.request) : null },
             created_by:  this.pNumber,
             components:  this._buildComponents()
         };
