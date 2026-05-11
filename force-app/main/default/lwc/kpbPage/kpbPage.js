@@ -968,7 +968,7 @@ export default class KpbPage extends LightningElement {
         const costgroup = {
             payroll_id:              isNew ? (brand === 'UNQ' ? 14001 : 6) : this.number,
             unit_id:                 isNew ? (brand === 'UNQ' ? 14023 : 3855) : this.unitId,
-            simulation_type:         this.simulationType || 'ANO',
+            simulation_type:         this.simulationType || 'EMP',
             avg_days_per_week_cost:  this._toNumber(this.avgDaysPerWeekCost),
             avg_days_per_week_sales: this._toNumber(this.avgDaysPerWeekSales),
             avg_hours_per_week_cost: this._toNumber(this.avgHoursPerWeekCost),
