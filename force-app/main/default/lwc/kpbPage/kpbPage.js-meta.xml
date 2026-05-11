@@ -19,6 +19,7 @@
             <property name="candidateName"        type="String"  label="Kandidaat naam" />
             <property name="genericEmployeeId"    type="String"  label="Generic Employee Id (NEW)" />
             <property name="genericEmployeeNumber" type="String" label="Generic Employee Number (NEW)" />
+            <property name="pNumber"               type="String"  label="P-Number (created_by)" />
             <property name="contactId"             type="String"  label="Contact Salesforce Id" />
             <property name="vacancyId"             type="String"  label="Vacancy Id (staffing request)" />
         </targetConfig>
