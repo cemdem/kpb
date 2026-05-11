@@ -149,6 +149,7 @@ export default class KpbPage extends LightningElement {
     isLoading = false;
     fetchError = null;
     parseError = null;
+    _maatmanUnlocked = false;
     userBrand;
     number = null;
     resolvedEmployeeNumber = null;
@@ -390,6 +391,7 @@ export default class KpbPage extends LightningElement {
     }
 
     get fulltimeEquivalentDisabled() {
+        if (this._maatmanUnlocked) return false;
         return this.action === 'EDIT' || this.action === 'COPY';
     }
 
@@ -670,11 +672,29 @@ export default class KpbPage extends LightningElement {
     }
 
     handleFieldChange(event) {
+        const field = event.target.dataset.field;
         const value = event.detail?.value !== undefined ? event.detail.value : event.target.value;
-        this[event.target.dataset.field] = value;
-        if (event.target.dataset.field === 'calculationType' && this.action === 'NEW') {
+        this[field] = value;
+        if (field === 'calculationType' && this.action === 'NEW') {
             const brand = normalizeBrand(this.brand) || this.userBrand;
             if (brand === 'BPL') this._applyBplDefaults(value);
+        }
+        if (field === 'salesPricePerHour' || field === 'salesPricePerDay') {
+            this._crossCalcSalesPrice(field);
+        }
+    }
+
+    _crossCalcSalesPrice(changedField) {
+        const hours = Number(this.avgHoursPerWeekCost);
+        const days  = Number(this.avgDaysPerWeekCost);
+        if (!hours || !days) return;
+        const x = hours / days;
+        if (changedField === 'salesPricePerHour' && this.salesPricePerHour !== null && this.salesPricePerHour !== '') {
+            const perHour = Number(this.salesPricePerHour);
+            if (Number.isFinite(perHour)) this.salesPricePerDay = Math.round(perHour * x * 100) / 100;
+        } else if (changedField === 'salesPricePerDay' && this.salesPricePerDay !== null && this.salesPricePerDay !== '') {
+            const perDay = Number(this.salesPricePerDay);
+            if (Number.isFinite(perDay) && x !== 0) this.salesPricePerHour = Math.round(perDay / x * 100) / 100;
         }
     }
 
@@ -786,6 +806,7 @@ export default class KpbPage extends LightningElement {
     }
 
     handleReset() {
+        this._maatmanUnlocked     = false;
         this.freelancerName       = '';
         this.description          = '';
         this.candidateId          = null;
@@ -853,7 +874,24 @@ export default class KpbPage extends LightningElement {
         }
     }
 
+    _validateSalesPrices() {
+        if (this.calculationMethod !== 'Verkoopprijs') return true;
+        const hourEmpty = this.salesPricePerHour === null || this.salesPricePerHour === '' || this.salesPricePerHour === undefined;
+        const dayEmpty  = this.salesPricePerDay  === null || this.salesPricePerDay  === '' || this.salesPricePerDay  === undefined;
+        if (hourEmpty && dayEmpty) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Verkoopprijs ontbreekt',
+                message: 'Vul minstens Verkoopprijs / uur of Verkoopprijs / dag in.',
+                variant: 'error',
+                mode: 'sticky'
+            }));
+            return false;
+        }
+        return true;
+    }
+
     async handleCalculate() {
+        if (!this._validateSalesPrices()) return;
         this.isLoading = true;
         try {
             const body = this._buildPayload();
@@ -875,6 +913,7 @@ export default class KpbPage extends LightningElement {
                     }
                 }
                 if (isNew) this.action = 'EDIT';
+                this._maatmanUnlocked = true;
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Berekening uitgevoerd.',
                     variant: 'success'
@@ -900,6 +939,7 @@ export default class KpbPage extends LightningElement {
     }
 
     async _performSave() {
+        if (!this._validateSalesPrices()) return { ok: false };
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const body = this._buildPayload();
         console.log('[kpbPage] _performSave — action:', this.action, '| kpbId:', this.kpbId);
