@@ -427,7 +427,10 @@ export default class KpbPage extends LightningElement {
                 this.staffingRequestId = this.vacancyId;
                 this.request = this.vacancyId;
             }
-            if (this.genericEmployeeId && !this.isFreelance) this._initNew();
+            Promise.resolve().then(() => {
+                console.log('[kpbPage] deferred NEW init — isFreelance:', this.isFreelance, '| genericEmployeeId:', this.genericEmployeeId);
+                if (this.genericEmployeeId && !this.isFreelance) this._initNew();
+            });
             return;
         }
         if (this.recordId) {
