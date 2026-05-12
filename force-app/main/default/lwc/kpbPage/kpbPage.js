@@ -155,7 +155,7 @@ export default class KpbPage extends LightningElement {
     resolvedEmployeeNumber = null;
     formType = 'Werknemer';
     freelancerName = '';
-    typeLabel = 'Werknemer';
+    typeLabel = 'Kandidaat';
     description = '';
     candidateId = null;
     candidate = '';
