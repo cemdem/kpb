@@ -10,7 +10,7 @@ export default class KpbPageModal extends LightningModal {
     @api genericEmployeeId;
     @api genericEmployeeNumber;
     @api contactId;
-    @api isFreelance = false;
+    @api isFreelance;
 
     renderedCallback() {
         const page = this.template.querySelector('c-kpb-page');
