@@ -10,10 +10,30 @@ export default class KpbPageModal extends LightningModal {
     @api genericEmployeeId;
     @api genericEmployeeNumber;
     @api contactId;
-    @api freelance;
+
+    _freelance;
+    @api
+    get freelance() {
+        console.log('[kpbPageModal] freelance GETTER returning:', this._freelance);
+        return this._freelance;
+    }
+    set freelance(v) {
+        console.log('[kpbPageModal] freelance SETTER called with:', v, '| typeof:', typeof v);
+        this._freelance = v;
+    }
 
     get freelanceBool() {
-        return this.freelance === 'true' || this.freelance === true;
+        const bool = this._freelance === 'true' || this._freelance === true;
+        console.log('[kpbPageModal] freelanceBool getter — _freelance:', this._freelance, '→ bool:', bool);
+        return bool;
+    }
+
+    connectedCallback() {
+        console.log('[kpbPageModal] connectedCallback — freelance:', this._freelance, '| pNumber:', this.pNumber, '| brand:', this.brand, '| contactId:', this.contactId);
+    }
+
+    renderedCallback() {
+        console.log('[kpbPageModal] renderedCallback — freelance:', this._freelance, '| freelanceBool:', this.freelanceBool, '| pNumber:', this.pNumber);
     }
 
     get title() {
