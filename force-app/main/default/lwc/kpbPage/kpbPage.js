@@ -145,6 +145,8 @@ export default class KpbPage extends LightningElement {
     @api genericEmployeeNumber;
     @api contactId;
     @api vacancyId;
+    @api contactType = 'Werknemer';
+    @api isPotentialVoorstelling = false;
 
     isLoading = false;
     fetchError = null;
@@ -418,6 +420,7 @@ export default class KpbPage extends LightningElement {
         this._initRows();
         if (this.action === 'NEW') {
             console.log('[kpbPage] NEW — recordId:', this.recordId, '| contactId:', this.contactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
+            this.formType = this.contactType === 'Freelance' ? 'Freelancer' : 'Werknemer';
             if (this.recordId) this.candidateId = this.recordId;
             if (this.vacancyId) {
                 this.staffingRequestId = this.vacancyId;
@@ -516,7 +519,7 @@ export default class KpbPage extends LightningElement {
             const raw = JSON.parse(detailResult.result);
             this._populate(raw.costgroup || raw);
             this.kpbId = null;
-            this.simulationType = 'WRK';
+            this.simulationType = this.isPotentialVoorstelling ? 'WRK' : 'EMP';
         } catch (e) {
             console.warn('[kpbPage] _fetchOvk error:', e.body?.message ?? e.message);
         } finally {

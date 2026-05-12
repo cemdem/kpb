@@ -10,6 +10,7 @@ export default class KpbPageModal extends LightningModal {
     @api genericEmployeeId;
     @api genericEmployeeNumber;
     @api contactId;
+    @api contactType;
 
     get title() {
         if (this.action === 'EDIT') return 'Edit Cost Group';
