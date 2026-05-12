@@ -418,7 +418,7 @@ export default class KpbPage extends LightningElement {
     }
 
     connectedCallback() {
-        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| candidateName:', this.candidateName, '| contactType:', this.contactType);
+        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| candidateName:', this.candidateName, '| contactType:', this.contactType, '| pNumber:', this.pNumber);
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {

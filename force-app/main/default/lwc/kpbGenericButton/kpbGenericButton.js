@@ -18,7 +18,7 @@ export default class KpbGenericButton extends LightningElement {
     @api contactType = 'Werknemer';
 
     connectedCallback() {
-        console.log('[kpbGenericButton] connectedCallback — brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| contactType:', this.contactType);
+        console.log('[kpbGenericButton] connectedCallback — brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| contactType:', this.contactType, '| pNumber:', this.pNumber);
     }
 
     get hasSelection() {
