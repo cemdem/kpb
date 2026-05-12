@@ -22,7 +22,7 @@
             <property name="pNumber"               type="String"  label="P-Number (created_by)" />
             <property name="contactId"             type="String"  label="Contact Salesforce Id" />
             <property name="vacancyId"               type="String"  label="Vacancy Id (staffing request)" />
-            <property name="contactType"             type="String"  label="Contact Type (Werknemer | Freelance)" />
+            <property name="isFreelance"              type="Boolean" label="Is Freelance (true = load freelancer form empty)" />
             <property name="isPotentialVoorstelling" type="Boolean" label="Is Potential Voorstelling (WRK on OVK prefill)" />
         </targetConfig>
     </targetConfigs>

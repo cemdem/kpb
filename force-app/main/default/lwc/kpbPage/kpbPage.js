@@ -146,8 +146,7 @@ export default class KpbPage extends LightningElement {
     @api contactId;
     @api vacancyId;
     @api isPotentialVoorstelling = false;
-
-    @api contactType = 'Werknemer';
+    @api isFreelance = false;
 
     isLoading = false;
     fetchError = null;
@@ -157,7 +156,7 @@ export default class KpbPage extends LightningElement {
     number = null;
     resolvedEmployeeNumber = null;
     _formType;
-    get formType() { return this._formType ?? (this.contactType === 'Freelance' ? 'Freelancer' : 'Werknemer'); }
+    get formType() { return this._formType ?? (this.isFreelance ? 'Freelancer' : 'Werknemer'); }
     set formType(v) { this._formType = v; }
     freelancerName = '';
     typeLabel = 'Kandidaat';
@@ -428,7 +427,7 @@ export default class KpbPage extends LightningElement {
                 this.staffingRequestId = this.vacancyId;
                 this.request = this.vacancyId;
             }
-            if (this.genericEmployeeId) this._initNew();
+            if (this.genericEmployeeId && !this.isFreelance) this._initNew();
             return;
         }
         if (this.recordId) {

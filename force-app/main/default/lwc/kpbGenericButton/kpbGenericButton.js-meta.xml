@@ -15,7 +15,7 @@
             <property name="genericEmployeeId"     type="String"  label="Generic Employee Id (NEW)" />
             <property name="genericEmployeeNumber" type="String"  label="Generic Employee Number (NEW)" />
             <property name="contactId"             type="String"  label="Contact Salesforce Id" />
-            <property name="contactType"           type="String"  label="Contact Type (Werknemer | Freelance)" />
+            <property name="isFreelance"           type="Boolean" label="Is Freelance" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
