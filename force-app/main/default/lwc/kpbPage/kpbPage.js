@@ -1042,7 +1042,7 @@ export default class KpbPage extends LightningElement {
             },
             sales_price_per_day:  this._toNumber(this.salesPricePerDay),
             sales_price_per_hour: this._toNumber(this.salesPricePerHour),
-            staffing_request: { id: this.staffingRequestId ?? null, number: this.request ? Number(this.request) : null },
+            staffing_request: { id: null, number: this.request ? Number(this.request) : null },
             created_by:  this.pNumber,
             components:  this._buildComponents()
         };
