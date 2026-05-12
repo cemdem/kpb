@@ -81,6 +81,7 @@ export default class KpbGenericButton extends LightningElement {
 
     async handleDelete() {
         if (!this._validate()) return;
+        console.log('[kpbGenericButton] handleDelete — pNumber:', this.pNumber, '| recordId:', this.recordId);
         try {
             const result = await deleteKpb({ kpbId: this.recordId, pNumber: this.pNumber });
             if (result.success) {
