@@ -145,8 +145,17 @@ export default class KpbPage extends LightningElement {
     @api genericEmployeeNumber;
     @api contactId;
     @api vacancyId;
-    @api contactType = 'Werknemer';
     @api isPotentialVoorstelling = false;
+
+    _contactType = 'Werknemer';
+    get contactType() { return this._contactType; }
+    @api set contactType(value) {
+        this._contactType = value || 'Werknemer';
+        if (this.action === 'NEW') {
+            this.formType = this._contactType === 'Freelance' ? 'Freelancer' : 'Werknemer';
+            console.log('[kpbPage] contactType setter — value:', value, '| formType:', this.formType);
+        }
+    }
 
     isLoading = false;
     fetchError = null;
@@ -419,8 +428,7 @@ export default class KpbPage extends LightningElement {
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
-            console.log('[kpbPage] NEW — recordId:', this.recordId, '| contactId:', this.contactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber, '| contactType:', this.contactType, '| formType resolved:', this.contactType === 'Freelance' ? 'Freelancer' : 'Werknemer');
-            this.formType = this.contactType === 'Freelance' ? 'Freelancer' : 'Werknemer';
+            console.log('[kpbPage] NEW — recordId:', this.recordId, '| contactId:', this.contactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
             if (this.recordId) this.candidateId = this.recordId;
             if (this.vacancyId) {
                 this.staffingRequestId = this.vacancyId;
