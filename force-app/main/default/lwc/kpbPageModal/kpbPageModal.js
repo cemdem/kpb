@@ -10,16 +10,7 @@ export default class KpbPageModal extends LightningModal {
     @api genericEmployeeId;
     @api genericEmployeeNumber;
     @api contactId;
-    @api isFreelance;
-
-    renderedCallback() {
-        const page = this.template.querySelector('c-kpb-page');
-        console.log('[kpbPageModal] renderedCallback — isFreelance:', this.isFreelance, '| page.isFreelance:', page?.isFreelance);
-        if (page && page.isFreelance !== this.isFreelance) {
-            console.log('[kpbPageModal] pushing isFreelance:', this.isFreelance);
-            page.isFreelance = this.isFreelance;
-        }
-    }
+    @api freelance;
 
     get title() {
         if (this.action === 'EDIT') return 'Edit Cost Group';

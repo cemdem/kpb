@@ -15,10 +15,10 @@ export default class KpbGenericButton extends LightningElement {
     @api genericEmployeeId;
     @api genericEmployeeNumber;
     @api contactId;
-    @api isFreelance = false;
+    @api freelance = false;
 
     connectedCallback() {
-        console.log('[kpbGenericButton] connectedCallback — brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| isFreelance:', this.isFreelance, '| pNumber:', this.pNumber);
+        console.log('[kpbGenericButton] connectedCallback — brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| freelance:', this.freelance, '| pNumber:', this.pNumber);
     }
 
     get hasSelection() {
@@ -49,8 +49,8 @@ export default class KpbGenericButton extends LightningElement {
     }
 
     async _open(action) {
-        console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| isFreelance:', this.isFreelance);
-        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, contactId: this.contactId, isFreelance: this.isFreelance, size: 'large' });
+        console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| freelance:', this.freelance);
+        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, contactId: this.contactId, freelance: this.freelance, size: 'large' });
         if (result?.saved) {
             this.dispatchEvent(new FlowNavigationNextEvent());
         }

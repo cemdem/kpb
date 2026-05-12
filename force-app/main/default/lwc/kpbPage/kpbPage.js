@@ -146,20 +146,7 @@ export default class KpbPage extends LightningElement {
     @api contactId;
     @api vacancyId;
     @api isPotentialVoorstelling = false;
-
-    _isFreelance;
-    _pendingNewInit = false;
-    _newInitDone = false;
-    @api
-    get isFreelance() { return this._isFreelance; }
-    set isFreelance(v) {
-        console.log('[kpbPage] isFreelance setter:', v);
-        this._isFreelance = v;
-        if (this._pendingNewInit) {
-            this._pendingNewInit = false;
-            this._runDeferredNewInit();
-        }
-    }
+    @api freelance = false;
 
     isLoading = false;
     fetchError = null;
@@ -169,7 +156,7 @@ export default class KpbPage extends LightningElement {
     number = null;
     resolvedEmployeeNumber = null;
     _formType;
-    get formType() { return this._formType ?? (this.isFreelance ? 'Freelancer' : 'Werknemer'); }
+    get formType() { return this._formType ?? (this.freelance ? 'Freelancer' : 'Werknemer'); }
     set formType(v) { this._formType = v; }
     freelancerName = '';
     typeLabel = 'Kandidaat';
@@ -430,7 +417,7 @@ export default class KpbPage extends LightningElement {
     }
 
     connectedCallback() {
-        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| candidateName:', this.candidateName, '| isFreelance:', this.isFreelance, '| pNumber:', this.pNumber);
+        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| candidateName:', this.candidateName, '| freelance:', this.freelance, '| pNumber:', this.pNumber);
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
@@ -440,17 +427,7 @@ export default class KpbPage extends LightningElement {
                 this.staffingRequestId = this.vacancyId;
                 this.request = this.vacancyId;
             }
-            if (this._isFreelance !== undefined) {
-                this._runDeferredNewInit();
-            } else {
-                this._pendingNewInit = true;
-                setTimeout(() => {
-                    if (this._pendingNewInit) {
-                        this._pendingNewInit = false;
-                        this._runDeferredNewInit();
-                    }
-                }, 150);
-            }
+            if (this.genericEmployeeId && !this.freelance) this._initNew();
             return;
         }
         if (this.recordId) {
@@ -458,13 +435,6 @@ export default class KpbPage extends LightningElement {
         } else if (this.json) {
             this._parse();
         }
-    }
-
-    _runDeferredNewInit() {
-        if (this._newInitDone) return;
-        this._newInitDone = true;
-        console.log('[kpbPage] _runDeferredNewInit — isFreelance:', this._isFreelance, '| genericEmployeeId:', this.genericEmployeeId);
-        if (this.genericEmployeeId && !this._isFreelance) this._initNew();
     }
 
     async _fetchKpb() {
