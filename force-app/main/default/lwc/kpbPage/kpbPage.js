@@ -149,7 +149,6 @@ export default class KpbPage extends LightningElement {
     isLoading = false;
     fetchError = null;
     parseError = null;
-    _maatmanUnlocked = false;
     _qualityChecks = [];
     userBrand;
     number = null;
@@ -394,8 +393,7 @@ export default class KpbPage extends LightningElement {
     }
 
     get fulltimeEquivalentDisabled() {
-        if (this._maatmanUnlocked) return false;
-        return this.action === 'EDIT' || this.action === 'COPY';
+        return false;
     }
 
     get availableMobilityOptions() {
@@ -809,7 +807,6 @@ export default class KpbPage extends LightningElement {
     }
 
     handleReset() {
-        this._maatmanUnlocked     = false;
         this._qualityChecks       = [];
         this.freelancerName       = '';
         this.description          = '';
@@ -918,7 +915,6 @@ export default class KpbPage extends LightningElement {
                     }
                 }
                 if (isNew) this.action = 'EDIT';
-                this._maatmanUnlocked = true;
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Berekening uitgevoerd.',
                     variant: 'success'
