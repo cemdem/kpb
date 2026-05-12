@@ -146,7 +146,7 @@ export default class KpbPage extends LightningElement {
     @api contactId;
     @api vacancyId;
     @api isPotentialVoorstelling = false;
-    @api isFreelance = false;
+    @api isFreelance;
 
     isLoading = false;
     fetchError = null;
