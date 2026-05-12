@@ -12,6 +12,10 @@ export default class KpbPageModal extends LightningModal {
     @api contactId;
     @api freelance;
 
+    get freelanceBool() {
+        return this.freelance === 'true' || this.freelance === true;
+    }
+
     get title() {
         if (this.action === 'EDIT') return 'Edit Cost Group';
         return 'New Cost Group';
