@@ -415,11 +415,11 @@ export default class KpbPage extends LightningElement {
     }
 
     connectedCallback() {
-        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| candidateName:', this.candidateName);
+        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| candidateName:', this.candidateName, '| contactType:', this.contactType);
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
-            console.log('[kpbPage] NEW — recordId:', this.recordId, '| contactId:', this.contactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
+            console.log('[kpbPage] NEW — recordId:', this.recordId, '| contactId:', this.contactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber, '| contactType:', this.contactType, '| formType resolved:', this.contactType === 'Freelance' ? 'Freelancer' : 'Werknemer');
             this.formType = this.contactType === 'Freelance' ? 'Freelancer' : 'Werknemer';
             if (this.recordId) this.candidateId = this.recordId;
             if (this.vacancyId) {
