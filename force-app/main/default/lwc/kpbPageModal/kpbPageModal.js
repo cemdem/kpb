@@ -14,7 +14,9 @@ export default class KpbPageModal extends LightningModal {
 
     renderedCallback() {
         const page = this.template.querySelector('c-kpb-page');
+        console.log('[kpbPageModal] renderedCallback — isFreelance:', this.isFreelance, '| page.isFreelance:', page?.isFreelance);
         if (page && page.isFreelance !== this.isFreelance) {
+            console.log('[kpbPageModal] pushing isFreelance:', this.isFreelance);
             page.isFreelance = this.isFreelance;
         }
     }
