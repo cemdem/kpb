@@ -905,8 +905,8 @@ export default class KpbPage extends LightningElement {
             console.log('[kpbPage] handleCalculate — full payload:', body);
             const isNew = this.action === 'NEW' || this.action === 'COPY';
             const result = isNew
-                ? await createKpb({ body })
-                : await updateKpb({ kpbId: String(this.kpbId), body });
+                ? await createKpb({ body, pNumber: this.pNumber })
+                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber });
             console.log('[kpbPage] handleCalculate — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
             if (result.success) {
                 if (result.result) {
@@ -952,8 +952,8 @@ export default class KpbPage extends LightningElement {
         console.log('[kpbPage] _performSave — full payload:', body);
         try {
             const result = isNew
-                ? await createKpb({ body })
-                : await updateKpb({ kpbId: String(this.kpbId), body });
+                ? await createKpb({ body, pNumber: this.pNumber })
+                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber });
             console.log('[kpbPage] _performSave — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
             if (!result.success) {
                 this.dispatchEvent(new ShowToastEvent({
@@ -1109,7 +1109,7 @@ export default class KpbPage extends LightningElement {
         this.isLoading = true;
         try {
             const body = JSON.stringify({ reason: this.approvalReason.trim() });
-            const result = await requestApproval({ kpbId: String(this.kpbId), body });
+            const result = await requestApproval({ kpbId: String(this.kpbId), body, pNumber: this.pNumber });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuring aangevraagd.', variant: 'success' }));
             } else {

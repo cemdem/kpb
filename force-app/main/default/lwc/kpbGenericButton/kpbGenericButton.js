@@ -82,7 +82,7 @@ export default class KpbGenericButton extends LightningElement {
     async handleDelete() {
         if (!this._validate()) return;
         try {
-            const result = await deleteKpb({ kpbId: this.recordId });
+            const result = await deleteKpb({ kpbId: this.recordId, pNumber: this.pNumber });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Kostprijsberekening verwijderd.',

@@ -2,6 +2,10 @@ public with sharing class KpbController {
 
     @AuraEnabled
     public static KpbCallResult callSpot(String endpoint, String method, String body, Boolean xMessageIdIsRequired) {
+        return callSpotInternal(endpoint, method, body, xMessageIdIsRequired, null);
+    }
+
+    private static KpbCallResult callSpotInternal(String endpoint, String method, String body, Boolean xMessageIdIsRequired, String operatorId) {
         String token = getSpotAccessToken();
 
         Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
@@ -20,6 +24,7 @@ public with sharing class KpbController {
         req.setHeader('x-userrole', 'CONSULENT');
         req.setHeader('Accept-Language', 'NL');
         if (xMessageIdIsRequired) req.setHeader('X-Message-Id', UUID.randomUUID().toString());
+        if (String.isNotBlank(operatorId)) req.setHeader('x-operator-id', operatorId);
         req.setTimeout(120000);
         if (body != null) req.setBody(body);
 
@@ -66,19 +71,19 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
-    public static KpbCallResult createKpb(String body) {
-        return callSpot('/candidate-simulations/v1/candidate-costs', 'POST', body, true);
+    public static KpbCallResult createKpb(String body, String pNumber) {
+        return callSpotInternal('/candidate-simulations/v1/candidate-costs', 'POST', body, true, pNumber);
     }
 
     @AuraEnabled
-    public static KpbCallResult updateKpb(String kpbId, String body) {
-        return callSpot('/candidate-simulations/v1/candidate-costs/' + kpbId, 'PUT', body, true);
+    public static KpbCallResult updateKpb(String kpbId, String body, String pNumber) {
+        return callSpotInternal('/candidate-simulations/v1/candidate-costs/' + kpbId, 'PUT', body, true, pNumber);
     }
 
     @AuraEnabled
-    public static KpbCallResult deleteKpb(String kpbId) {
+    public static KpbCallResult deleteKpb(String kpbId, String pNumber) {
         String endpoint = '/candidate-simulations/v1/candidate-costs/' + kpbId;
-        return callSpot(endpoint, 'DELETE', null, true);
+        return callSpotInternal(endpoint, 'DELETE', null, true, pNumber);
     }
 
     @AuraEnabled
@@ -167,9 +172,9 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
-    public static KpbCallResult requestApproval(String kpbId, String body) {
+    public static KpbCallResult requestApproval(String kpbId, String body, String pNumber) {
         String endpoint = '/candidate-simulations/v1/candidate-costs/' + kpbId + '/request-approval';
-        return callSpot(endpoint, 'POST', body, true);
+        return callSpotInternal(endpoint, 'POST', body, true, pNumber);
     }
 
     @AuraEnabled(cacheable=true)
