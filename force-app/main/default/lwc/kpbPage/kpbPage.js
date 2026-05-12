@@ -146,7 +146,20 @@ export default class KpbPage extends LightningElement {
     @api contactId;
     @api vacancyId;
     @api isPotentialVoorstelling = false;
-    @api isFreelance;
+
+    _isFreelance;
+    _pendingNewInit = false;
+    _newInitDone = false;
+    @api
+    get isFreelance() { return this._isFreelance; }
+    set isFreelance(v) {
+        console.log('[kpbPage] isFreelance setter:', v);
+        this._isFreelance = v;
+        if (this._pendingNewInit) {
+            this._pendingNewInit = false;
+            this._runDeferredNewInit();
+        }
+    }
 
     isLoading = false;
     fetchError = null;
@@ -427,10 +440,17 @@ export default class KpbPage extends LightningElement {
                 this.staffingRequestId = this.vacancyId;
                 this.request = this.vacancyId;
             }
-            Promise.resolve().then(() => {
-                console.log('[kpbPage] deferred NEW init — isFreelance:', this.isFreelance, '| genericEmployeeId:', this.genericEmployeeId);
-                if (this.genericEmployeeId && !this.isFreelance) this._initNew();
-            });
+            if (this._isFreelance !== undefined) {
+                this._runDeferredNewInit();
+            } else {
+                this._pendingNewInit = true;
+                setTimeout(() => {
+                    if (this._pendingNewInit) {
+                        this._pendingNewInit = false;
+                        this._runDeferredNewInit();
+                    }
+                }, 150);
+            }
             return;
         }
         if (this.recordId) {
@@ -438,6 +458,13 @@ export default class KpbPage extends LightningElement {
         } else if (this.json) {
             this._parse();
         }
+    }
+
+    _runDeferredNewInit() {
+        if (this._newInitDone) return;
+        this._newInitDone = true;
+        console.log('[kpbPage] _runDeferredNewInit — isFreelance:', this._isFreelance, '| genericEmployeeId:', this.genericEmployeeId);
+        if (this.genericEmployeeId && !this._isFreelance) this._initNew();
     }
 
     async _fetchKpb() {
