@@ -342,9 +342,7 @@ export default class KpbPage extends LightningElement {
     }
 
     get approveDisabled() {
-        if (this.isReadOnly || this.kpbId === null || this.showApprovalForm || this.simulationType === 'EMP') return true;
-        if (!this._qualityChecks.length) return true;
-        return this._qualityChecks.some(c => c.constraint !== 'PSG_APPROVE_MARGIN');
+        return this.isReadOnly || this.kpbId === null || this.showApprovalForm || this.simulationType === 'EMP';
     }
 
     get approvalSubmitDisabled() {
@@ -1096,11 +1094,37 @@ export default class KpbPage extends LightningElement {
         console.log('[kpbPage] handleApprove — kpbId:', this.kpbId);
         this.isLoading = true;
         try {
-            const { ok } = await this._performSave();
-            if (ok) {
+            const body = this._buildPayload();
+            const isNew = this.action === 'NEW' || this.action === 'COPY';
+            const result = isNew
+                ? await createKpb({ body, pNumber: this.pNumber })
+                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber });
+            if (!result.success) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Fout bij berekenen',
+                    message: this._apiError(result),
+                    variant: 'error',
+                    mode: 'sticky'
+                }));
+                return;
+            }
+            const raw = JSON.parse(result.result);
+            this._populate(raw.costgroup || raw, false);
+            this._qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
+            this._showQualityChecks(raw);
+            if (isNew) this.action = 'EDIT';
+            const blocking = this._qualityChecks.filter(c => c.constraint !== 'PSG_APPROVE_MARGIN');
+            if (blocking.length === 0) {
                 this.approvalReason = '';
                 this.showApprovalForm = true;
             }
+        } catch (e) {
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Fout bij berekenen',
+                message: e.body?.message ?? e.message ?? 'Onbekende fout',
+                variant: 'error',
+                mode: 'sticky'
+            }));
         } finally {
             this.isLoading = false;
         }
