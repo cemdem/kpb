@@ -454,6 +454,9 @@ export default class KpbPage extends LightningElement {
                 const raw = JSON.parse(result.result);
                 console.log('[kpbPage] _fetchKpb response:', JSON.stringify(raw, null, 2));
                 this._populate(raw.costgroup || raw);
+                if (this.action === 'COPY') {
+                    this.simulationType = this.isPotentialVoorstelling ? 'WRK' : 'EMP';
+                }
             } else {
                 this.fetchError = `HTTP ${result.httpCode}: ${result.result}`;
             }
