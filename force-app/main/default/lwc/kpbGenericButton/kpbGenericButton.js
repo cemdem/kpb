@@ -3,6 +3,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { FlowNavigationNextEvent } from 'lightning/flowSupport';
 import KpbPageModal from 'c/kpbPageModal';
 import deleteKpb from '@salesforce/apex/KpbController.deleteKpb';
+import getKpb from '@salesforce/apex/KpbController.getKpb';
 
 export default class KpbGenericButton extends LightningElement {
     @api label = 'Start';
@@ -83,6 +84,19 @@ export default class KpbGenericButton extends LightningElement {
         if (!this._validate()) return;
         console.log('[kpbGenericButton] handleDelete — pNumber:', this.pNumber, '| recordId:', this.recordId);
         try {
+            const fetchResult = await getKpb({ recordId: this.recordId });
+            if (fetchResult.success) {
+                const raw = JSON.parse(fetchResult.result);
+                const simType = (raw.costgroup || raw)?.simulation_type;
+                if (simType === 'PRJ' || simType === 'OVK') {
+                    this.dispatchEvent(new ShowToastEvent({
+                        title: 'Kan KPB van type Project/Overeenkomst niet verwijderen',
+                        variant: 'error',
+                        mode: 'sticky'
+                    }));
+                    return;
+                }
+            }
             const result = await deleteKpb({ kpbId: this.recordId, pNumber: this.pNumber });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({
