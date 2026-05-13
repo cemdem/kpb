@@ -159,7 +159,6 @@ export default class KpbPage extends LightningElement {
     get formType() { return this._formType ?? (this.freelance ? 'Freelancer' : 'Werknemer'); }
     set formType(v) { this._formType = v; }
     freelancerName = '';
-    typeLabel = 'Kandidaat';
     description = '';
     candidateId = null;
     candidate = '';
@@ -333,8 +332,17 @@ export default class KpbPage extends LightningElement {
     }
 
 
+    get typeLabel() {
+        const map = { EMP: 'Kandidaat', WRK: 'Voorstelling', OVK: 'Overeenkomst', PRJ: 'Project' };
+        return map[this.simulationType] ?? 'Kandidaat';
+    }
+
+    get isReadOnly() {
+        return this.simulationType === 'PRJ' || this.simulationType === 'OVK';
+    }
+
     get approveDisabled() {
-        if (this.kpbId === null || this.showApprovalForm || this.simulationType === 'EMP') return true;
+        if (this.isReadOnly || this.kpbId === null || this.showApprovalForm || this.simulationType === 'EMP') return true;
         if (!this._qualityChecks.length) return true;
         return this._qualityChecks.some(c => c.constraint !== 'PSG_APPROVE_MARGIN');
     }
@@ -421,6 +429,7 @@ export default class KpbPage extends LightningElement {
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
+            this.simulationType = this.isPotentialVoorstelling ? 'WRK' : 'EMP';
             console.log('[kpbPage] NEW — recordId:', this.recordId, '| contactId:', this.contactId, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
             if (this.recordId) this.candidateId = this.recordId;
             if (this.vacancyId) {

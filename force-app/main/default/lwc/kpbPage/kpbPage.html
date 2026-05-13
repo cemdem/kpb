@@ -521,12 +521,14 @@
                     label="Berekenen"
                     variant="neutral"
                     class="slds-m-right_x-small"
+                    disabled={isReadOnly}
                     onclick={handleCalculate}>
                 </lightning-button>
                 <lightning-button
                     label="Bewaren"
                     variant="neutral"
                     class="slds-m-right_x-small"
+                    disabled={isReadOnly}
                     onclick={handleSave}>
                 </lightning-button>
                 <lightning-button
