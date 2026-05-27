@@ -67,9 +67,9 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
-    public static KpbCallResult getKpb(String recordId) {
+    public static KpbCallResult getKpb(String recordId, String pNumber) {
         String endpoint = '/candidate-simulations/v1/candidate-costs/' + recordId;
-        return callSpot(endpoint, 'GET', null, true);
+        return callSpotInternal(endpoint, 'GET', null, true, pNumber);
     }
 
     @AuraEnabled
@@ -89,22 +89,16 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
-    public static KpbCallResult listCandidateCosts(String employeeId, String payrollId) {
+    public static KpbCallResult listCandidateCosts(String employeeId, String payrollId, String pNumber) {
         String endpoint = '/candidate-simulations/v1/candidate-costs?employee_id=' + employeeId
                         + '&payroll_id=' + payrollId
                         + '&cost_group_type=OVK';
-        return callSpot(endpoint, 'GET', null, true);
+        return callSpotInternal(endpoint, 'GET', null, true, pNumber);
     }
 
     @AuraEnabled
-    public static KpbCallResult triggerPjsCreation(String employeeId, String payrollId, String contactSfId) {
-        // Fire the actual HTTP callout asynchronously. @future(callout=true) runs in a separate
-        // execution context where named credential External Credential Principal resolution may
-        // succeed even when it fails in @AuraEnabled context (where @InvocableMethod-from-Flow
-        // works but direct @AuraEnabled does not).
-        triggerPjsCreationAsync(employeeId, payrollId, contactSfId);
-        // The LWC already waits 5 seconds and polls Contact.RGF_IFOrce_Number_PJS__c, so the
-        // synchronous response from this method doesn't carry the actual API status.
+    public static KpbCallResult triggerPjsCreation(String employeeId, String payrollId, String contactSfId, String pNumber) {
+        triggerPjsCreationAsync(employeeId, payrollId, contactSfId, pNumber);
         KpbCallResult out = new KpbCallResult();
         out.httpCode = 202;
         out.success  = true;
@@ -113,7 +107,7 @@ public with sharing class KpbController {
     }
 
     @future(callout=true)
-    public static void triggerPjsCreationAsync(String employeeId, String payrollId, String contactSfId) {
+    public static void triggerPjsCreationAsync(String employeeId, String payrollId, String contactSfId, String pNumber) {
         String token = getSpotAccessToken();
 
         Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
@@ -155,6 +149,7 @@ public with sharing class KpbController {
         req.setHeader('X-Correlation-ID', guid);
         req.setHeader('X-Message-Id', UUID.randomUUID().toString());
         req.setHeader('Accept-Language', 'NL');
+        if (String.isNotBlank(pNumber)) req.setHeader('x-operator-id', pNumber);
         req.setTimeout(120000);
         req.setBody(body);
 
