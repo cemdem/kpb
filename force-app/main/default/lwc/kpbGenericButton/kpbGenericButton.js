@@ -19,7 +19,7 @@ export default class KpbGenericButton extends LightningElement {
     @api freelance = false;
 
     connectedCallback() {
-        console.log('[kpbGenericButton] connectedCallback — brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| freelance:', this.freelance, '| pNumber:', this.pNumber);
+        console.log('[kpbGenericButton] connectedCallback — label:', this.label, '| action:', this.action, '| recordId:', this.recordId, '| selectionCount:', this.selectionCount, '| brand:', this.brand, '| candidateName:', this.candidateName, '| pNumber:', this.pNumber, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber, '| contactId:', this.contactId, '| freelance:', this.freelance);
     }
 
     get hasSelection() {
@@ -84,7 +84,7 @@ export default class KpbGenericButton extends LightningElement {
         if (!this._validate()) return;
         console.log('[kpbGenericButton] handleDelete — pNumber:', this.pNumber, '| recordId:', this.recordId);
         try {
-            const fetchResult = await getKpb({ recordId: this.recordId });
+            const fetchResult = await getKpb({ recordId: this.recordId, pNumber: this.pNumber });
             if (fetchResult.success) {
                 const raw = JSON.parse(fetchResult.result);
                 const simType = (raw.costgroup || raw)?.simulation_type;
