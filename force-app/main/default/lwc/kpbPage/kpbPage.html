@@ -176,7 +176,7 @@
                                         value={grossSalaryPerMonth}
                                         data-field="grossSalaryPerMonth"
                                         min="0"
-                                        max="10000"
+                                        max="100000"
                                         onchange={handleFieldChange}
                                         required>
                                     </lightning-input>
@@ -200,6 +200,8 @@
                                         variant="label-inline"
                                         value={avgHoursPerWeekCost}
                                         data-field="avgHoursPerWeekCost"
+                                        min="0"
+                                        max="1000"
                                         onchange={handleFieldChange}
                                         required>
                                     </lightning-input>
@@ -222,6 +224,8 @@
                                         variant="label-inline"
                                         value={avgDaysPerWeekCost}
                                         data-field="avgDaysPerWeekCost"
+                                        min="1"
+                                        max="7"
                                         onchange={handleFieldChange}
                                         required>
                                     </lightning-input>
@@ -272,6 +276,8 @@
                                         variant="label-inline"
                                         value={avgHoursPerWeekSales}
                                         data-field="avgHoursPerWeekSales"
+                                        min="0"
+                                        max="1000"
                                         onchange={handleFieldChange}
                                         required>
                                     </lightning-input>
@@ -283,6 +289,8 @@
                                         variant="label-inline"
                                         value={marginPct}
                                         data-field="marginPct"
+                                        min="-1000"
+                                        max="1000"
                                         disabled={marginDisabled}
                                         onchange={handleFieldChange}>
                                     </lightning-input>
@@ -294,6 +302,8 @@
                                         variant="label-inline"
                                         value={avgDaysPerWeekSales}
                                         data-field="avgDaysPerWeekSales"
+                                        min="1"
+                                        max="7"
                                         onchange={handleFieldChange}
                                         required>
                                     </lightning-input>
@@ -305,6 +315,8 @@
                                         variant="label-inline"
                                         value={salesPricePerHour}
                                         data-field="salesPricePerHour"
+                                        min="0"
+                                        max="1000"
                                         disabled={salesPriceDisabled}
                                         onchange={handleFieldChange}>
                                     </lightning-input>
@@ -316,6 +328,8 @@
                                         variant="label-inline"
                                         value={salesPricePerDay}
                                         data-field="salesPricePerDay"
+                                        min="0"
+                                        max="100000"
                                         disabled={salesPriceDisabled}
                                         onchange={handleFieldChange}>
                                     </lightning-input>

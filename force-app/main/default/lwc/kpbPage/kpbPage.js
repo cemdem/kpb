@@ -890,6 +890,57 @@ export default class KpbPage extends LightningElement {
         }
     }
 
+    _numericFieldRules = [
+        { field: 'avgDaysPerWeekCost',  label: 'Gem. dagen/week',           min: 1,     max: 7,      minLabel: '1',     maxLabel: '7',       required: true  },
+        { field: 'avgHoursPerWeekCost', label: 'Gem. uren/week (kostprijs)', min: 0,     max: 1000,   minLabel: '0',     maxLabel: '1000',    required: false },
+        { field: 'grossSalaryPerMonth', label: 'Referentieloon',             min: 0,     max: 100000, minLabel: '0',     maxLabel: '100.000', required: false },
+        { field: 'avgDaysPerWeekSales', label: 'Gem. dagen/week (verkoop)',  min: 1,     max: 7,      minLabel: '1',     maxLabel: '7',       required: true  },
+        { field: 'avgHoursPerWeekSales',label: 'Gem. uren/week (verkoop)',   min: 0,     max: 1000,   minLabel: '0',     maxLabel: '1000',    required: false },
+        { field: 'marginPct',           label: 'Marge',                      min: -1000, max: 1000,   minLabel: '-1000', maxLabel: '1000',    required: false },
+        { field: 'salesPricePerHour',   label: 'Verkoopprijs/uur',           min: 0,     max: 1000,   minLabel: '0',     maxLabel: '1000',    required: false },
+        { field: 'salesPricePerDay',    label: 'Verkoopprijs/dag',           min: 0,     max: 100000, minLabel: '0',     maxLabel: '100.000', required: false },
+    ];
+
+    // Replicates IFOrce input handling: comma is the decimal separator, a period
+    // is filtered out as a thousands separator (e.g. "15.40" -> 1540, "15,40" -> 15.40).
+    _parseDecimal(raw) {
+        if (raw === null || raw === undefined || raw === '') return { empty: true, value: null };
+        const cleaned = String(raw).trim().replace(/\./g, '').replace(',', '.');
+        const num = Number(cleaned);
+        return { empty: false, value: Number.isFinite(num) ? num : NaN };
+    }
+
+    _validateNumericFields() {
+        const errors = [];
+        for (const rule of this._numericFieldRules) {
+            const range = `tussen ${rule.minLabel} en ${rule.maxLabel}`;
+            const { empty, value } = this._parseDecimal(this[rule.field]);
+            if (empty) {
+                if (rule.required) {
+                    errors.push({ title: rule.label, message: `Waarde moet liggen ${range}.` });
+                }
+                continue;
+            }
+            if (Number.isNaN(value)) {
+                errors.push({ title: rule.label, message: `${this[rule.field]} is not a valid decimal value. Waarde moet liggen ${range}.` });
+            } else if (value < rule.min || value > rule.max) {
+                errors.push({ title: rule.label, message: `Waarde moet liggen ${range}.` });
+            }
+        }
+        if (errors.length) {
+            for (const e of errors) {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: e.title,
+                    message: e.message,
+                    variant: 'error',
+                    mode: 'sticky'
+                }));
+            }
+            return false;
+        }
+        return true;
+    }
+
     _validateSalesPrices() {
         if (this.calculationMethod !== 'Verkoopprijs') return true;
         const hourEmpty = this.salesPricePerHour === null || this.salesPricePerHour === '' || this.salesPricePerHour === undefined;
@@ -907,6 +958,7 @@ export default class KpbPage extends LightningElement {
     }
 
     async handleCalculate() {
+        if (!this._validateNumericFields()) return;
         if (!this._validateSalesPrices()) return;
         this.isLoading = true;
         try {
@@ -955,6 +1007,7 @@ export default class KpbPage extends LightningElement {
     }
 
     async _performSave() {
+        if (!this._validateNumericFields()) return { ok: false };
         if (!this._validateSalesPrices()) return { ok: false };
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const body = this._buildPayload();
@@ -1092,6 +1145,8 @@ export default class KpbPage extends LightningElement {
 
     async handleApprove() {
         console.log('[kpbPage] handleApprove — kpbId:', this.kpbId);
+        if (!this._validateNumericFields()) return;
+        if (!this._validateSalesPrices()) return;
         this.isLoading = true;
         try {
             const body = this._buildPayload();
