@@ -700,16 +700,16 @@ export default class KpbPage extends LightningElement {
     }
 
     _crossCalcSalesPrice(changedField) {
-        const hours = Number(this.avgHoursPerWeekCost);
-        const days  = Number(this.avgDaysPerWeekCost);
+        const hours = this._toNumber(this.avgHoursPerWeekCost);
+        const days  = this._toNumber(this.avgDaysPerWeekCost);
         if (!hours || !days) return;
         const x = hours / days;
         if (changedField === 'salesPricePerHour' && this.salesPricePerHour !== null && this.salesPricePerHour !== '') {
-            const perHour = Number(this.salesPricePerHour);
-            if (Number.isFinite(perHour)) this.salesPricePerDay = Math.round(perHour * x * 100) / 100;
+            const perHour = this._toNumber(this.salesPricePerHour);
+            if (perHour !== null) this.salesPricePerDay = Math.round(perHour * x * 100) / 100;
         } else if (changedField === 'salesPricePerDay' && this.salesPricePerDay !== null && this.salesPricePerDay !== '') {
-            const perDay = Number(this.salesPricePerDay);
-            if (Number.isFinite(perDay) && x !== 0) this.salesPricePerHour = Math.round(perDay / x * 100) / 100;
+            const perDay = this._toNumber(this.salesPricePerDay);
+            if (perDay !== null && x !== 0) this.salesPricePerHour = Math.round(perDay / x * 100) / 100;
         }
     }
 
@@ -1068,7 +1068,8 @@ export default class KpbPage extends LightningElement {
 
     _toNumber(v) {
         if (v === null || v === undefined || v === '') return null;
-        const n = Number(v);
+        const cleaned = String(v).trim().replace(/\./g, '').replace(',', '.');
+        const n = Number(cleaned);
         return Number.isFinite(n) ? n : null;
     }
 
