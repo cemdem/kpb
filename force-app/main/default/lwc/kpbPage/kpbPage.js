@@ -905,6 +905,7 @@ export default class KpbPage extends LightningElement {
     // is filtered out as a thousands separator (e.g. "15.40" -> 1540, "15,40" -> 15.40).
     _parseDecimal(raw) {
         if (raw === null || raw === undefined || raw === '') return { empty: true, value: null };
+        if (typeof raw === 'number') return { empty: false, value: Number.isFinite(raw) ? raw : NaN };
         const cleaned = String(raw).trim().replace(/\./g, '').replace(',', '.');
         const num = Number(cleaned);
         return { empty: false, value: Number.isFinite(num) ? num : NaN };
@@ -1068,6 +1069,7 @@ export default class KpbPage extends LightningElement {
 
     _toNumber(v) {
         if (v === null || v === undefined || v === '') return null;
+        if (typeof v === 'number') return Number.isFinite(v) ? v : null;
         const cleaned = String(v).trim().replace(/\./g, '').replace(',', '.');
         const n = Number(cleaned);
         return Number.isFinite(n) ? n : null;
