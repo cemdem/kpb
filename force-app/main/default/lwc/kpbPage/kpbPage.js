@@ -10,6 +10,8 @@ import getContactPjsNumber from '@salesforce/apex/KpbController.getContactPjsNum
 import createKpb from '@salesforce/apex/KpbController.createKpb';
 import updateKpb from '@salesforce/apex/KpbController.updateKpb';
 import requestApproval from '@salesforce/apex/KpbController.requestApproval';
+import linkKpbToApplication from '@salesforce/apex/KpbController.linkKpbToApplication';
+import unlinkKpbFromApplication from '@salesforce/apex/KpbController.unlinkKpbFromApplication';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
@@ -147,6 +149,7 @@ export default class KpbPage extends LightningElement {
     @api vacancyId;
     @api isPotentialVoorstelling = false;
     @api freelance = false;
+    @api applicationId;
 
     isLoading = false;
     fetchError = null;
@@ -1061,6 +1064,9 @@ export default class KpbPage extends LightningElement {
         try {
             const { ok, isNew } = await this._performSave();
             if (ok) {
+                if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
+                    try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId }); } catch (_) { /* non-blocking */ }
+                }
                 this.dispatchEvent(new ShowToastEvent({
                     title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
                     variant: 'success'

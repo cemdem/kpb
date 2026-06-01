@@ -191,6 +191,16 @@ public with sharing class KpbController {
         return [SELECT Name FROM User WHERE Id = :UserInfo.getUserId()].Name;
     }
 
+    @AuraEnabled
+    public static void linkKpbToApplication(String applicationId, Decimal kpbId) {
+        update new TR1__Application_V2__c(Id = applicationId, RGF_KPB_Id__c = kpbId);
+    }
+
+    @AuraEnabled
+    public static void unlinkKpbFromApplication(String applicationId) {
+        update new TR1__Application_V2__c(Id = applicationId, RGF_KPB_Id__c = null);
+    }
+
     public class KpbCallResult {
         @AuraEnabled public Boolean success;
         @AuraEnabled public Integer httpCode;

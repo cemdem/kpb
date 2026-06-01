@@ -4,6 +4,7 @@ import { FlowNavigationNextEvent } from 'lightning/flowSupport';
 import KpbPageModal from 'c/kpbPageModal';
 import deleteKpb from '@salesforce/apex/KpbController.deleteKpb';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
+import unlinkKpbFromApplication from '@salesforce/apex/KpbController.unlinkKpbFromApplication';
 
 export default class KpbGenericButton extends LightningElement {
     @api label = 'Start';
@@ -17,6 +18,7 @@ export default class KpbGenericButton extends LightningElement {
     @api genericEmployeeNumber;
     @api contactId;
     @api freelance = false;
+    @api applicationId;
 
     connectedCallback() {
         console.log('[kpbGenericButton] connectedCallback — label:', this.label, '| action:', this.action, '| recordId:', this.recordId, '| selectionCount:', this.selectionCount, '| brand:', this.brand, '| candidateName:', this.candidateName, '| pNumber:', this.pNumber, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber, '| contactId:', this.contactId, '| freelance:', this.freelance);
@@ -99,6 +101,9 @@ export default class KpbGenericButton extends LightningElement {
             }
             const result = await deleteKpb({ kpbId: this.recordId, pNumber: this.pNumber });
             if (result.success) {
+                if (this.applicationId) {
+                    try { await unlinkKpbFromApplication({ applicationId: this.applicationId }); } catch (_) { /* non-blocking */ }
+                }
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Kostprijsberekening verwijderd.',
                     variant: 'success'
