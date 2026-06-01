@@ -24,6 +24,7 @@
             <property name="vacancyId"               type="String"  label="Vacancy Id (staffing request)" />
             <property name="freelance"                type="Boolean" label="Freelance (true = load freelancer form empty)" />
             <property name="isPotentialVoorstelling" type="Boolean" label="Is Potential Voorstelling (WRK on OVK prefill)" />
+            <property name="applicationId"           type="String"  label="Application Salesforce Id (TR1__Application_V2__c)" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
