@@ -584,12 +584,12 @@ export default class KpbPage extends LightningElement {
         this.fulltimeEquivalent   = cg.fulltime_equivalent_id != null ? String(cg.fulltime_equivalent_id) : '';
         this.calculateFromDate    = cg.calculate_from_date ?? null;
         this.kpbStatus            = cg.status ?? '';
-        this.totalCostPerHourExcl = cg.total_cost_per_hour_excl ?? null;
-        this.totalCostPerDay      = cg.total_cost_per_day ?? null;
-        this.totalCostPerMonth    = cg.total_cost_per_month ?? null;
-        this.salaryCost           = cg.salary_cost ?? null;
-        this.carCostCalc          = cg.car_cost ?? null;
-        this.otherCostCalc        = cg.other_cost ?? null;
+        this.totalCostPerHourExcl = this._toDisplay(cg.total_cost_per_hour_excl ?? null);
+        this.totalCostPerDay      = this._toDisplay(cg.total_cost_per_day ?? null);
+        this.totalCostPerMonth    = this._toDisplay(cg.total_cost_per_month ?? null);
+        this.salaryCost           = this._toDisplay(cg.salary_cost ?? null);
+        this.carCostCalc          = this._toDisplay(cg.car_cost ?? null);
+        this.otherCostCalc        = this._toDisplay(cg.other_cost ?? null);
         if (cg.first_approved_on) this.createdDate = cg.first_approved_on;
         if (cg.simulation_type)   this.simulationType = cg.simulation_type;
         if (updateFormType && Array.isArray(cg.components)) {
@@ -620,7 +620,7 @@ export default class KpbPage extends LightningElement {
             }
             if (key === 'bedrijfswagen_netto_inhouding' && value != null) value = Math.abs(value);
             const rawPerHour = comp.value?.per_hour;
-            const perHour = (rawPerHour !== null && rawPerHour !== undefined && rawPerHour !== 0) ? rawPerHour : null;
+            const perHour = (rawPerHour !== null && rawPerHour !== undefined && rawPerHour !== 0) ? this._toDisplay(rawPerHour) : null;
             const valueIsEmpty = value === null || value === undefined || value === 0 || value === '';
             if (valueIsEmpty && !rawPerHour) continue;
             if (mobilityKeySet.has(key)) {
