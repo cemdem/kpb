@@ -547,6 +547,11 @@ export default class KpbPage extends LightningElement {
         }
     }
 
+    _toDisplay(n) {
+        if (n === null || n === undefined) return null;
+        return String(n).replace('.', ',');
+    }
+
     _populate(cg, updateFormType = true) {
         this.kpbId                = cg.id ?? null;
         this.number               = cg.payroll_id ?? null;
@@ -568,14 +573,14 @@ export default class KpbPage extends LightningElement {
         this.request              = this.vacancyId ?? (cg.staffing_request?.number != null ? String(cg.staffing_request.number) : (cg.staffing_request?.name ?? ''));
         this.calculationType      = cg.calculation_type_id != null ? String(cg.calculation_type_id) : '';
         this.calculationMethod    = cg.calculation_method === '1' ? 'Verkoopprijs' : cg.calculation_method === '2' ? 'Marge' : '';
-        this.avgHoursPerWeekSales = cg.avg_hours_per_week_sales ?? null;
-        this.avgDaysPerWeekSales  = cg.avg_days_per_week_sales ?? null;
-        this.marginPct            = cg.margin ?? null;
-        this.salesPricePerHour    = cg.sales_price_per_hour ?? null;
-        this.grossSalaryPerMonth  = cg.reference_salary?.salary ?? cg.real_salary ?? null;
-        this.avgHoursPerWeekCost  = cg.avg_hours_per_week_cost ?? null;
-        this.avgDaysPerWeekCost   = cg.avg_days_per_week_cost ?? null;
-        this.salesPricePerDay     = cg.sales_price_per_day ?? null;
+        this.avgHoursPerWeekSales = this._toDisplay(cg.avg_hours_per_week_sales ?? null);
+        this.avgDaysPerWeekSales  = this._toDisplay(cg.avg_days_per_week_sales ?? null);
+        this.marginPct            = this._toDisplay(cg.margin ?? null);
+        this.salesPricePerHour    = this._toDisplay(cg.sales_price_per_hour ?? null);
+        this.grossSalaryPerMonth  = this._toDisplay(cg.reference_salary?.salary ?? cg.real_salary ?? null);
+        this.avgHoursPerWeekCost  = this._toDisplay(cg.avg_hours_per_week_cost ?? null);
+        this.avgDaysPerWeekCost   = this._toDisplay(cg.avg_days_per_week_cost ?? null);
+        this.salesPricePerDay     = this._toDisplay(cg.sales_price_per_day ?? null);
         this.fulltimeEquivalent   = cg.fulltime_equivalent_id != null ? String(cg.fulltime_equivalent_id) : '';
         this.calculateFromDate    = cg.calculate_from_date ?? null;
         this.kpbStatus            = cg.status ?? '';
@@ -706,10 +711,10 @@ export default class KpbPage extends LightningElement {
         const x = hours / days;
         if (changedField === 'salesPricePerHour' && this.salesPricePerHour !== null && this.salesPricePerHour !== '') {
             const perHour = this._toNumber(this.salesPricePerHour);
-            if (perHour !== null) this.salesPricePerDay = Math.round(perHour * x * 100) / 100;
+            if (perHour !== null) this.salesPricePerDay = this._toDisplay(Math.round(perHour * x * 100) / 100);
         } else if (changedField === 'salesPricePerDay' && this.salesPricePerDay !== null && this.salesPricePerDay !== '') {
             const perDay = this._toNumber(this.salesPricePerDay);
-            if (perDay !== null && x !== 0) this.salesPricePerHour = Math.round(perDay / x * 100) / 100;
+            if (perDay !== null && x !== 0) this.salesPricePerHour = this._toDisplay(Math.round(perDay / x * 100) / 100);
         }
     }
 
@@ -717,7 +722,7 @@ export default class KpbPage extends LightningElement {
         const defaults = BPL_CALC_DEFAULTS[typeId];
         if (!defaults) return;
         this.fulltimeEquivalent = defaults.fulltimeEquivalent;
-        this.avgHoursPerWeekCost = defaults.avgHoursPerWeekCost;
+        this.avgHoursPerWeekCost = this._toDisplay(defaults.avgHoursPerWeekCost);
         const toRows = (defs, values) =>
             Object.entries(values)
                 .map(([key, value]) => {
@@ -734,7 +739,7 @@ export default class KpbPage extends LightningElement {
         this.fulltimeEquivalent = selected;
         const opt = this.fulltimeEquivalentBaseOptions.find(o => o.id === selected);
         const hours = opt ? this._extractHoursFromUwk(opt.label) : null;
-        if (hours !== null) this.avgHoursPerWeekCost = hours;
+        if (hours !== null) this.avgHoursPerWeekCost = this._toDisplay(hours);
     }
 
     _extractHoursFromUwk(text) {
