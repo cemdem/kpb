@@ -153,6 +153,8 @@ const UNQ_CALC_DEFAULTS = {
     '13514': { forfaitaire_onkostenvergoeding_maand: 75 },  // Specialist/Gold
     '13512': { forfaitaire_onkostenvergoeding_maand: 75, referenceSalary: 2370 } // Trainee
 };
+
+export default class KpbPage extends LightningElement {
     @api recordId;
     @api action;
     @api json;
