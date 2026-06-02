@@ -17,9 +17,10 @@ export default class KpbGenericButton extends LightningElement {
     @api genericEmployeeNumber;
     @api contactId;
     @api freelance = false;
+    @api office;
 
     connectedCallback() {
-        console.log('[kpbGenericButton] connectedCallback — label:', this.label, '| action:', this.action, '| recordId:', this.recordId, '| selectionCount:', this.selectionCount, '| brand:', this.brand, '| candidateName:', this.candidateName, '| pNumber:', this.pNumber, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber, '| contactId:', this.contactId, '| freelance:', this.freelance);
+        console.log('[kpbGenericButton] connectedCallback — label:', this.label, '| action:', this.action, '| recordId:', this.recordId, '| selectionCount:', this.selectionCount, '| brand:', this.brand, '| candidateName:', this.candidateName, '| pNumber:', this.pNumber, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber, '| contactId:', this.contactId, '| freelance:', this.freelance, '| office:', this.office);
     }
 
     get hasSelection() {
@@ -51,7 +52,7 @@ export default class KpbGenericButton extends LightningElement {
 
     async _open(action) {
         console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| freelance:', this.freelance);
-        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, contactId: this.contactId, freelance: this.freelance ? 'true' : 'false', size: 'large' });
+        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, contactId: this.contactId, freelance: this.freelance ? 'true' : 'false', office: this.office, size: 'large' });
         if (result?.saved) {
             this.dispatchEvent(new FlowNavigationNextEvent());
         }

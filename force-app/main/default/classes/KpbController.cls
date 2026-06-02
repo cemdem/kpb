@@ -97,8 +97,8 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
-    public static KpbCallResult triggerPjsCreation(String employeeId, String payrollId, String contactSfId, String pNumber) {
-        triggerPjsCreationAsync(employeeId, payrollId, contactSfId, pNumber);
+    public static KpbCallResult triggerPjsCreation(String employeeId, String payrollId, String contactSfId, String pNumber, String managingOffice) {
+        triggerPjsCreationAsync(employeeId, payrollId, contactSfId, pNumber, managingOffice);
         KpbCallResult out = new KpbCallResult();
         out.httpCode = 202;
         out.success  = true;
@@ -107,7 +107,7 @@ public with sharing class KpbController {
     }
 
     @future(callout=true)
-    public static void triggerPjsCreationAsync(String employeeId, String payrollId, String contactSfId, String pNumber) {
+    public static void triggerPjsCreationAsync(String employeeId, String payrollId, String contactSfId, String pNumber, String managingOffice) {
         String token = getSpotAccessToken();
 
         Blob b = Crypto.generateDigest('SHA-256', Blob.valueOf(String.valueOf(Datetime.now().getTime()) + Math.random()));
@@ -115,25 +115,27 @@ public with sharing class KpbController {
         String guid = hex.substring(0, 8) + '-' + hex.substring(8, 12) + '-' + hex.substring(12, 16) + '-' + hex.substring(16, 20) + '-' + hex.substring(20, 32);
 
         String now = Datetime.now().format('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
-        String body = JSON.serialize(new Map<String, Object>{
-            'payload' => new Map<String, Object>{
-                'employee_id' => Long.valueOf(employeeId),
-                'payroll_id'  => Long.valueOf(payrollId),
-                'applications' => new List<Object>{
-                    new Map<String, Object>{
-                        'internal'       => true,
-                        'modified_on'    => now,
-                        'application_id' => 'no application',
-                        'op'             => 'add'
-                    }
-                },
-                'external_system_ids' => new List<Object>{
-                    new Map<String, Object>{
-                        'external_system_identifier' => contactSfId,
-                        'external_system'            => 'BHS'
-                    }
+        Map<String, Object> payload = new Map<String, Object>{
+            'employee_id' => Long.valueOf(employeeId),
+            'payroll_id'  => Long.valueOf(payrollId),
+            'applications' => new List<Object>{
+                new Map<String, Object>{
+                    'internal'       => true,
+                    'modified_on'    => now,
+                    'application_id' => 'no application',
+                    'op'             => 'add'
                 }
             },
+            'external_system_ids' => new List<Object>{
+                new Map<String, Object>{
+                    'external_system_identifier' => contactSfId,
+                    'external_system'            => 'BHS'
+                }
+            }
+        };
+        if (String.isNotBlank(managingOffice)) payload.put('managing_office', managingOffice);
+        String body = JSON.serialize(new Map<String, Object>{
+            'payload'  => payload,
             'datetime' => now,
             'type'     => 'push_to_ifo_event_v1',
             'source'   => 'BHS'

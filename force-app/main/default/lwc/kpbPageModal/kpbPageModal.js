@@ -10,6 +10,7 @@ export default class KpbPageModal extends LightningModal {
     @api genericEmployeeId;
     @api genericEmployeeNumber;
     @api contactId;
+    @api office;
 
     _freelance;
     @api

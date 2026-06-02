@@ -168,6 +168,7 @@ export default class KpbPage extends LightningElement {
     @api isPotentialVoorstelling = false;
     @api freelance = false;
     @api applicationId;
+    @api office;
 
     isLoading = false;
     fetchError = null;
@@ -506,11 +507,12 @@ export default class KpbPage extends LightningElement {
                 this.resolvedEmployeeNumber = existing;
                 return;
             }
-            console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation payrollId:', payrollId, '| brand:', brand, '| employeeId:', this.genericEmployeeId, '| contactSfId:', resolvedContactId);
+            console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation payrollId:', payrollId, '| brand:', brand, '| employeeId:', this.genericEmployeeId, '| contactSfId:', resolvedContactId, '| office:', this.office);
             const triggerResult = await triggerPjsCreation({
                 employeeId: String(this.genericEmployeeId),
                 payrollId,
-                contactSfId: resolvedContactId
+                contactSfId: resolvedContactId,
+                managingOffice: this.office
             });
             console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation httpCode:', triggerResult.httpCode, '| success:', triggerResult.success, '| body:', triggerResult.result);
             for (let attempt = 1; attempt <= 15; attempt++) {
