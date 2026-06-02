@@ -136,7 +136,23 @@ const BPL_CALC_DEFAULTS = {
     }
 };
 
-export default class KpbPage extends LightningElement {
+// UNQ (CAR) defaults applied on NEW when a calculation type is chosen.
+// "J"-marked fields in the spec are populated by the user themselves, so only
+// fields with an actual default value are pre-filled here.
+// Common to all WN calculation types: tankkaart 300, ecocheques 250, gsm 19, maaltijdcheques 325.
+// forfaitaire_onkostenvergoeding_maand and reference salary vary per calculation type.
+const UNQ_COMMON_MOBILITY = { tankkaart_budget: 300 };
+const UNQ_COMMON_VARIABLE = { ecocheques: 250, gsm: '19', maaltijdcheques: '325' };
+const UNQ_CALC_DEFAULTS = {
+    '13508': { forfaitaire_onkostenvergoeding_maand: 105 }, // Ad hoc
+    '13510': { forfaitaire_onkostenvergoeding_maand: 135 }, // Advanced
+    '13507': { forfaitaire_onkostenvergoeding_maand: 105 }, // Expert
+    '13511': { forfaitaire_onkostenvergoeding_maand: 75 },  // Project
+    '13504': { forfaitaire_onkostenvergoeding_maand: 135 }, // Project BNP
+    '13513': { forfaitaire_onkostenvergoeding_maand: 135 }, // Skilled
+    '13514': { forfaitaire_onkostenvergoeding_maand: 75 },  // Specialist/Gold
+    '13512': { forfaitaire_onkostenvergoeding_maand: 75, referenceSalary: 2370 } // Trainee
+};
     @api recordId;
     @api action;
     @api json;
@@ -702,6 +718,7 @@ export default class KpbPage extends LightningElement {
         if (field === 'calculationType' && this.action === 'NEW') {
             const brand = normalizeBrand(this.brand) || this.userBrand;
             if (brand === 'BPL') this._applyBplDefaults(value);
+            if (brand === 'UNQ') this._applyUnqDefaults(value);
         }
         if (field === 'salesPricePerHour' || field === 'salesPricePerDay') {
             this._crossCalcSalesPrice(field);
@@ -736,6 +753,22 @@ export default class KpbPage extends LightningElement {
                 .filter(Boolean);
         this.mobilityRows = toRows(this.mobilityDefinitions, defaults.mobility);
         this.variableRows = toRows(this.variableDefinitions, defaults.variable);
+    }
+
+    _applyUnqDefaults(typeId) {
+        const perType = UNQ_CALC_DEFAULTS[typeId];
+        if (!perType) return;
+        const { referenceSalary, ...variableOverrides } = perType;
+        if (referenceSalary != null) this.grossSalaryPerMonth = this._toDisplay(referenceSalary);
+        const toRows = (defs, values) =>
+            Object.entries(values)
+                .map(([key, value]) => {
+                    const def = defs.find(d => d.key === key);
+                    return def ? { ...this._defToRow(def), value } : null;
+                })
+                .filter(Boolean);
+        this.mobilityRows = toRows(this.mobilityDefinitions, UNQ_COMMON_MOBILITY);
+        this.variableRows = toRows(this.variableDefinitions, { ...UNQ_COMMON_VARIABLE, ...variableOverrides });
     }
 
     handleFulltimeEquivalentChange(event) {
