@@ -117,8 +117,8 @@ public with sharing class KpbController {
         String now = Datetime.now().format('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
         String body = JSON.serialize(new Map<String, Object>{
             'payload' => new Map<String, Object>{
-                'employee_id' => employeeId,
-                'payroll_id'  => payrollId,
+                'employee_id' => Long.valueOf(employeeId),
+                'payroll_id'  => Long.valueOf(payrollId),
                 'applications' => new List<Object>{
                     new Map<String, Object>{
                         'internal'       => true,
