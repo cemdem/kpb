@@ -772,7 +772,14 @@ export default class KpbPage extends LightningElement {
                     return def ? { ...this._defToRow(def), value } : null;
                 })
                 .filter(Boolean);
-        this.mobilityRows = toRows(this.mobilityDefinitions, UNQ_COMMON_MOBILITY);
+        const mobilityRows = toRows(this.mobilityDefinitions, UNQ_COMMON_MOBILITY);
+        // When a tankkaart budget is defaulted, also surface an empty lease-category
+        // row (ready to fill in) instead of requiring the user to add it from the dropdown.
+        if ('tankkaart_budget' in UNQ_COMMON_MOBILITY && !mobilityRows.some(r => r.key === 'keuze_lease_category')) {
+            const leaseDef = this.mobilityDefinitions.find(d => d.key === 'keuze_lease_category');
+            if (leaseDef) mobilityRows.unshift(this._defToRow(leaseDef));
+        }
+        this.mobilityRows = mobilityRows;
         this.variableRows = toRows(this.variableDefinitions, { ...UNQ_COMMON_VARIABLE, ...variableOverrides });
     }
 
