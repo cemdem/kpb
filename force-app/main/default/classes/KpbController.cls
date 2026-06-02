@@ -153,6 +153,7 @@ public with sharing class KpbController {
         req.setTimeout(120000);
         req.setBody(body);
 
+        System.debug('triggerPjsCreationAsync POST /ingress-event-gateway/v1/ats | body: ' + body);
         HttpResponse response = new Http().send(req);
         Integer code = response.getStatusCode();
         String responseBody = response.getBody();
