@@ -214,7 +214,7 @@ export default class KpbPage extends LightningElement {
     carCostCalc = null;
     otherCostCalc = null;
     simulationType = null;
-    kpbId = null;
+    @api kpbId = null;
     showApprovalForm = false;
     approvalReason = '';
     unitId = null;
@@ -459,7 +459,7 @@ export default class KpbPage extends LightningElement {
             if (this.genericEmployeeId && !this.freelance) this._initNew();
             return;
         }
-        if (this.recordId) {
+        if (this.kpbId || this.recordId) {
             this._fetchKpb();
         } else if (this.json) {
             this._parse();
@@ -469,7 +469,8 @@ export default class KpbPage extends LightningElement {
     async _fetchKpb() {
         this.isLoading = true;
         try {
-            const result = await getKpb({ recordId: this.recordId });
+            const fetchId = this.kpbId || this.recordId;
+            const result = await getKpb({ recordId: fetchId, pNumber: this.pNumber });
             if (result.success) {
                 const raw = JSON.parse(result.result);
                 console.log('[kpbPage] _fetchKpb response:', JSON.stringify(raw, null, 2));

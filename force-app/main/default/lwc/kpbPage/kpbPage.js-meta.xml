@@ -13,6 +13,7 @@
         </targetConfig>
         <targetConfig targets="lightning__FlowScreen">
             <property name="recordId"             type="String"  label="Record Id" />
+            <property name="kpbId"                type="String"  label="KPB Id (open existing via link)" />
             <property name="action"               type="String"  label="Action (EDIT | COPY | NEW)" />
             <property name="json"                 type="String"  label="JSON (legacy)" />
             <property name="brand"                type="String"  label="Brand" />
