@@ -488,6 +488,7 @@ export default class KpbPage extends LightningElement {
                 this.resolvedEmployeeNumber = existing;
                 return;
             }
+            console.log('[kpbPage] _ensurePjsNumber — triggerPjsCreation payrollId:', payrollId, '| brand:', brand, '| employeeId:', this.genericEmployeeId, '| contactSfId:', resolvedContactId);
             const triggerResult = await triggerPjsCreation({
                 employeeId: String(this.genericEmployeeId),
                 payrollId,
