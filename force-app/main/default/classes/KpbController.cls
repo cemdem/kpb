@@ -195,8 +195,8 @@ public with sharing class KpbController {
     }
 
     @AuraEnabled
-    public static void linkKpbToApplication(String applicationId, Decimal kpbId) {
-        update new TR1__Application_V2__c(Id = applicationId, RGF_KPB_Id__c = kpbId);
+    public static void linkKpbToApplication(String applicationId, Decimal kpbId, Decimal costPerHour, Decimal margin) {
+        update new TR1__Application_V2__c(Id = applicationId, RGF_KPB_Id__c = kpbId, RGF_KPB_Cost__c = costPerHour, RGF_KPB_Margin__c = margin);
     }
 
     @AuraEnabled

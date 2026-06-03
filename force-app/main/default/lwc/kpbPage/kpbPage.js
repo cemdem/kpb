@@ -1091,6 +1091,8 @@ export default class KpbPage extends LightningElement {
                     this._showQualityChecks(raw);
                     if (isNew) this.action = 'EDIT';
                     if (raw?.costgroup?.id) this.kpbId = raw.costgroup.id;
+                    if (raw?.costgroup?.total_cost_per_hour_excl != null) this._savedCostPerHour = raw.costgroup.total_cost_per_hour_excl;
+                    if (raw?.costgroup?.margin != null) this._savedMargin = raw.costgroup.margin;
                 } catch (_) { /* ignore */ }
             }
             return { ok: qualityChecks.filter(c => c.constraint !== 'PSG_APPROVE_MARGIN').length === 0, isNew };
@@ -1111,7 +1113,7 @@ export default class KpbPage extends LightningElement {
             const { ok, isNew } = await this._performSave();
             if (ok) {
                 if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
-                    try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId }); } catch (_) { /* non-blocking */ }
+                    try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedCostPerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
                 }
                 this.dispatchEvent(new ShowToastEvent({
                     title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
