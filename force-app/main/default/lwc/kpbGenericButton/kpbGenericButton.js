@@ -51,7 +51,7 @@ export default class KpbGenericButton extends LightningElement {
     }
 
     async _open(action) {
-        console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| freelance:', this.freelance, '| office:', this.office);
+        console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| freelance:', this.freelance, '| office:', this.office, '| pNumber:', this.pNumber, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
         const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, contactId: this.contactId, freelance: this.freelance ? 'true' : 'false', office: this.office, size: 'large' });
         if (result?.saved) {
             this.dispatchEvent(new FlowNavigationNextEvent());
