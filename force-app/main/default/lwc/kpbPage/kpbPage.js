@@ -436,6 +436,10 @@ export default class KpbPage extends LightningElement {
             .map(d => ({ label: d.label, value: d.key }));
     }
 
+    get displayVariableRows() {
+        return this.variableRows.filter(r => !r.hidden);
+    }
+
     get availableVariableOptions() {
         const used = new Set(this.variableRows.map(r => r.key));
         const remaining = this.variableDefinitions
@@ -781,10 +785,15 @@ export default class KpbPage extends LightningElement {
             if (leaseDef) mobilityRows.unshift(this._defToRow(leaseDef));
         }
         this.mobilityRows = mobilityRows;
-        // ecocheques is a calculated field — defer until Berekenen returns it from the API.
-        // forfaitaire_onkostenvergoeding_maand is shown immediately as a greyed-out default.
-        const { ecocheques: _ec, ...variableRowValues } = { ...UNQ_COMMON_VARIABLE, ...variableOverrides };
-        this.variableRows = toRows(this.variableDefinitions, variableRowValues);
+        // ecocheques and forfaitaire are deferred until Berekenen returns them from the API.
+        // They stay in variableRows as hidden so they are included in the Berekenen payload
+        // (ensuring the API calculates with the correct defaults), but not rendered in the UI.
+        const { ecocheques: _ec, forfaitaire_onkostenvergoeding_maand: _fov, ...visibleValues } = { ...UNQ_COMMON_VARIABLE, ...variableOverrides };
+        const hiddenKeys = { forfaitaire_onkostenvergoeding_maand: variableOverrides.forfaitaire_onkostenvergoeding_maand };
+        this.variableRows = [
+            ...toRows(this.variableDefinitions, visibleValues),
+            ...toRows(this.variableDefinitions, hiddenKeys).map(r => ({ ...r, hidden: true }))
+        ];
     }
 
     handleFulltimeEquivalentChange(event) {
