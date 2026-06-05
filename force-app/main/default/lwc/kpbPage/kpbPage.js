@@ -15,6 +15,7 @@ import unlinkKpbFromApplication from '@salesforce/apex/KpbController.unlinkKpbFr
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { FlowNavigationFinishEvent } from 'lightning/flowSupport';
 
 const SELECT_ALL_VALUE = '__ALL__';
 
@@ -916,6 +917,7 @@ export default class KpbPage extends LightningElement {
 
     handleClose() {
         this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
+        this.dispatchEvent(new FlowNavigationFinishEvent());
     }
 
     _apiError(result) {
