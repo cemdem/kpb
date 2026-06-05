@@ -664,7 +664,19 @@ export default class KpbPage extends LightningElement {
             }
         }
         if (newMobility.length > 0) this.mobilityRows = newMobility;
-        if (newVariable.length > 0) this.variableRows = newVariable;
+        if (newVariable.length > 0) {
+            // If the API returns forfaitaire_onkostenvergoeding_maand as 0 for a UNQ type,
+            // substitute the known default — the API calculates it independently and ignores
+            // the value we send in the payload.
+            const unqDefaults = UNQ_CALC_DEFAULTS[this.calculationType];
+            if (unqDefaults?.forfaitaire_onkostenvergoeding_maand != null) {
+                const forfRow = newVariable.find(r => r.key === 'forfaitaire_onkostenvergoeding_maand');
+                if (forfRow && (forfRow.value === 0 || forfRow.value === null)) {
+                    forfRow.value = unqDefaults.forfaitaire_onkostenvergoeding_maand;
+                }
+            }
+            this.variableRows = newVariable;
+        }
     }
 
     @wire(CurrentPageReference)
