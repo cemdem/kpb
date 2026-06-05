@@ -436,10 +436,6 @@ export default class KpbPage extends LightningElement {
             .map(d => ({ label: d.label, value: d.key }));
     }
 
-    get displayVariableRows() {
-        return this.variableRows.filter(r => !r.hidden);
-    }
-
     get availableVariableOptions() {
         const used = new Set(this.variableRows.map(r => r.key));
         const remaining = this.variableDefinitions
@@ -668,7 +664,7 @@ export default class KpbPage extends LightningElement {
             // If the API returns forfaitaire_onkostenvergoeding_maand as 0 for a UNQ type,
             // substitute the known default — the API calculates it independently and ignores
             // the value we send in the payload.
-            const unqDefaults = UNQ_CALC_DEFAULTS[this.calculationType];
+            const unqDefaults = UNQ_CALC_DEFAULTS[this._selectedUnqCalcType];
             if (unqDefaults?.forfaitaire_onkostenvergoeding_maand != null) {
                 const forfRow = newVariable.find(r => r.key === 'forfaitaire_onkostenvergoeding_maand');
                 if (forfRow && (forfRow.value === 0 || forfRow.value === null)) {
@@ -741,6 +737,7 @@ export default class KpbPage extends LightningElement {
             const brand = normalizeBrand(this.brand) || this.userBrand;
             if (brand === 'BPL') this._applyBplDefaults(value);
             if (brand === 'UNQ') this._applyUnqDefaults(value);
+            this._selectedUnqCalcType = brand === 'UNQ' ? value : null;
         }
         if (field === 'salesPricePerHour' || field === 'salesPricePerDay') {
             this._crossCalcSalesPrice(field);
@@ -797,15 +794,10 @@ export default class KpbPage extends LightningElement {
             if (leaseDef) mobilityRows.unshift(this._defToRow(leaseDef));
         }
         this.mobilityRows = mobilityRows;
-        // ecocheques and forfaitaire are deferred until Berekenen returns them from the API.
-        // They stay in variableRows as hidden so they are included in the Berekenen payload
-        // (ensuring the API calculates with the correct defaults), but not rendered in the UI.
+        // ecocheques and forfaitaire are deferred — they appear after a successful
+        // Berekenen/Bewaren from the API response (_populateRows).
         const { ecocheques: _ec, forfaitaire_onkostenvergoeding_maand: _fov, ...visibleValues } = { ...UNQ_COMMON_VARIABLE, ...variableOverrides };
-        const hiddenKeys = { forfaitaire_onkostenvergoeding_maand: variableOverrides.forfaitaire_onkostenvergoeding_maand };
-        this.variableRows = [
-            ...toRows(this.variableDefinitions, visibleValues),
-            ...toRows(this.variableDefinitions, hiddenKeys).map(r => ({ ...r, hidden: true }))
-        ];
+        this.variableRows = toRows(this.variableDefinitions, visibleValues);
     }
 
     handleFulltimeEquivalentChange(event) {
