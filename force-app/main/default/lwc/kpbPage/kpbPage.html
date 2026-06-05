@@ -343,7 +343,7 @@
                                         <tbody>
                                             <template for:each={mobilityRows} for:item="row">
                                                 <tr key={row.key}>
-                                                    <td>{row.label}</td>
+                                                    <td class="kpb-col-type">{row.label}</td>
                                                     <td>
                                                         <template lwc:if={row.isPicklist}>
                                                             <lightning-combobox
@@ -404,7 +404,7 @@
                                         <tbody>
                                             <template for:each={variableRows} for:item="row">
                                                 <tr key={row.key}>
-                                                    <td>{row.label}</td>
+                                                    <td class="kpb-col-type">{row.label}</td>
                                                     <td>
                                                         <template lwc:if={row.isPicklist}>
                                                             <lightning-combobox

@@ -781,7 +781,10 @@ export default class KpbPage extends LightningElement {
             if (leaseDef) mobilityRows.unshift(this._defToRow(leaseDef));
         }
         this.mobilityRows = mobilityRows;
-        this.variableRows = toRows(this.variableDefinitions, { ...UNQ_COMMON_VARIABLE, ...variableOverrides });
+        // ecocheques and forfaitaire_onkostenvergoeding_maand are disabled/calculated fields —
+        // they appear after Berekenen from the API response, not as upfront defaults.
+        const { ecocheques: _ec, forfaitaire_onkostenvergoeding_maand: _fov, ...editableVariableOverrides } = { ...UNQ_COMMON_VARIABLE, ...variableOverrides };
+        this.variableRows = toRows(this.variableDefinitions, editableVariableOverrides);
     }
 
     handleFulltimeEquivalentChange(event) {
