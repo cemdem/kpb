@@ -361,7 +361,8 @@ export default class KpbPage extends LightningElement {
     }
 
     get isReadOnly() {
-        return this.simulationType === 'PRJ' || this.simulationType === 'OVK';
+        return this.simulationType === 'PRJ' || this.simulationType === 'OVK'
+            || this.kpbStatus === 'GT' || this.kpbStatus === 'GG';
     }
 
     get approveDisabled() {
@@ -771,7 +772,15 @@ export default class KpbPage extends LightningElement {
                 })
                 .filter(Boolean);
         this.mobilityRows = toRows(this.mobilityDefinitions, defaults.mobility);
-        this.variableRows = toRows(this.variableDefinitions, defaults.variable);
+        // Disabled (grey) fields are deferred — they appear after a successful
+        // Berekenen/Bewaren from the API response, same as UNQ behaviour.
+        const visibleVariable = Object.fromEntries(
+            Object.entries(defaults.variable).filter(([key]) => {
+                const def = this.variableDefinitions.find(d => d.key === key);
+                return def && !def.disabled;
+            })
+        );
+        this.variableRows = toRows(this.variableDefinitions, visibleVariable);
     }
 
     _applyUnqDefaults(typeId) {
