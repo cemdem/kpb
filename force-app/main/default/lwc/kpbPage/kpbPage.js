@@ -1148,6 +1148,7 @@ export default class KpbPage extends LightningElement {
                 }));
                 if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
                 this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
+                this.dispatchEvent(new FlowNavigationFinishEvent());
             }
         } finally {
             this.isLoading = false;
