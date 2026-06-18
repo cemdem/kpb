@@ -557,6 +557,7 @@ export default class KpbPage extends LightningElement {
             const raw = JSON.parse(detailResult.result);
             this._populate(raw.costgroup || raw);
             this.kpbId = null;
+            this.kpbStatus = '';
             this.simulationType = this.isPotentialVoorstelling ? 'WRK' : 'EMP';
         } catch (e) {
             console.warn('[kpbPage] _fetchOvk error:', e.body?.message ?? e.message);
