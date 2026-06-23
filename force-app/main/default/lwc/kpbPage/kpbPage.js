@@ -941,7 +941,10 @@ export default class KpbPage extends LightningElement {
         this._initRows();
     }
 
-    handleClose() {
+    async handleClose() {
+        if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
+            try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedCostPerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
+        }
         if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
         this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
         this.dispatchEvent(new FlowNavigationFinishEvent());
