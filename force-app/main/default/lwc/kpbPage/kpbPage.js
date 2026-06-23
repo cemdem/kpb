@@ -1064,6 +1064,8 @@ export default class KpbPage extends LightningElement {
                         this._populate(raw.costgroup || raw, false);
                         this._qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
                         this._showQualityChecks(raw);
+                        if (raw?.costgroup?.total_cost_per_hour_excl != null) this._savedCostPerHour = raw.costgroup.total_cost_per_hour_excl;
+                        if (raw?.costgroup?.margin != null) this._savedMargin = raw.costgroup.margin;
                     } catch (parseErr) {
                         console.warn('[kpbPage] handleCalculate — could not parse response:', parseErr);
                     }
