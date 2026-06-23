@@ -942,6 +942,7 @@ export default class KpbPage extends LightningElement {
     }
 
     handleClose() {
+        if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
         this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
         this.dispatchEvent(new FlowNavigationFinishEvent());
     }
@@ -1065,6 +1066,7 @@ export default class KpbPage extends LightningElement {
                     }
                 }
                 if (isNew) this.action = 'EDIT';
+                if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Berekening uitgevoerd.',
                     variant: 'success'
