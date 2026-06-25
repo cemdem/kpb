@@ -15,7 +15,7 @@ import unlinkKpbFromApplication from '@salesforce/apex/KpbController.unlinkKpbFr
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { FlowNavigationFinishEvent } from 'lightning/flowSupport';
+import { FlowNavigationFinishEvent, FlowNavigationNextEvent } from 'lightning/flowSupport';
 
 const SELECT_ALL_VALUE = '__ALL__';
 
@@ -170,6 +170,10 @@ export default class KpbPage extends LightningElement {
     @api freelance = false;
     @api applicationId;
     @api office;
+    // Set to 'NEXT' only on a flow screen that has a following element (e.g. a redirect).
+    // Left unset elsewhere so the default FINISH navigation is used (Bullhorn terminal
+    // screen, modal, record page).
+    @api navigationMode;
 
     isLoading = false;
     fetchError = null;
@@ -947,7 +951,17 @@ export default class KpbPage extends LightningElement {
         }
         if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
         this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
-        this.dispatchEvent(new FlowNavigationFinishEvent());
+        this._navigateFlow();
+    }
+
+    // FINISH by default; only the screen that explicitly sets navigationMode='NEXT'
+    // (a flow screen with a following element, e.g. a redirect) fires NEXT instead.
+    _navigateFlow() {
+        if (this.navigationMode === 'NEXT') {
+            this.dispatchEvent(new FlowNavigationNextEvent());
+        } else {
+            this.dispatchEvent(new FlowNavigationFinishEvent());
+        }
     }
 
     _apiError(result) {
@@ -1156,7 +1170,7 @@ export default class KpbPage extends LightningElement {
                 }));
                 if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
                 this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
-                this.dispatchEvent(new FlowNavigationFinishEvent());
+                this._navigateFlow();
             }
         } finally {
             this.isLoading = false;

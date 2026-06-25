@@ -27,6 +27,7 @@
             <property name="isPotentialVoorstelling" type="Boolean" label="Is Potential Voorstelling (WRK on OVK prefill)" />
             <property name="applicationId"           type="String"  label="Application Salesforce Id (TR1__Application_V2__c)" />
             <property name="office"                  type="String"  label="Office (RGF_Office__c) — managing_office" />
+            <property name="navigationMode"          type="String"  label="Navigation Mode (set to NEXT when a flow element follows this screen)" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
