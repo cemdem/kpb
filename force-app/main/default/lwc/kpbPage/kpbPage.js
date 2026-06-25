@@ -15,7 +15,7 @@ import unlinkKpbFromApplication from '@salesforce/apex/KpbController.unlinkKpbFr
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { FlowNavigationFinishEvent, FlowNavigationNextEvent } from 'lightning/flowSupport';
+import { FlowNavigationFinishEvent } from 'lightning/flowSupport';
 
 const SELECT_ALL_VALUE = '__ALL__';
 
@@ -170,10 +170,6 @@ export default class KpbPage extends LightningElement {
     @api freelance = false;
     @api applicationId;
     @api office;
-    // Populated by the Flow runtime with the navigation actions available for the
-    // current screen (e.g. ['NEXT'] when a redirect element follows, ['FINISH'] when
-    // it is the last screen). Empty/undefined outside a flow context.
-    @api availableActions = [];
 
     isLoading = false;
     fetchError = null;
@@ -951,19 +947,7 @@ export default class KpbPage extends LightningElement {
         }
         if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
         this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
-        this._navigateFlow();
-    }
-
-    // Dispatches the flow navigation event that the current screen actually supports.
-    // A non-terminal screen (e.g. a redirect element follows) only accepts NEXT,
-    // while a terminal screen only accepts FINISH. Outside a flow (modal/record page)
-    // availableActions is empty and the CustomEvent('close') handles closing instead.
-    _navigateFlow() {
-        if (this.availableActions?.includes('NEXT')) {
-            this.dispatchEvent(new FlowNavigationNextEvent());
-        } else if (this.availableActions?.includes('FINISH')) {
-            this.dispatchEvent(new FlowNavigationFinishEvent());
-        }
+        this.dispatchEvent(new FlowNavigationFinishEvent());
     }
 
     _apiError(result) {
@@ -1172,7 +1156,7 @@ export default class KpbPage extends LightningElement {
                 }));
                 if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
                 this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
-                this._navigateFlow();
+                this.dispatchEvent(new FlowNavigationFinishEvent());
             }
         } finally {
             this.isLoading = false;
