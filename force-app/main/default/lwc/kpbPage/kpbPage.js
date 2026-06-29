@@ -947,7 +947,7 @@ export default class KpbPage extends LightningElement {
 
     async handleClose() {
         if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
-            try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedCostPerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
+            try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
         }
         if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
         this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
@@ -1078,7 +1078,7 @@ export default class KpbPage extends LightningElement {
                         this._populate(raw.costgroup || raw, false);
                         this._qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
                         this._showQualityChecks(raw);
-                        if (raw?.costgroup?.sales_price_per_hour != null) this._savedCostPerHour = raw.costgroup.sales_price_per_hour;
+                        if (raw?.costgroup?.sales_price_per_hour != null) this._savedSalesPricePerHour = raw.costgroup.sales_price_per_hour;
                         if (raw?.costgroup?.margin != null) this._savedMargin = raw.costgroup.margin;
                     } catch (parseErr) {
                         console.warn('[kpbPage] handleCalculate — could not parse response:', parseErr);
@@ -1140,7 +1140,7 @@ export default class KpbPage extends LightningElement {
                     this._showQualityChecks(raw);
                     if (isNew) this.action = 'EDIT';
                     if (raw?.costgroup?.id) this.kpbId = raw.costgroup.id;
-                    if (raw?.costgroup?.sales_price_per_hour != null) this._savedCostPerHour = raw.costgroup.sales_price_per_hour;
+                    if (raw?.costgroup?.sales_price_per_hour != null) this._savedSalesPricePerHour = raw.costgroup.sales_price_per_hour;
                     if (raw?.costgroup?.margin != null) this._savedMargin = raw.costgroup.margin;
                 } catch (_) { /* ignore */ }
             }
@@ -1162,7 +1162,7 @@ export default class KpbPage extends LightningElement {
             const { ok, isNew } = await this._performSave();
             if (ok) {
                 if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
-                    try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedCostPerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
+                    try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
                 }
                 this.dispatchEvent(new ShowToastEvent({
                     title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
