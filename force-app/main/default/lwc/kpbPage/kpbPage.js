@@ -1,7 +1,7 @@
 import { LightningElement, wire, api } from 'lwc';
 import USER_ID from '@salesforce/user/Id';
 import { getRecord, getFieldValue, getRecordNotifyChange } from 'lightning/uiRecordApi';
-import { CurrentPageReference } from 'lightning/navigation';
+import { CurrentPageReference, NavigationMixin } from 'lightning/navigation';
 import USER_BRAND from '@salesforce/schema/User.RGF_Brand__c';
 import getKpb from '@salesforce/apex/KpbController.getKpb';
 import listCandidateCosts from '@salesforce/apex/KpbController.listCandidateCosts';
@@ -155,7 +155,7 @@ const UNQ_CALC_DEFAULTS = {
     '13512': { forfaitaire_onkostenvergoeding_maand: 75, referenceSalary: 2370 } // Trainee
 };
 
-export default class KpbPage extends LightningElement {
+export default class KpbPage extends NavigationMixin(LightningElement) {
     @api recordId;
     @api action;
     @api json;
@@ -174,6 +174,10 @@ export default class KpbPage extends LightningElement {
     // Left unset elsewhere so the default FINISH navigation is used (Bullhorn terminal
     // screen, modal, record page).
     @api navigationMode;
+    // Set only on the "opened by link" flow screen to the calling record (Job or
+    // Contact) id. When present, Close/Save navigate the browser back to that record
+    // page. Left unset everywhere else so behaviour is unchanged.
+    @api callingRecordId;
 
     isLoading = false;
     fetchError = null;
@@ -951,7 +955,19 @@ export default class KpbPage extends LightningElement {
         }
         if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
         this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
+        if (this._returnToCaller()) return;
         this._navigateFlow();
+    }
+
+    // When opened by link, navigate the browser back to the calling record (Job or
+    // Contact). Returns true if it navigated, so the caller can skip flow navigation.
+    _returnToCaller() {
+        if (!this.callingRecordId) return false;
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: { recordId: this.callingRecordId, actionName: 'view' }
+        });
+        return true;
     }
 
     // FINISH by default; only the screen that explicitly sets navigationMode='NEXT'
@@ -1170,6 +1186,7 @@ export default class KpbPage extends LightningElement {
                 }));
                 if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
                 this.dispatchEvent(new CustomEvent('close', { detail: { saved: true } }));
+                if (this._returnToCaller()) return;
                 this._navigateFlow();
             }
         } finally {
