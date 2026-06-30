@@ -455,7 +455,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     }
 
     connectedCallback() {
-        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| kpbId:', this.kpbId, '| candidateName:', this.candidateName, '| freelance:', this.freelance, '| pNumber:', this.pNumber);
+        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| kpbId:', this.kpbId, '| candidateName:', this.candidateName, '| freelance:', this.freelance, '| pNumber:', this.pNumber, '| callingRecordId:', this.callingRecordId, '| navigationMode:', this.navigationMode);
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
@@ -950,6 +950,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     }
 
     async handleClose() {
+        console.log('[kpbPage] handleClose — callingRecordId:', this.callingRecordId, '| navigationMode:', this.navigationMode, '| applicationId:', this.applicationId, '| kpbId:', this.kpbId, '| isPotentialVoorstelling:', this.isPotentialVoorstelling);
         if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
             try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
         }
@@ -962,7 +963,12 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     // When opened by link, navigate the browser back to the calling record (Job or
     // Contact). Returns true if it navigated, so the caller can skip flow navigation.
     _returnToCaller() {
-        if (!this.callingRecordId) return false;
+        console.log('[kpbPage] _returnToCaller — callingRecordId:', this.callingRecordId);
+        if (!this.callingRecordId) {
+            console.log('[kpbPage] _returnToCaller — no callingRecordId, falling through to flow navigation');
+            return false;
+        }
+        console.log('[kpbPage] _returnToCaller — navigating to recordPage:', this.callingRecordId);
         this[NavigationMixin.Navigate]({
             type: 'standard__recordPage',
             attributes: { recordId: this.callingRecordId, actionName: 'view' }
