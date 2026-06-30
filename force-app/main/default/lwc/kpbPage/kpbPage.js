@@ -968,10 +968,14 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             console.log('[kpbPage] _returnToCaller — no callingRecordId, falling through to flow navigation');
             return false;
         }
-        console.log('[kpbPage] _returnToCaller — navigating to recordPage:', this.callingRecordId);
+        // Use a webPage navigation with a relative URL: the standalone /flow/ runtime
+        // reliably honors this, whereas standard__recordPage can be swallowed while the
+        // flow is still running.
+        const url = '/lightning/r/' + this.callingRecordId + '/view';
+        console.log('[kpbPage] _returnToCaller — navigating to webPage:', url);
         this[NavigationMixin.Navigate]({
-            type: 'standard__recordPage',
-            attributes: { recordId: this.callingRecordId, actionName: 'view' }
+            type: 'standard__webPage',
+            attributes: { url }
         });
         return true;
     }
