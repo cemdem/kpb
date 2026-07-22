@@ -1,0 +1,77 @@
+brand,type_id,type_label,fulltime_equivalent,avg_hours_per_week_cost,reference_salary,section,component_key,default_value
+BPL,13506,Junior,3,40,,mobility,keuze_lease_category,1
+BPL,13506,Junior,3,40,,mobility,tankkaart_budget,350
+BPL,13506,Junior,3,40,,variable,maaltijdcheques,325
+BPL,13506,Junior,3,40,,variable,gsm,19
+BPL,13506,Junior,3,40,,variable,ecocheques,250
+BPL,13506,Junior,3,40,,variable,forfaitaire_onkostenvergoeding_maand,75
+BPL,13506,Junior,3,40,,variable,gelijkgestelde_rechten,287.88
+BPL,13506,Junior,3,40,,variable,groepsverzekering_yn,Ja
+BPL,13506,Junior,3,40,,variable,hospitalisatieverzekering_yn,Ja
+BPL,13506,Junior,3,40,,variable,kosten_sd,72
+BPL,13506,Junior,3,40,,variable,opzegvergoeding_per_jaar,200
+BPL,13506,Junior,3,40,,variable,ziektecontrole,81
+BPL,13502,Medior,3,40,,mobility,keuze_lease_category,2
+BPL,13502,Medior,3,40,,mobility,tankkaart_budget,350
+BPL,13502,Medior,3,40,,variable,maaltijdcheques,325
+BPL,13502,Medior,3,40,,variable,gsm,19
+BPL,13502,Medior,3,40,,variable,ecocheques,250
+BPL,13502,Medior,3,40,,variable,forfaitaire_onkostenvergoeding_maand,105
+BPL,13502,Medior,3,40,,variable,gelijkgestelde_rechten,287.88
+BPL,13502,Medior,3,40,,variable,groepsverzekering_yn,Ja
+BPL,13502,Medior,3,40,,variable,hospitalisatieverzekering_yn,Ja
+BPL,13502,Medior,3,40,,variable,kosten_sd,72
+BPL,13502,Medior,3,40,,variable,opzegvergoeding_per_jaar,200
+BPL,13502,Medior,3,40,,variable,ziektecontrole,81
+BPL,13503,Senior,3,40,,mobility,keuze_lease_category,3
+BPL,13503,Senior,3,40,,mobility,tankkaart_budget,350
+BPL,13503,Senior,3,40,,variable,maaltijdcheques,325
+BPL,13503,Senior,3,40,,variable,gsm,19
+BPL,13503,Senior,3,40,,variable,ecocheques,250
+BPL,13503,Senior,3,40,,variable,forfaitaire_onkostenvergoeding_maand,135
+BPL,13503,Senior,3,40,,variable,gelijkgestelde_rechten,287.88
+BPL,13503,Senior,3,40,,variable,groepsverzekering_yn,Ja
+BPL,13503,Senior,3,40,,variable,hospitalisatieverzekering_yn,Ja
+BPL,13503,Senior,3,40,,variable,kosten_sd,72
+BPL,13503,Senior,3,40,,variable,opzegvergoeding_per_jaar,200
+BPL,13503,Senior,3,40,,variable,ziektecontrole,81
+UNQ,13508,Ad hoc consultant,,,,mobility,tankkaart_budget,300
+UNQ,13508,Ad hoc consultant,,,,variable,ecocheques,250
+UNQ,13508,Ad hoc consultant,,,,variable,gsm,19
+UNQ,13508,Ad hoc consultant,,,,variable,maaltijdcheques,325
+UNQ,13508,Ad hoc consultant,,,,variable,forfaitaire_onkostenvergoeding_maand,105
+UNQ,13510,Advanced consultant,,,,mobility,tankkaart_budget,300
+UNQ,13510,Advanced consultant,,,,variable,ecocheques,250
+UNQ,13510,Advanced consultant,,,,variable,gsm,19
+UNQ,13510,Advanced consultant,,,,variable,maaltijdcheques,325
+UNQ,13510,Advanced consultant,,,,variable,forfaitaire_onkostenvergoeding_maand,135
+UNQ,13507,Expert consultant,,,,mobility,tankkaart_budget,300
+UNQ,13507,Expert consultant,,,,variable,ecocheques,250
+UNQ,13507,Expert consultant,,,,variable,gsm,19
+UNQ,13507,Expert consultant,,,,variable,maaltijdcheques,325
+UNQ,13507,Expert consultant,,,,variable,forfaitaire_onkostenvergoeding_maand,105
+UNQ,13511,Project consultant,,,,mobility,tankkaart_budget,300
+UNQ,13511,Project consultant,,,,variable,ecocheques,250
+UNQ,13511,Project consultant,,,,variable,gsm,19
+UNQ,13511,Project consultant,,,,variable,maaltijdcheques,325
+UNQ,13511,Project consultant,,,,variable,forfaitaire_onkostenvergoeding_maand,75
+UNQ,13504,Project consultant BNP,,,,mobility,tankkaart_budget,300
+UNQ,13504,Project consultant BNP,,,,variable,ecocheques,250
+UNQ,13504,Project consultant BNP,,,,variable,gsm,19
+UNQ,13504,Project consultant BNP,,,,variable,maaltijdcheques,325
+UNQ,13504,Project consultant BNP,,,,variable,forfaitaire_onkostenvergoeding_maand,135
+UNQ,13513,Skilled consultant,,,,mobility,tankkaart_budget,300
+UNQ,13513,Skilled consultant,,,,variable,ecocheques,250
+UNQ,13513,Skilled consultant,,,,variable,gsm,19
+UNQ,13513,Skilled consultant,,,,variable,maaltijdcheques,325
+UNQ,13513,Skilled consultant,,,,variable,forfaitaire_onkostenvergoeding_maand,135
+UNQ,13514,Specialist/Gold consultant,,,,mobility,tankkaart_budget,300
+UNQ,13514,Specialist/Gold consultant,,,,variable,ecocheques,250
+UNQ,13514,Specialist/Gold consultant,,,,variable,gsm,19
+UNQ,13514,Specialist/Gold consultant,,,,variable,maaltijdcheques,325
+UNQ,13514,Specialist/Gold consultant,,,,variable,forfaitaire_onkostenvergoeding_maand,75
+UNQ,13512,Trainee consultant,,,2370,mobility,tankkaart_budget,300
+UNQ,13512,Trainee consultant,,,2370,variable,ecocheques,250
+UNQ,13512,Trainee consultant,,,2370,variable,gsm,19
+UNQ,13512,Trainee consultant,,,2370,variable,maaltijdcheques,325
+UNQ,13512,Trainee consultant,,,2370,variable,forfaitaire_onkostenvergoeding_maand,75
