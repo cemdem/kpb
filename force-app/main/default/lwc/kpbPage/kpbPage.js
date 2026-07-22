@@ -1242,7 +1242,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 ? { id: Number(this.genericEmployeeId), number: Number(this.resolvedEmployeeNumber ?? this.genericEmployeeNumber), type: this.formType === 'Freelancer' ? '1' : '2' }
                 : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName || this.candidate, type: this.employeeType, delete_status: this.employeeDeleteStatus },
             fulltime_equivalent_id:  this.fulltimeEquivalent ? Number(this.fulltimeEquivalent) : (isNew ? 4 : null),
-            label_id:                isNew ? (this.specialization ? Number(this.specialization) : (brand === 'UNQ' ? 14014 : 7)) : this.labelId,
+            label_id:                this.specialization ? Number(this.specialization) : (isNew ? (brand === 'UNQ' ? 14014 : 7) : this.labelId),
             leave_of_absence:        isNew ? false : this.leaveOfAbsence,
             margin:                  this._toNumber(this.marginPct),
             other_cost:              this.formType === 'Freelancer' ? null : this._toNumber(this.freelancerOtherCosts),
