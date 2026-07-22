@@ -102,7 +102,7 @@ const KEY_TO_COMPONENT_ID = Object.fromEntries(
 );
 
 const BPL_CALC_DEFAULTS = {
-    '13506': { // Junior
+    '13506': {
         fulltimeEquivalent: '3', avgHoursPerWeekCost: 40,
         mobility: { keuze_lease_category: '1', tankkaart_budget: 350 },
         variable: {
@@ -113,7 +113,7 @@ const BPL_CALC_DEFAULTS = {
             opzegvergoeding_per_jaar: 200, ziektecontrole: 81
         }
     },
-    '13502': { // Medior
+    '13502': {
         fulltimeEquivalent: '3', avgHoursPerWeekCost: 40,
         mobility: { keuze_lease_category: '2', tankkaart_budget: 350 },
         variable: {
@@ -124,7 +124,7 @@ const BPL_CALC_DEFAULTS = {
             opzegvergoeding_per_jaar: 200, ziektecontrole: 81
         }
     },
-    '13503': { // Senior
+    '13503': {
         fulltimeEquivalent: '3', avgHoursPerWeekCost: 40,
         mobility: { keuze_lease_category: '3', tankkaart_budget: 350 },
         variable: {
@@ -137,22 +137,17 @@ const BPL_CALC_DEFAULTS = {
     }
 };
 
-// UNQ (CAR) defaults applied on NEW when a calculation type is chosen.
-// "J"-marked fields in the spec are populated by the user themselves, so only
-// fields with an actual default value are pre-filled here.
-// Common to all WN calculation types: tankkaart 300, ecocheques 250, gsm 19, maaltijdcheques 325.
-// forfaitaire_onkostenvergoeding_maand and reference salary vary per calculation type.
 const UNQ_COMMON_MOBILITY = { tankkaart_budget: 300 };
 const UNQ_COMMON_VARIABLE = { ecocheques: 250, gsm: '19', maaltijdcheques: '325' };
 const UNQ_CALC_DEFAULTS = {
-    '13508': { forfaitaire_onkostenvergoeding_maand: 105 }, // Ad hoc
-    '13510': { forfaitaire_onkostenvergoeding_maand: 135 }, // Advanced
-    '13507': { forfaitaire_onkostenvergoeding_maand: 105 }, // Expert
-    '13511': { forfaitaire_onkostenvergoeding_maand: 75 },  // Project
-    '13504': { forfaitaire_onkostenvergoeding_maand: 135 }, // Project BNP
-    '13513': { forfaitaire_onkostenvergoeding_maand: 135 }, // Skilled
-    '13514': { forfaitaire_onkostenvergoeding_maand: 75 },  // Specialist/Gold
-    '13512': { forfaitaire_onkostenvergoeding_maand: 75, referenceSalary: 2370 } // Trainee
+    '13508': { forfaitaire_onkostenvergoeding_maand: 105 },
+    '13510': { forfaitaire_onkostenvergoeding_maand: 135 },
+    '13507': { forfaitaire_onkostenvergoeding_maand: 105 },
+    '13511': { forfaitaire_onkostenvergoeding_maand: 75 },
+    '13504': { forfaitaire_onkostenvergoeding_maand: 135 },
+    '13513': { forfaitaire_onkostenvergoeding_maand: 135 },
+    '13514': { forfaitaire_onkostenvergoeding_maand: 75 },
+    '13512': { forfaitaire_onkostenvergoeding_maand: 75, referenceSalary: 2370 }
 };
 
 export default class KpbPage extends NavigationMixin(LightningElement) {
@@ -170,13 +165,9 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     @api freelance = false;
     @api applicationId;
     @api office;
-    // Set to 'NEXT' only on a flow screen that has a following element (e.g. a redirect).
-    // Left unset elsewhere so the default FINISH navigation is used (Bullhorn terminal
-    // screen, modal, record page).
+
     @api navigationMode;
-    // Set only on the "opened by link" flow screen to the calling record (Job or
-    // Contact) id. When present, Close/Save navigate the browser back to that record
-    // page. Left unset everywhere else so behaviour is unchanged.
+
     @api callingRecordId;
 
     isLoading = false;
@@ -250,8 +241,6 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         { label: 'Marge', value: 'Marge' }
     ];
 
-    // Specialisatie is brand-specific: the selected option's value is the IFOrce
-    // LabelID, which is sent as label_id in the payload.
     get specializationOptions() {
         const brand = normalizeBrand(this.brand) || this.userBrand;
         if (brand === 'BPL') {
@@ -373,7 +362,6 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             { label: 'Per maand', value: 'M' },
         ];
     }
-
 
     get typeLabel() {
         const map = { EMP: 'Kandidaat', WRK: 'Voorstelling', OVK: 'Overeenkomst', PRJ: 'Project' };
@@ -684,9 +672,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         }
         if (newMobility.length > 0) this.mobilityRows = newMobility;
         if (newVariable.length > 0) {
-            // If the API returns forfaitaire_onkostenvergoeding_maand as 0 for a UNQ type,
-            // substitute the known default — the API calculates it independently and ignores
-            // the value we send in the payload.
+
             const unqDefaults = UNQ_CALC_DEFAULTS[this._selectedUnqCalcType];
             if (unqDefaults?.forfaitaire_onkostenvergoeding_maand != null) {
                 const forfRow = newVariable.find(r => r.key === 'forfaitaire_onkostenvergoeding_maand');
@@ -794,8 +780,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 })
                 .filter(Boolean);
         this.mobilityRows = toRows(this.mobilityDefinitions, defaults.mobility);
-        // Disabled (grey) fields are deferred — they appear after a successful
-        // Berekenen/Bewaren from the API response, same as UNQ behaviour.
+
         const visibleVariable = Object.fromEntries(
             Object.entries(defaults.variable).filter(([key]) => {
                 const def = this.variableDefinitions.find(d => d.key === key);
@@ -818,15 +803,13 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 })
                 .filter(Boolean);
         const mobilityRows = toRows(this.mobilityDefinitions, UNQ_COMMON_MOBILITY);
-        // When a tankkaart budget is defaulted, also surface an empty lease-category
-        // row (ready to fill in) instead of requiring the user to add it from the dropdown.
+
         if ('tankkaart_budget' in UNQ_COMMON_MOBILITY && !mobilityRows.some(r => r.key === 'keuze_lease_category')) {
             const leaseDef = this.mobilityDefinitions.find(d => d.key === 'keuze_lease_category');
             if (leaseDef) mobilityRows.unshift(this._defToRow(leaseDef));
         }
         this.mobilityRows = mobilityRows;
-        // ecocheques and forfaitaire are deferred — they appear after a successful
-        // Berekenen/Bewaren from the API response (_populateRows).
+
         const { ecocheques: _ec, forfaitaire_onkostenvergoeding_maand: _fov, ...visibleValues } = { ...UNQ_COMMON_VARIABLE, ...variableOverrides };
         this.variableRows = toRows(this.variableDefinitions, visibleValues);
     }
@@ -965,7 +948,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     async handleClose() {
         console.log('[kpbPage] handleClose — callingRecordId:', this.callingRecordId, '| navigationMode:', this.navigationMode, '| applicationId:', this.applicationId, '| kpbId:', this.kpbId, '| isPotentialVoorstelling:', this.isPotentialVoorstelling);
         if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
-            try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
+            try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) {  }
         }
         if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
         this.dispatchEvent(new CustomEvent('close', { detail: { saved: false } }));
@@ -973,24 +956,19 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         this._navigateFlow();
     }
 
-    // When opened by link, navigate the browser back to the calling record (Job or
-    // Contact). Returns true if it navigated, so the caller can skip flow navigation.
     _returnToCaller() {
         console.log('[kpbPage] _returnToCaller — callingRecordId:', this.callingRecordId);
         if (!this.callingRecordId) {
             console.log('[kpbPage] _returnToCaller — no callingRecordId, falling through to flow navigation');
             return false;
         }
-        // The standalone /flow/ runtime swallows NavigationMixin while the screen flow
-        // is still running, so force a hard browser navigation instead.
+
         const url = '/lightning/r/' + this.callingRecordId + '/view';
         console.log('[kpbPage] _returnToCaller — navigating via window.location to:', url);
         window.location.assign(url);
         return true;
     }
 
-    // FINISH by default; only the screen that explicitly sets navigationMode='NEXT'
-    // (a flow screen with a following element, e.g. a redirect) fires NEXT instead.
     _navigateFlow() {
         if (this.navigationMode === 'NEXT') {
             this.dispatchEvent(new FlowNavigationNextEvent());
@@ -1006,7 +984,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             if (Array.isArray(errors) && errors.length) {
                 return errors.map(e => e.error_message).join(' | ');
             }
-        } catch (e) { /* fall through */ }
+        } catch (e) {  }
         return `HTTP ${result.httpCode}: ${result.result}`;
     }
 
@@ -1036,8 +1014,6 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         { field: 'salesPricePerDay',    label: 'Verkoopprijs/dag',           min: 0,     max: 100000, minLabel: '0',     maxLabel: '100.000', required: false },
     ];
 
-    // Replicates IFOrce input handling: comma is the decimal separator, a period
-    // is filtered out as a thousands separator (e.g. "15.40" -> 1540, "15,40" -> 15.40).
     _parseDecimal(raw) {
         if (raw === null || raw === undefined || raw === '') return { empty: true, value: null };
         if (typeof raw === 'number') return { empty: false, value: Number.isFinite(raw) ? raw : NaN };
@@ -1177,7 +1153,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                     if (raw?.costgroup?.id) this.kpbId = raw.costgroup.id;
                     if (raw?.costgroup?.sales_price_per_hour != null) this._savedSalesPricePerHour = raw.costgroup.sales_price_per_hour;
                     if (raw?.costgroup?.margin != null) this._savedMargin = raw.costgroup.margin;
-                } catch (_) { /* ignore */ }
+                } catch (_) {  }
             }
             return { ok: qualityChecks.filter(c => c.constraint !== 'PSG_APPROVE_MARGIN').length === 0, isNew };
         } catch (e) {
@@ -1197,7 +1173,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             const { ok, isNew } = await this._performSave();
             if (ok) {
                 if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
-                    try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) { /* non-blocking */ }
+                    try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) {  }
                 }
                 this.dispatchEvent(new ShowToastEvent({
                     title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
@@ -1363,3 +1339,4 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         }
     }
 }
+
