@@ -250,14 +250,26 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         { label: 'Marge', value: 'Marge' }
     ];
 
-    specializationOptions = [
-        { label: 'Consulting',              value: 'Consulting' },
-        { label: 'Finance projectsourcing', value: 'Finance projectsourcing' },
-        { label: 'HR projectsourcing',      value: 'HR projectsourcing' },
-        { label: 'Office projectsourcing',  value: 'Office projectsourcing' },
-        { label: 'Outplacement',            value: 'Outplacement' },
-        { label: 'Projectsourcing',         value: 'Projectsourcing' }
-    ];
+    // Specialisatie is brand-specific: the selected option's value is the IFOrce
+    // LabelID, which is sent as label_id in the payload.
+    get specializationOptions() {
+        const brand = normalizeBrand(this.brand) || this.userBrand;
+        if (brand === 'BPL') {
+            return [
+                { label: 'Project Outsourcing',    value: '7' },
+                { label: 'Total Outsourcing',      value: '14' },
+                { label: 'HR Project Outsourcing', value: '18' },
+            ];
+        }
+        return [
+            { label: 'Office Projectsourcing',  value: '14005' },
+            { label: 'Finance Projectsourcing', value: '14007' },
+            { label: 'HR Projectsourcing',      value: '14011' },
+            { label: 'Outplacement',            value: '14012' },
+            { label: 'Consulting',              value: '14013' },
+            { label: 'Projectsourcing',         value: '14014' },
+        ];
+    }
 
     fulltimeEquivalentBaseOptions = [
         { id: 3,     label: '01 Bedienden 40 u/wk' },
@@ -593,6 +605,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         this.number               = cg.payroll_id ?? null;
         this.unitId               = cg.unit_id ?? null;
         this.labelId              = cg.label_id ?? null;
+        this.specialization       = cg.label_id != null ? String(cg.label_id) : '';
         this.carCost              = cg.car_cost ?? 0;
         this.carCostUnit          = cg.car_cost_unit ?? 'H';
         this.otherCostUnit        = cg.other_cost_unit ?? 'H';
@@ -1229,7 +1242,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 ? { id: Number(this.genericEmployeeId), number: Number(this.resolvedEmployeeNumber ?? this.genericEmployeeNumber), type: this.formType === 'Freelancer' ? '1' : '2' }
                 : { id: this.employeeSpotId, number: this.employeeNumber, name: this.candidateName || this.candidate, type: this.employeeType, delete_status: this.employeeDeleteStatus },
             fulltime_equivalent_id:  this.fulltimeEquivalent ? Number(this.fulltimeEquivalent) : (isNew ? 4 : null),
-            label_id:                isNew ? (brand === 'UNQ' ? 14014 : 7) : this.labelId,
+            label_id:                isNew ? (this.specialization ? Number(this.specialization) : (brand === 'UNQ' ? 14014 : 7)) : this.labelId,
             leave_of_absence:        isNew ? false : this.leaveOfAbsence,
             margin:                  this._toNumber(this.marginPct),
             other_cost:              this.formType === 'Freelancer' ? null : this._toNumber(this.freelancerOtherCosts),
