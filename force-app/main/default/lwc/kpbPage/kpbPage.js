@@ -101,6 +101,16 @@ const KEY_TO_COMPONENT_ID = Object.fromEntries(
     Object.entries(COMPONENT_ID_TO_KEY).map(([id, key]) => [key, Number(id)])
 );
 
+const COMPONENT_ID_TO_UNIT = {
+    2: 'M', 3: 'M', 4: 'KM',
+    101: 'KM', 102: 'KM', 103: 'KM', 104: 'KM',
+    105: 'D', 108: 'M', 110: 'M', 113: 'Y', 114: 'M', 123: 'M', 124: 'M', 125: 'Y',
+    10100: 'KM', 10337: 'M', 10338: 'Y', 10340: 'M', 10341: 'M', 10342: 'Y',
+    10855: 'Y', 10856: 'Y', 10857: 'Y', 10858: 'M', 10859: 'Y', 10862: 'Y',
+    10891: 'M', 10892: 'Y', 10893: 'Y', 10932: 'Y', 10933: 'Y', 10936: 'H',
+    11000: 'M', 11010: 'PRC', 11030: 'M', 11040: 'M',
+};
+
 const BPL_CALC_DEFAULTS = {
     '13506': {
         fulltimeEquivalent: '3', avgHoursPerWeekCost: 40,
@@ -1246,7 +1256,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                     component_id:        110,
                     component_type:      'DIV',
                     reference_type_code: null,
-                    value: { total: this._toNumber(this.freelancerOtherCosts) }
+                    value: { unit: COMPONENT_ID_TO_UNIT[110] ?? null, total: this._toNumber(this.freelancerOtherCosts) }
                 });
             }
             return result;
@@ -1262,7 +1272,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 component_id:        componentId,
                 component_type:      componentType,
                 reference_type_code: null,
-                value: { unit: null, total }
+                value: { unit: COMPONENT_ID_TO_UNIT[componentId] ?? null, total }
             });
         }
         return result;
