@@ -111,15 +111,6 @@ const COMPONENT_ID_TO_UNIT = {
     11000: 'M', 11010: 'PRC', 11030: 'M', 11040: 'M',
 };
 
-const UNIT_CODE_TO_ID = {
-    D: '304225', H: '307980', KM: '304244', M: '304226', PP: '304245', PRC: '664290', Y: '304473',
-};
-
-function unitIdForComponent(componentId) {
-    const code = COMPONENT_ID_TO_UNIT[componentId];
-    return code ? (UNIT_CODE_TO_ID[code] ?? null) : null;
-}
-
 const BPL_CALC_DEFAULTS = {
     '13506': {
         fulltimeEquivalent: '3', avgHoursPerWeekCost: 40,
@@ -1265,7 +1256,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                     component_id:        110,
                     component_type:      'DIV',
                     reference_type_code: null,
-                    value: { unit: unitIdForComponent(110), total: this._toNumber(this.freelancerOtherCosts) }
+                    value: { unit: COMPONENT_ID_TO_UNIT[110] ?? null, total: this._toNumber(this.freelancerOtherCosts) }
                 });
             }
             return result;
@@ -1281,7 +1272,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 component_id:        componentId,
                 component_type:      componentType,
                 reference_type_code: null,
-                value: { unit: unitIdForComponent(componentId), total }
+                value: { unit: COMPONENT_ID_TO_UNIT[componentId] ?? null, total }
             });
         }
         return result;
