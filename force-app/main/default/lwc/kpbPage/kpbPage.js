@@ -465,7 +465,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     }
 
     connectedCallback() {
-        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| kpbId:', this.kpbId, '| candidateName:', this.candidateName, '| freelance:', this.freelance, '| pNumber:', this.pNumber, '| callingRecordId:', this.callingRecordId, '| navigationMode:', this.navigationMode);
+        console.log('[kpbPage] connectedCallback — brand prop:', this.brand, '| action:', this.action, '| recordId:', this.recordId, '| kpbId:', this.kpbId, '| candidateName:', this.candidateName, '| freelance:', this.freelance, '| pNumber:', this.pNumber, '| callingRecordId:', this.callingRecordId, '| navigationMode:', this.navigationMode, '| office:', this.office);
         this.createdDate = new Date().toISOString().split('T')[0];
         this._initRows();
         if (this.action === 'NEW') {
