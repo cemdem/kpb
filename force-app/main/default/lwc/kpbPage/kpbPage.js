@@ -112,7 +112,7 @@ const COMPONENT_ID_TO_UNIT = {
 };
 
 const UNIT_CODE_TO_ID = {
-    D: 304225, H: 307980, KM: 304244, M: 304226, PP: 304245, PRC: 664290, Y: 304473,
+    D: '304225', H: '307980', KM: '304244', M: '304226', PP: '304245', PRC: '664290', Y: '304473',
 };
 
 function unitIdForComponent(componentId) {
