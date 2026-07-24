@@ -217,7 +217,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     mobilityRows = [];
     variableRows = [];
     variableAddValue = null;
-    totalCostPerHourExcl = null;
+    totalCostPerHour = null;
     totalCostPerDay = null;
     totalCostPerMonth = null;
     salaryCost = null;
@@ -631,7 +631,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         this.fulltimeEquivalent   = cg.fulltime_equivalent_id != null ? String(cg.fulltime_equivalent_id) : '';
         this.calculateFromDate    = cg.calculate_from_date ?? null;
         this.kpbStatus            = cg.status ?? '';
-        this.totalCostPerHourExcl = this._toDisplay(cg.total_cost_per_hour ?? cg.total_cost_per_hour_excl ?? null);
+        this.totalCostPerHour = this._toDisplay(cg.total_cost_per_hour ?? cg.total_cost_per_hour_excl ?? null);
         this.totalCostPerDay      = this._toDisplay(cg.total_cost_per_day ?? null);
         this.totalCostPerMonth    = this._toDisplay(cg.total_cost_per_month ?? null);
         this.salaryCost           = this._toDisplay(cg.salary_cost ?? null);
@@ -946,7 +946,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         this.consultant           = '';
         this.fulltimeEquivalent   = '';
         this.freelancerOtherCosts = null;
-        this.totalCostPerHourExcl = null;
+        this.totalCostPerHour = null;
         this.totalCostPerDay      = null;
         this.totalCostPerMonth    = null;
         this.salaryCost           = null;
