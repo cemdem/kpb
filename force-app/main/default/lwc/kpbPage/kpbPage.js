@@ -10,6 +10,7 @@ import getContactPjsNumber from '@salesforce/apex/KpbController.getContactPjsNum
 import createKpb from '@salesforce/apex/KpbController.createKpb';
 import updateKpb from '@salesforce/apex/KpbController.updateKpb';
 import requestApproval from '@salesforce/apex/KpbController.requestApproval';
+import approveSimulation from '@salesforce/apex/KpbController.approveSimulation';
 import linkKpbToApplication from '@salesforce/apex/KpbController.linkKpbToApplication';
 import unlinkKpbFromApplication from '@salesforce/apex/KpbController.unlinkKpbFromApplication';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
@@ -1313,8 +1314,12 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             if (isNew) this.action = 'EDIT';
             const blocking = this._qualityChecks.filter(c => c.constraint !== 'PSG_APPROVE_MARGIN');
             if (blocking.length === 0) {
-                this.approvalReason = '';
-                this.showApprovalForm = true;
+                if (this.kpbStatus === 'V') {
+                    await this._approveValidated();
+                } else {
+                    this.approvalReason = '';
+                    this.showApprovalForm = true;
+                }
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
@@ -1354,6 +1359,19 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         } finally {
             this.isLoading = false;
             this.approvalReason = '';
+        }
+    }
+
+    async _approveValidated() {
+        try {
+            const result = await approveSimulation({ kpbId: String(this.kpbId), pNumber: this.pNumber });
+            if (result.success) {
+                this.dispatchEvent(new ShowToastEvent({ title: 'Kostprijsberekening goedgekeurd.', variant: 'success' }));
+            } else {
+                this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message: this._apiError(result), variant: 'error', mode: 'sticky' }));
+            }
+        } catch (e) {
+            this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message: e.body?.message ?? e.message ?? 'Onbekende fout', variant: 'error', mode: 'sticky' }));
         }
     }
 }
