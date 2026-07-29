@@ -187,6 +187,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     userBrand;
     number = null;
     resolvedEmployeeNumber = null;
+    _pjsPromise = null;
     _formType;
     get formType() { return this._formType ?? (this.freelance ? 'Freelancer' : 'Werknemer'); }
     set formType(v) { this._formType = v; }
@@ -478,7 +479,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             }
             if (this.genericEmployeeId) {
                 if (this.freelance) {
-                    if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) this._ensurePjsNumber();
+                    if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) this._pjsPromise = this._ensurePjsNumber();
                 } else {
                     this._initNew();
                 }
@@ -517,7 +518,8 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     async _initNew() {
         const tasks = [this._fetchOvk()];
         if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) {
-            tasks.push(this._ensurePjsNumber());
+            this._pjsPromise = this._ensurePjsNumber();
+            tasks.push(this._pjsPromise);
         }
         await Promise.all(tasks);
     }
@@ -525,7 +527,6 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     async _ensurePjsNumber() {
         const brand = normalizeBrand(this.brand) || this.userBrand;
         const payrollId = String(brand === 'UNQ' ? 14001 : 6);
-        this.isLoading = true;
         try {
             const resolvedContactId = this.contactId || this.recordId;
             const existing = await getContactPjsNumber({ contactId: resolvedContactId });
@@ -553,8 +554,6 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             }
         } catch (e) {
             console.warn('[kpbPage] _ensurePjsNumber error:', e.body?.message ?? e.message);
-        } finally {
-            this.isLoading = false;
         }
     }
 
@@ -1090,6 +1089,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         if (!this._validateSalesPrices()) return;
         this.isLoading = true;
         try {
+            if (this._pjsPromise) await this._pjsPromise;
             const body = this._buildPayload();
             console.log('[kpbPage] handleCalculate — action:', this.action, '| kpbId:', this.kpbId);
             console.log('[kpbPage] handleCalculate — full payload:', body);
@@ -1140,6 +1140,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     async _performSave() {
         if (!this._validateNumericFields()) return { ok: false };
         if (!this._validateSalesPrices()) return { ok: false };
+        if (this._pjsPromise) await this._pjsPromise;
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const body = this._buildPayload();
         console.log('[kpbPage] _performSave — action:', this.action, '| kpbId:', this.kpbId);
@@ -1290,6 +1291,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         if (!this._validateSalesPrices()) return;
         this.isLoading = true;
         try {
+            if (this._pjsPromise) await this._pjsPromise;
             const body = this._buildPayload();
             const isNew = this.action === 'NEW' || this.action === 'COPY';
             const result = isNew
