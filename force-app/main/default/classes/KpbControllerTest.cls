@@ -161,6 +161,19 @@ private class KpbControllerTest {
     }
 
     @IsTest
+    static void testApproveSimulation_success() {
+        setupSettings();
+        Test.setMock(HttpCalloutMock.class, new MultiMock());
+
+        Test.startTest();
+        KpbController.KpbCallResult result = KpbController.approveSimulation('123', 'P-1234');
+        Test.stopTest();
+
+        System.assertNotEquals(null, result);
+        System.assert(result.success);
+    }
+
+    @IsTest
     static void testGetContactPjsNumber_found() {
         Contact c = new Contact(LastName = 'Test', RGF_IFOrce_Number_PJS__c = 'P-9999');
         insert c;
