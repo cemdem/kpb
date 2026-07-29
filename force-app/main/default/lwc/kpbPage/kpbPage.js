@@ -476,7 +476,13 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 this.staffingRequestId = this.vacancyId;
                 this.request = this.vacancyId;
             }
-            if (this.genericEmployeeId && !this.freelance) this._initNew();
+            if (this.genericEmployeeId) {
+                if (this.freelance) {
+                    if (!this.genericEmployeeNumber && (this.recordId || this.contactId)) this._ensurePjsNumber();
+                } else {
+                    this._initNew();
+                }
+            }
             return;
         }
         if (this.kpbId || this.recordId) {
