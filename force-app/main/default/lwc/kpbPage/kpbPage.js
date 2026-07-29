@@ -1312,6 +1312,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             this._qualityChecks = (raw?.costgroup || raw)?.quality_checks ?? [];
             this._showQualityChecks(raw);
             if (isNew) this.action = 'EDIT';
+            console.log('[kpbPage] handleApprove — status na save:', this.kpbStatus, '| kpbStatusLabel:', this.kpbStatusLabel);
             const blocking = this._qualityChecks.filter(c => c.constraint !== 'PSG_APPROVE_MARGIN');
             if (blocking.length === 0) {
                 if (this.kpbStatus === 'V') {
