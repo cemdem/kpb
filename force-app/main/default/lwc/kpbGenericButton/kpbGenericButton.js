@@ -18,6 +18,7 @@ export default class KpbGenericButton extends LightningElement {
     @api contactId;
     @api freelance = false;
     @api office;
+    @api payrollId;
 
     connectedCallback() {
         console.log('[kpbGenericButton] connectedCallback — label:', this.label, '| action:', this.action, '| recordId:', this.recordId, '| selectionCount:', this.selectionCount, '| brand:', this.brand, '| candidateName:', this.candidateName, '| pNumber:', this.pNumber, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber, '| contactId:', this.contactId, '| freelance:', this.freelance, '| office:', this.office);
@@ -52,7 +53,7 @@ export default class KpbGenericButton extends LightningElement {
 
     async _open(action) {
         console.log('[kpbGenericButton] _open — action:', action, '| brand:', this.brand, '| candidateName:', this.candidateName, '| recordId:', this.recordId, '| contactId:', this.contactId, '| freelance:', this.freelance, '| office:', this.office, '| pNumber:', this.pNumber, '| genericEmployeeId:', this.genericEmployeeId, '| genericEmployeeNumber:', this.genericEmployeeNumber);
-        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, contactId: this.contactId, freelance: this.freelance ? 'true' : 'false', office: this.office, size: 'large' });
+        const result = await KpbPageModal.open({ recordId: this.recordId, action, brand: this.brand, candidateName: this.candidateName, pNumber: this.pNumber, genericEmployeeId: this.genericEmployeeId, genericEmployeeNumber: this.genericEmployeeNumber, contactId: this.contactId, freelance: this.freelance ? 'true' : 'false', office: this.office, payrollId: this.payrollId, size: 'large' });
         if (result?.saved) {
             this.dispatchEvent(new FlowNavigationNextEvent());
         }

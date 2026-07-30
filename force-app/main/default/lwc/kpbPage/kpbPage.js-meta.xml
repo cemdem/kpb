@@ -27,6 +27,7 @@
             <property name="isPotentialVoorstelling" type="Boolean" label="Is Potential Voorstelling (WRK on OVK prefill)" />
             <property name="applicationId"           type="String"  label="Application Salesforce Id (TR1__Application_V2__c)" />
             <property name="office"                  type="String"  label="Office (RGF_Office__c) — managing_office" />
+            <property name="payrollId"               type="String"  label="Payroll Id (IFOrce payroll_id)" />
             <property name="navigationMode"          type="String"  label="Navigation Mode (set to NEXT when a flow element follows this screen)" />
             <property name="callingRecordId"         type="String"  label="Calling Record Id (opened by link — Job/Contact to return to on close)" />
         </targetConfig>
