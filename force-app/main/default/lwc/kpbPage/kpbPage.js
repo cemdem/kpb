@@ -528,7 +528,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
 
     async _ensurePjsNumber() {
         const brand = normalizeBrand(this.brand) || this.userBrand;
-        const payrollId = String(this.payrollId);
+        const payrollId = String(brand === 'UNQ' ? 14001 : 6);
         try {
             const resolvedContactId = this.contactId || this.recordId;
             const existing = await getContactPjsNumber({ contactId: resolvedContactId });
@@ -561,7 +561,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
 
     async _fetchOvk() {
         const brand = normalizeBrand(this.brand) || this.userBrand;
-        const payrollId = String(this.payrollId);
+        const payrollId = String(brand === 'UNQ' ? 14001 : 6);
         this.isLoading = true;
         try {
             console.log('[kpbPage] _fetchOvk — listCandidateCosts employeeId:', this.genericEmployeeId, '| payrollId:', payrollId);
@@ -1220,7 +1220,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const brand = normalizeBrand(this.brand) || this.userBrand;
         const costgroup = {
-            payroll_id:              isNew ? this._toNumber(this.payrollId) : this.number,
+            payroll_id:              isNew ? (brand === 'UNQ' ? 14001 : 6) : this.number,
             unit_id:                 this.office ? Number(this.office) : (isNew ? (brand === 'UNQ' ? 14021 : 3855) : this.unitId),
             simulation_type:         this.simulationType || 'EMP',
             avg_days_per_week_cost:  this._toNumber(this.avgDaysPerWeekCost),
