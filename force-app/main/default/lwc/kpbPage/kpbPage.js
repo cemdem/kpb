@@ -926,6 +926,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         this._formType            = undefined;
         this.freelancerName       = '';
         this.description          = '';
+        this.number               = null;
         this.candidateId          = null;
         this.candidate            = '';
         this.request              = '';
@@ -1219,7 +1220,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const brand = normalizeBrand(this.brand) || this.userBrand;
         const costgroup = {
-            payroll_id:              isNew ? (brand === 'UNQ' ? 14001 : 6) : this.number,
+            payroll_id:              this._toNumber(this.number),
             unit_id:                 this.office ? Number(this.office) : (isNew ? (brand === 'UNQ' ? 14021 : 3855) : this.unitId),
             simulation_type:         this.simulationType || 'EMP',
             avg_days_per_week_cost:  this._toNumber(this.avgDaysPerWeekCost),

@@ -57,6 +57,17 @@
                                 </div>
                                 <div class="slds-col slds-size_1-of-2">
                                     <lightning-input
+                                        type="number"
+                                        label="Payroll"
+                                        variant="label-inline"
+                                        value={number}
+                                        data-field="number"
+                                        onchange={handleFieldChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input
                                         label="Omschrijving"
                                         variant="label-inline"
                                         value={description}
