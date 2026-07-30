@@ -1224,6 +1224,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
 
     _unitIdHeader() {
         const u = this._resolveUnitId();
+        console.log('[kpbPage] _unitIdHeader — office:', this.office, '| unitId prop:', this.unitId, '| resolved:', u, '| header:', (u != null ? String(u) : null));
         return u != null ? String(u) : null;
     }
 
