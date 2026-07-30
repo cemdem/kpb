@@ -101,7 +101,7 @@ private class KpbControllerTest {
         Test.setMock(HttpCalloutMock.class, new MultiMock());
 
         Test.startTest();
-        KpbController.KpbCallResult result = KpbController.createKpb('{"costgroup":{}}', 'P-1234');
+        KpbController.KpbCallResult result = KpbController.createKpb('{"costgroup":{}}', 'P-1234', '22');
         Test.stopTest();
 
         System.assertNotEquals(null, result);
@@ -114,7 +114,7 @@ private class KpbControllerTest {
         Test.setMock(HttpCalloutMock.class, new MultiMock());
 
         Test.startTest();
-        KpbController.KpbCallResult result = KpbController.updateKpb('123', '{"costgroup":{}}', 'P-1234');
+        KpbController.KpbCallResult result = KpbController.updateKpb('123', '{"costgroup":{}}', 'P-1234', '22');
         Test.stopTest();
 
         System.assertNotEquals(null, result);
@@ -127,7 +127,7 @@ private class KpbControllerTest {
         Test.setMock(HttpCalloutMock.class, new MultiMock());
 
         Test.startTest();
-        KpbController.KpbCallResult result = KpbController.deleteKpb('123', 'P-1234');
+        KpbController.KpbCallResult result = KpbController.deleteKpb('123', 'P-1234', '22');
         Test.stopTest();
 
         System.assertNotEquals(null, result);
@@ -153,7 +153,7 @@ private class KpbControllerTest {
         Test.setMock(HttpCalloutMock.class, new MultiMock());
 
         Test.startTest();
-        KpbController.KpbCallResult result = KpbController.requestApproval('123', '{"reason":"test"}', 'P-1234');
+        KpbController.KpbCallResult result = KpbController.requestApproval('123', '{"reason":"test"}', 'P-1234', '22');
         Test.stopTest();
 
         System.assertNotEquals(null, result);
@@ -166,7 +166,7 @@ private class KpbControllerTest {
         Test.setMock(HttpCalloutMock.class, new MultiMock());
 
         Test.startTest();
-        KpbController.KpbCallResult result = KpbController.approveSimulation('123', 'P-1234');
+        KpbController.KpbCallResult result = KpbController.approveSimulation('123', 'P-1234', '22');
         Test.stopTest();
 
         System.assertNotEquals(null, result);

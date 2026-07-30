@@ -99,7 +99,8 @@ export default class KpbGenericButton extends LightningElement {
                     return;
                 }
             }
-            const result = await deleteKpb({ kpbId: this.recordId, pNumber: this.pNumber });
+            const unitId = this.office ? String(Number(this.office)) : null;
+            const result = await deleteKpb({ kpbId: this.recordId, pNumber: this.pNumber, unitId });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Kostprijsberekening verwijderd.',

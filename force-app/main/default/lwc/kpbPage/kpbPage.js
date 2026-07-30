@@ -1097,8 +1097,8 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             console.log('[kpbPage] handleCalculate — full payload:', body);
             const isNew = this.action === 'NEW' || this.action === 'COPY';
             const result = isNew
-                ? await createKpb({ body, pNumber: this.pNumber })
-                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber });
+                ? await createKpb({ body, pNumber: this.pNumber, unitId: this._unitIdHeader() })
+                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber, unitId: this._unitIdHeader() });
             console.log('[kpbPage] handleCalculate — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
             if (result.success) {
                 if (result.result) {
@@ -1149,8 +1149,8 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         console.log('[kpbPage] _performSave — full payload:', body);
         try {
             const result = isNew
-                ? await createKpb({ body, pNumber: this.pNumber })
-                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber });
+                ? await createKpb({ body, pNumber: this.pNumber, unitId: this._unitIdHeader() })
+                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber, unitId: this._unitIdHeader() });
             console.log('[kpbPage] _performSave — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
             if (!result.success) {
                 this.dispatchEvent(new ShowToastEvent({
@@ -1216,12 +1216,23 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         return Number.isFinite(n) ? n : null;
     }
 
+    _resolveUnitId() {
+        const isNew = this.action === 'NEW' || this.action === 'COPY';
+        const brand = normalizeBrand(this.brand) || this.userBrand;
+        return this.office ? Number(this.office) : (isNew ? (brand === 'UNQ' ? 14021 : 3855) : this.unitId);
+    }
+
+    _unitIdHeader() {
+        const u = this._resolveUnitId();
+        return u != null ? String(u) : null;
+    }
+
     _buildPayload() {
         const isNew = this.action === 'NEW' || this.action === 'COPY';
         const brand = normalizeBrand(this.brand) || this.userBrand;
         const costgroup = {
             payroll_id:              isNew ? (brand === 'UNQ' ? 14001 : 6) : this.number,
-            unit_id:                 this.office ? Number(this.office) : (isNew ? (brand === 'UNQ' ? 14021 : 3855) : this.unitId),
+            unit_id:                 this._resolveUnitId(),
             simulation_type:         this.simulationType || 'EMP',
             avg_days_per_week_cost:  this._toNumber(this.avgDaysPerWeekCost),
             avg_days_per_week_sales: this._toNumber(this.avgDaysPerWeekSales),
@@ -1297,8 +1308,8 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             const body = this._buildPayload();
             const isNew = this.action === 'NEW' || this.action === 'COPY';
             const result = isNew
-                ? await createKpb({ body, pNumber: this.pNumber })
-                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber });
+                ? await createKpb({ body, pNumber: this.pNumber, unitId: this._unitIdHeader() })
+                : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber, unitId: this._unitIdHeader() });
             if (!result.success) {
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Fout bij berekenen',
@@ -1350,7 +1361,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         this.isLoading = true;
         try {
             const body = JSON.stringify({ reason: this.approvalReason.trim() });
-            const result = await requestApproval({ kpbId: String(this.kpbId), body, pNumber: this.pNumber });
+            const result = await requestApproval({ kpbId: String(this.kpbId), body, pNumber: this.pNumber, unitId: this._unitIdHeader() });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuring aangevraagd.', variant: 'success' }));
             } else {
@@ -1366,7 +1377,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
 
     async _approveValidated() {
         try {
-            const result = await approveSimulation({ kpbId: String(this.kpbId), pNumber: this.pNumber });
+            const result = await approveSimulation({ kpbId: String(this.kpbId), pNumber: this.pNumber, unitId: this._unitIdHeader() });
             if (result.success) {
                 this.dispatchEvent(new ShowToastEvent({ title: 'Kostprijsberekening goedgekeurd.', variant: 'success' }));
             } else {
