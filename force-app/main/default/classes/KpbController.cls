@@ -33,7 +33,7 @@ public with sharing class KpbController {
         req.setTimeout(120000);
         if (body != null) req.setBody(body);
 
-        System.debug('[callSpot] ' + method + ' ' + endpoint + ' | x-operator-id=' + operatorId + ' | guid=' + guid);
+        System.debug('[callSpot] ' + method + ' ' + endpoint + ' | x-operator-id=' + operatorId + ' | x-unit-id=' + unitId + ' | guid=' + guid);
 
         HttpResponse response = new Http().send(req);
 
