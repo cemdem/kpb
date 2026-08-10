@@ -1,5 +1,6 @@
 import { api } from 'lwc';
 import LightningModal from 'lightning/modal';
+import { LABELS } from 'c/kpbLabels';
 
 export default class KpbPageModal extends LightningModal {
     @api recordId;
@@ -48,8 +49,8 @@ export default class KpbPageModal extends LightningModal {
     }
 
     get title() {
-        if (this.action === 'EDIT') return 'Edit Cost Group';
-        return 'New Cost Group';
+        if (this.action === 'EDIT') return LABELS.Mdl_EditCostGroup;
+        return LABELS.Mdl_NewCostGroup;
     }
 
     handleClose(event) {
