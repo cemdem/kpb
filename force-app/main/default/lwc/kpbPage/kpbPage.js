@@ -1114,6 +1114,9 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                     }
                 }
                 if (isNew) this.action = 'EDIT';
+                if (this.isPotentialVoorstelling && this.applicationId && this.kpbId) {
+                    try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) {  }
+                }
                 if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
                 this.dispatchEvent(new ShowToastEvent({
                     title: 'Berekening uitgevoerd.',
