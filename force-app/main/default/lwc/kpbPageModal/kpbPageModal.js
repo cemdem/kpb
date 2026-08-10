@@ -38,6 +38,15 @@ export default class KpbPageModal extends LightningModal {
         console.log('[kpbPageModal] renderedCallback — freelance:', this._freelance, '| freelanceBool:', this.freelanceBool, '| pNumber:', this.pNumber);
     }
 
+    // Remove the framework's top-right X (and ESC / click-outside dismiss).
+    // Those paths close the modal without running kpbPage.handleClose, so they
+    // skip the navigation/reload and leave the record page showing stale KPB
+    // cost/margin values. Forcing every close through the in-page Sluiten button
+    // guarantees the page reloads and reflects the latest values.
+    get disableClose() {
+        return true;
+    }
+
     get title() {
         if (this.action === 'EDIT') return 'Edit Cost Group';
         return 'New Cost Group';
