@@ -15,10 +15,21 @@ import linkKpbToApplication from '@salesforce/apex/KpbController.linkKpbToApplic
 import unlinkKpbFromApplication from '@salesforce/apex/KpbController.unlinkKpbFromApplication';
 import getContactsByBrand from '@salesforce/apex/KpbController.getContactsByBrand';
 import getConsultantName from '@salesforce/apex/KpbController.getConsultantName';
+import { LABELS, COMPONENT_LABELS, UNIT_LABELS, STATUS_LABELS, TYPE_LABELS, format } from 'c/kpbLabels';
+import DECIMAL_SEPARATOR from '@salesforce/i18n/number.decimalSeparator';
+import LOCALE from '@salesforce/i18n/locale';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { FlowNavigationFinishEvent, FlowNavigationNextEvent } from 'lightning/flowSupport';
 
 const SELECT_ALL_VALUE = '__ALL__';
+
+// Number input/display follows the running user's locale, not a fixed Belgian
+// convention. For a comma-decimal locale (nl_BE, fr_BE) this resolves to the
+// exact behaviour the screen had before: '.' is a thousands separator and ','
+// is the decimal mark. For a dot-decimal locale (en_BE, en_US) the roles swap,
+// which stops '15.40' being read as 1540.
+const GROUPING_SEPARATOR = DECIMAL_SEPARATOR === ',' ? '.' : ',';
+const NUMBER_FORMAT = new Intl.NumberFormat(LOCALE);
 
 const BRAND_MAP = {
     'unique':     'UNQ',
@@ -162,6 +173,9 @@ const UNQ_CALC_DEFAULTS = {
 };
 
 export default class KpbPage extends NavigationMixin(LightningElement) {
+    // Translated strings — see c/kpbLabels.
+    labels = LABELS;
+
     @api recordId;
     @api action;
     @api json;
@@ -177,9 +191,9 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     @api applicationId;
     @api office;
     @api payrollId;
-
     @api navigationMode;
-
+    @api contactType;
+    @api isFreelance;
     @api callingRecordId;
 
     isLoading = false;
@@ -245,100 +259,100 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     refSalaryUnitHours = 160;
 
     formTypeOptions = [
-        { label: 'Werknemer', value: 'Werknemer' },
-        { label: 'Freelancer', value: 'Freelancer' }
+        { label: LABELS.Opt_Employee, value: 'Werknemer' },
+        { label: LABELS.Opt_Freelancer, value: 'Freelancer' }
     ];
 
     calculationMethodOptions = [
-        { label: 'Verkoopprijs', value: 'Verkoopprijs' },
-        { label: 'Marge', value: 'Marge' }
+        { label: LABELS.Opt_SalesPrice, value: 'Verkoopprijs' },
+        { label: LABELS.Opt_Margin, value: 'Marge' }
     ];
 
     get specializationOptions() {
         const brand = normalizeBrand(this.brand) || this.userBrand;
         if (brand === 'BPL') {
             return [
-                { label: 'Project Outsourcing',    value: '7' },
-                { label: 'Total Outsourcing',      value: '14' },
-                { label: 'HR Project Outsourcing', value: '18' },
+                { label: LABELS.Opt_ProjectOutsourcing,    value: '7' },
+                { label: LABELS.Opt_TotalOutsourcing,      value: '14' },
+                { label: LABELS.Opt_HrProjectOutsourcing, value: '18' },
             ];
         }
         return [
-            { label: 'Office Projectsourcing',  value: '14005' },
-            { label: 'Finance Projectsourcing', value: '14007' },
-            { label: 'HR Projectsourcing',      value: '14011' },
-            { label: 'Outplacement',            value: '14012' },
-            { label: 'Consulting',              value: '14013' },
-            { label: 'Projectsourcing',         value: '14014' },
+            { label: LABELS.Opt_OfficeProjectsourcing,  value: '14005' },
+            { label: LABELS.Opt_FinanceProjectsourcing, value: '14007' },
+            { label: LABELS.Opt_HrProjectsourcing,      value: '14011' },
+            { label: LABELS.Opt_Outplacement,            value: '14012' },
+            { label: LABELS.Opt_Consulting,              value: '14013' },
+            { label: LABELS.Opt_Projectsourcing,         value: '14014' },
         ];
     }
 
     fulltimeEquivalentBaseOptions = [
-        { id: 3,     label: '01 Bedienden 40 u/wk' },
-        { id: 4,     label: '02 Bedienden 38 u/wk' },
-        { id: 30,    label: '07 Bedienden 39 u/wk' },
-        { id: 30221, label: '20 Bedienden 39,5 u/wk' },
-        { id: 30222, label: '21 Bedienden 38,5 u/wk' },
-        { id: 30220, label: '24 Bedienden 38,75 u/wk' },
-        { id: 30224, label: '26 Bedienden 39,15 u/wk' },
-        { id: 30116, label: '28 Bedienden 39,75 u/wk' },
-        { id: 30544, label: '29 Bedienden 39,67 u/wk' },
-        { id: 30722, label: '30 Bedienden 38,82 u/wk' },
-        { id: 396,   label: '98 Bedienden 6 ADV 39 u/wk' },
-        { id: 30240, label: '99 Bedienden 12 ADV 40 u/wk' },
+        { id: 3,     hours: 40,    label: LABELS.Fte_01 },
+        { id: 4,     hours: 38,    label: LABELS.Fte_02 },
+        { id: 30,    hours: 39,    label: LABELS.Fte_07 },
+        { id: 30221, hours: 39.5,  label: LABELS.Fte_20 },
+        { id: 30222, hours: 38.5,  label: LABELS.Fte_21 },
+        { id: 30220, hours: 38.75, label: LABELS.Fte_24 },
+        { id: 30224, hours: 39.15, label: LABELS.Fte_26 },
+        { id: 30116, hours: 39.75, label: LABELS.Fte_28 },
+        { id: 30544, hours: 39.67, label: LABELS.Fte_29 },
+        { id: 30722, hours: 38.82, label: LABELS.Fte_30 },
+        { id: 396,   hours: 39,    label: LABELS.Fte_98 },
+        { id: 30240, hours: 40,    label: LABELS.Fte_99 },
     ];
 
     mobilityDefinitions = [
-        { key: 'keuze_lease_category',       label: 'Keuze lease category',         isPicklist: true,  unit: '',           options: [{ label: 'Categorie 1', value: '1' }, { label: 'Categorie 2', value: '2' }, { label: 'Categorie 3', value: '3' }, { label: 'Categorie 4', value: '4' }, { label: 'Categorie 1E', value: '6' }, { label: 'Categorie 2E', value: '7' }, { label: 'Categorie 3E', value: '8' }, { label: 'Categorie 4E', value: '9' }], defaultValue: null, disabled: false },
-        { key: 'tankkaart_budget',            label: 'Tankkaart budget',              isPicklist: false, unit: '€ per maand', options: [], defaultValue: 300,  disabled: false },
-        { key: 'bedrijfswagen_netto_inhouding', label: 'Bedrijfswagen netto-inhouding', isPicklist: false, unit: '€ per maand', options: [], defaultValue: null, disabled: false },
-        { key: 'woon_werkverkeer',            label: 'Woon-werkverkeer',              isPicklist: false, unit: 'km',          options: [], defaultValue: null, disabled: false },
-        { key: 'mobiliteitsprogramma',        label: 'Mobiliteitsprogramma',          isPicklist: true,  unit: '',           options: [{ label: 'Fleet Family', value: 'Fleet Family' }, { label: 'Fleet Flex + Mobiliteitsbudget', value: 'Fleet Flex + Mobiliteitsbudget' }, { label: 'Fleet Flex', value: 'Fleet Flex' }, { label: 'Mobiliteitsbudget', value: 'Mobiliteitsbudget' }], defaultValue: null, disabled: false },
+        { key: 'keuze_lease_category',       label: COMPONENT_LABELS.keuze_lease_category,         isPicklist: true,  unit: UNIT_LABELS.NONE,           options: [{ label: LABELS.Opt_LeaseCategory1, value: '1' }, { label: LABELS.Opt_LeaseCategory2, value: '2' }, { label: LABELS.Opt_LeaseCategory3, value: '3' }, { label: LABELS.Opt_LeaseCategory4, value: '4' }, { label: LABELS.Opt_LeaseCategory1E, value: '6' }, { label: LABELS.Opt_LeaseCategory2E, value: '7' }, { label: LABELS.Opt_LeaseCategory3E, value: '8' }, { label: LABELS.Opt_LeaseCategory4E, value: '9' }], defaultValue: null, disabled: false },
+        { key: 'tankkaart_budget',            label: COMPONENT_LABELS.tankkaart_budget,              isPicklist: false, unit: UNIT_LABELS.EUR_MONTH, options: [], defaultValue: 300,  disabled: false },
+        { key: 'bedrijfswagen_netto_inhouding', label: COMPONENT_LABELS.bedrijfswagen_netto_inhouding, isPicklist: false, unit: UNIT_LABELS.EUR_MONTH, options: [], defaultValue: null, disabled: false },
+        { key: 'woon_werkverkeer',            label: COMPONENT_LABELS.woon_werkverkeer,              isPicklist: false, unit: UNIT_LABELS.KM,          options: [], defaultValue: null, disabled: false },
+        { key: 'mobiliteitsprogramma',        label: COMPONENT_LABELS.mobiliteitsprogramma,          isPicklist: true,  unit: UNIT_LABELS.NONE,           options: [{ label: 'Fleet Family', value: 'Fleet Family' }, { label: LABELS.Opt_FleetFlexMobilityBudget, value: 'Fleet Flex + Mobiliteitsbudget' }, { label: 'Fleet Flex', value: 'Fleet Flex' }, { label: LABELS.Opt_MobilityBudget, value: 'Mobiliteitsbudget' }], defaultValue: null, disabled: false },
     ];
 
     variableDefinitions = [
-        { key: 'maaltijdcheques',                           label: 'Maaltijdcheques',                              isPicklist: true,  unit: '€ per dag',        options: [{ label: '', value: '' }, { label: '6,91 WG + 1,09 WN', value: '325' }], defaultValue: '', disabled: false },
-        { key: 'gsm',                                        label: 'GSM',                                          isPicklist: true,  unit: '€ per maand',      options: [{ label: '0', value: '0' }, { label: '19', value: '19' }], defaultValue: '0', disabled: false },
-        { key: '3de_betaler_trein_aantal_km_enkel',          label: '3de betaler trein aantal km enkel',            isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: '3e_betaler_tram_bus_metro',                  label: '3e betaler (tram/bus/metro)',                  isPicklist: true,  unit: '',                 options: [{ label: 'De Lijn', value: 'De Lijn' }, { label: 'MIVB', value: 'MIVB' }, { label: 'Tec', value: 'Tec' }], defaultValue: null, disabled: false },
-        { key: 'ancienniteitstoeslag',                       label: 'Anciënniteitstoeslag',                         isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
-        { key: 'andere_kosten',                              label: 'Andere kosten',                                isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
-        { key: 'andere_kosten_per_maand',                    label: 'Andere kosten per maand',                      isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
-        { key: 'andere_premies',                             label: 'Andere premies',                               isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
-        { key: 'auteursrechten',                             label: 'Auteursrechten',                               isPicklist: false, unit: '%',                options: [], defaultValue: null, disabled: false },
-        { key: 'bonus_commissies',                           label: 'Bonus/Commissies',                             isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
-        { key: 'brutopremie_mobiliteit',                     label: 'Brutopremie Mobiliteit',                       isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
-        { key: 'correctie_standaard_leegloop',               label: 'Correctie standaard leegloop',                 isPicklist: false, unit: '',                 options: [], defaultValue: null, disabled: false },
-        { key: 'dagvergoeding',                              label: 'Forfaitaire onkostenvergoeding (dag)',          isPicklist: false, unit: '€ per dag',        options: [], defaultValue: null, disabled: false },
-        { key: 'ecocheques',                                 label: 'Ecocheques',                                   isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: 0,    disabled: true },
-        { key: 'extra_opleiding',                            label: 'Extra opleiding',                              isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
-        { key: 'extra_opzegvergoeding',                      label: 'Extra opzegvergoeding',                        isPicklist: false, unit: '€ per jaar',       options: [], defaultValue: null, disabled: false },
-        { key: 'fietsvergoeding_aantal_km_enkel',            label: 'Fietsvergoeding aantal km enkel',              isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: 'forfaitaire_onkostenvergoeding_maand',       label: 'Forfaitaire onkostenvergoeding (maand)',       isPicklist: false, unit: '€ per maand',      options: [], defaultValue: 0,    disabled: true },
-        { key: 'groepsverzekering_yn',                       label: 'Groepsverzekering',                            isPicklist: true,  unit: '',                 options: [{ label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: null, disabled: false },
-        { key: 'gsm_tussenkomst_aankoop_toestel',            label: 'GSM tussenkomst aankoop toestel',              isPicklist: true,  unit: '€ per jaar',       options: [{ label: '0', value: '0' }, { label: '100', value: '100' }, { label: '150', value: '150' }, { label: '300', value: '300' }], defaultValue: '0', disabled: false },
-        { key: 'hospitalisatieverzekering_yn',               label: 'Hospitalisatieverzekering',                    isPicklist: true,  unit: '',                 options: [{ label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: null, disabled: false },
-        { key: 'internetvergoeding',                         label: 'Internetvergoeding',                           isPicklist: true,  unit: '€ per maand',      options: [{ label: '0', value: '0' }, { label: '20', value: '20' }], defaultValue: '0', disabled: false },
-        { key: 'kost_leasefiets',                            label: 'Kost leasefiets',                              isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
-        { key: 'parkingkosten',                              label: 'Parkingkosten',                                isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
-        { key: 'perc_ploegenarbeid',                         label: '% ploegenarbeid',                              isPicklist: false, unit: '%',                options: [], defaultValue: null, disabled: false },
-        { key: 'ploegenarbeid_volgens_voorwaarden',          label: 'Ploegenarbeid volgens voorwaarden',            isPicklist: true,  unit: '',                 options: [{ label: '', value: '' }, { label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: '', disabled: false },
-        { key: 'ploegen_nacht_premie',                       label: 'Premie per uur ploegen/nacht',                 isPicklist: false, unit: '€ per uur',        options: [], defaultValue: null, disabled: false },
-        { key: 'projectpremie_per_maand',                    label: 'Projectpremie per maand',                      isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
-        { key: 'soc_abon_trein_aantal_km_enkel',             label: 'Soc. abon. trein aantal km enkel',             isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: 'soc_abon_tram_metro_bus_aantal_km_enkel',    label: 'Soc. abon. aantal km enkel (tram, metro, bus)', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: 'soc_abon_prive_vervoer_auto_aantal_km_enkel', label: 'Soc. abon. privé vervoer auto aantal km enkel', isPicklist: false, unit: 'Kilometers per dag', options: [], defaultValue: null, disabled: false },
-        { key: 'televergoeding',                             label: 'Televergoeding',                               isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
-        { key: 'wetsverzekering_yn',                         label: 'Wetsverzekering',                              isPicklist: true,  unit: '',                 options: [{ label: 'Ja', value: 'Ja' }, { label: 'Nee', value: 'Nee' }], defaultValue: null, disabled: false },
-        { key: 'hospitalisatie_verzekering',                 label: 'Hospitalisatieverzekering',                    isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
-        { key: 'groepsverzekering',                          label: 'Groepsverzekering',                            isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
-        { key: 'ziektecontrole',                             label: 'Ziektecontrole',                               isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
-        { key: 'uniform',                                    label: 'Uniform',                                      isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
-        { key: 'kosten_sd',                                  label: 'Kosten SD Worx',                               isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
-        { key: 'gelijkgestelde_rechten',                     label: 'Gelijkgestelde rechten',                       isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
-        { key: 'koopkrachtpremie',                           label: 'Koopkrachtpremie',                             isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
-        { key: 'opzegvergoeding_per_jaar',                   label: 'Opzegvergoeding per jaar',                     isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: true },
-        { key: 'sport_en_cultuurcheques',                    label: 'Sport- en cultuurcheques',                     isPicklist: false, unit: '€ per maand',      options: [], defaultValue: null, disabled: false },
+        { key: 'maaltijdcheques',                           label: COMPONENT_LABELS.maaltijdcheques,                              isPicklist: true,  unit: UNIT_LABELS.EUR_DAY,        options: [{ label: '', value: '' }, { label: LABELS.Opt_MealVoucherSplit, value: '325' }], defaultValue: '', disabled: false },
+        { key: 'gsm',                                        label: COMPONENT_LABELS.gsm,                                          isPicklist: true,  unit: UNIT_LABELS.EUR_MONTH,      options: [{ label: '0', value: '0' }, { label: '19', value: '19' }], defaultValue: '0', disabled: false },
+        { key: '3de_betaler_trein_aantal_km_enkel',          label: COMPONENT_LABELS['3de_betaler_trein_aantal_km_enkel'],            isPicklist: false, unit: UNIT_LABELS.KM_DAY, options: [], defaultValue: null, disabled: false },
+        { key: '3e_betaler_tram_bus_metro',                  label: COMPONENT_LABELS['3e_betaler_tram_bus_metro'],                  isPicklist: true,  unit: UNIT_LABELS.NONE,                 options: [{ label: 'De Lijn', value: 'De Lijn' }, { label: LABELS.Opt_Mivb, value: 'MIVB' }, { label: 'Tec', value: 'Tec' }], defaultValue: null, disabled: false },
+        { key: 'ancienniteitstoeslag',                       label: COMPONENT_LABELS.ancienniteitstoeslag,                         isPicklist: false, unit: UNIT_LABELS.EUR_YEAR,       options: [], defaultValue: null, disabled: false },
+        { key: 'andere_kosten',                              label: COMPONENT_LABELS.andere_kosten,                                isPicklist: false, unit: UNIT_LABELS.EUR_YEAR,       options: [], defaultValue: null, disabled: false },
+        { key: 'andere_kosten_per_maand',                    label: COMPONENT_LABELS.andere_kosten_per_maand,                      isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: false },
+        { key: 'andere_premies',                             label: COMPONENT_LABELS.andere_premies,                               isPicklist: false, unit: UNIT_LABELS.EUR_YEAR,       options: [], defaultValue: null, disabled: false },
+        { key: 'auteursrechten',                             label: COMPONENT_LABELS.auteursrechten,                               isPicklist: false, unit: UNIT_LABELS.PCT,                options: [], defaultValue: null, disabled: false },
+        { key: 'bonus_commissies',                           label: COMPONENT_LABELS.bonus_commissies,                             isPicklist: false, unit: UNIT_LABELS.EUR_YEAR,       options: [], defaultValue: null, disabled: false },
+        { key: 'brutopremie_mobiliteit',                     label: COMPONENT_LABELS.brutopremie_mobiliteit,                       isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: false },
+        { key: 'correctie_standaard_leegloop',               label: COMPONENT_LABELS.correctie_standaard_leegloop,                 isPicklist: false, unit: UNIT_LABELS.NONE,                 options: [], defaultValue: null, disabled: false },
+        { key: 'dagvergoeding',                              label: COMPONENT_LABELS.dagvergoeding,          isPicklist: false, unit: UNIT_LABELS.EUR_DAY,        options: [], defaultValue: null, disabled: false },
+        { key: 'ecocheques',                                 label: COMPONENT_LABELS.ecocheques,                                   isPicklist: false, unit: UNIT_LABELS.EUR_YEAR,       options: [], defaultValue: 0,    disabled: true },
+        { key: 'extra_opleiding',                            label: COMPONENT_LABELS.extra_opleiding,                              isPicklist: false, unit: UNIT_LABELS.EUR_YEAR,       options: [], defaultValue: null, disabled: false },
+        { key: 'extra_opzegvergoeding',                      label: COMPONENT_LABELS.extra_opzegvergoeding,                        isPicklist: false, unit: UNIT_LABELS.EUR_YEAR,       options: [], defaultValue: null, disabled: false },
+        { key: 'fietsvergoeding_aantal_km_enkel',            label: COMPONENT_LABELS.fietsvergoeding_aantal_km_enkel,              isPicklist: false, unit: UNIT_LABELS.KM_DAY, options: [], defaultValue: null, disabled: false },
+        { key: 'forfaitaire_onkostenvergoeding_maand',       label: COMPONENT_LABELS.forfaitaire_onkostenvergoeding_maand,       isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: 0,    disabled: true },
+        { key: 'groepsverzekering_yn',                       label: COMPONENT_LABELS.groepsverzekering_yn,                            isPicklist: true,  unit: UNIT_LABELS.NONE,                 options: [{ label: LABELS.Opt_Yes, value: 'Ja' }, { label: LABELS.Opt_No, value: 'Nee' }], defaultValue: null, disabled: false },
+        { key: 'gsm_tussenkomst_aankoop_toestel',            label: COMPONENT_LABELS.gsm_tussenkomst_aankoop_toestel,              isPicklist: true,  unit: UNIT_LABELS.EUR_YEAR,       options: [{ label: '0', value: '0' }, { label: '100', value: '100' }, { label: '150', value: '150' }, { label: '300', value: '300' }], defaultValue: '0', disabled: false },
+        { key: 'hospitalisatieverzekering_yn',               label: COMPONENT_LABELS.hospitalisatieverzekering_yn,                    isPicklist: true,  unit: UNIT_LABELS.NONE,                 options: [{ label: LABELS.Opt_Yes, value: 'Ja' }, { label: LABELS.Opt_No, value: 'Nee' }], defaultValue: null, disabled: false },
+        { key: 'internetvergoeding',                         label: COMPONENT_LABELS.internetvergoeding,                           isPicklist: true,  unit: UNIT_LABELS.EUR_MONTH,      options: [{ label: '0', value: '0' }, { label: '20', value: '20' }], defaultValue: '0', disabled: false },
+        { key: 'kost_leasefiets',                            label: COMPONENT_LABELS.kost_leasefiets,                              isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: false },
+        { key: 'parkingkosten',                              label: COMPONENT_LABELS.parkingkosten,                                isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: false },
+        { key: 'perc_ploegenarbeid',                         label: COMPONENT_LABELS.perc_ploegenarbeid,                              isPicklist: false, unit: UNIT_LABELS.PCT,                options: [], defaultValue: null, disabled: false },
+        { key: 'ploegenarbeid_volgens_voorwaarden',          label: COMPONENT_LABELS.ploegenarbeid_volgens_voorwaarden,            isPicklist: true,  unit: UNIT_LABELS.NONE,                 options: [{ label: '', value: '' }, { label: LABELS.Opt_Yes, value: 'Ja' }, { label: LABELS.Opt_No, value: 'Nee' }], defaultValue: '', disabled: false },
+        { key: 'ploegen_nacht_premie',                       label: COMPONENT_LABELS.ploegen_nacht_premie,                 isPicklist: false, unit: UNIT_LABELS.EUR_HOUR,        options: [], defaultValue: null, disabled: false },
+        { key: 'projectpremie_per_maand',                    label: COMPONENT_LABELS.projectpremie_per_maand,                      isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: false },
+        { key: 'soc_abon_trein_aantal_km_enkel',             label: COMPONENT_LABELS.soc_abon_trein_aantal_km_enkel,             isPicklist: false, unit: UNIT_LABELS.KM_DAY, options: [], defaultValue: null, disabled: false },
+        { key: 'soc_abon_tram_metro_bus_aantal_km_enkel',    label: COMPONENT_LABELS.soc_abon_tram_metro_bus_aantal_km_enkel, isPicklist: false, unit: UNIT_LABELS.KM_DAY, options: [], defaultValue: null, disabled: false },
+        { key: 'soc_abon_prive_vervoer_auto_aantal_km_enkel', label: COMPONENT_LABELS.soc_abon_prive_vervoer_auto_aantal_km_enkel, isPicklist: false, unit: UNIT_LABELS.KM_DAY, options: [], defaultValue: null, disabled: false },
+        { key: 'televergoeding',                             label: COMPONENT_LABELS.televergoeding,                               isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: false },
+        { key: 'wetsverzekering_yn',                         label: COMPONENT_LABELS.wetsverzekering_yn,                              isPicklist: true,  unit: UNIT_LABELS.NONE,                 options: [{ label: LABELS.Opt_Yes, value: 'Ja' }, { label: LABELS.Opt_No, value: 'Nee' }], defaultValue: null, disabled: false },
+        { key: 'hospitalisatie_verzekering',                 label: COMPONENT_LABELS.hospitalisatie_verzekering,                    isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: true },
+        { key: 'groepsverzekering',                          label: COMPONENT_LABELS.groepsverzekering,                            isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: true },
+        { key: 'ziektecontrole',                             label: COMPONENT_LABELS.ziektecontrole,                               isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: true },
+        { key: 'uniform',                                    label: COMPONENT_LABELS.uniform,                                      isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: false },
+        { key: 'kosten_sd',                                  label: COMPONENT_LABELS.kosten_sd,                               isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: true },
+        { key: 'gelijkgestelde_rechten',                     label: COMPONENT_LABELS.gelijkgestelde_rechten,                       isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: true },
+        { key: 'koopkrachtpremie',                           label: COMPONENT_LABELS.koopkrachtpremie,                             isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: true },
+        { key: 'opzegvergoeding_per_jaar',                   label: COMPONENT_LABELS.opzegvergoeding_per_jaar,                     isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: true },
+        { key: 'sport_en_cultuurcheques',                    label: COMPONENT_LABELS.sport_en_cultuurcheques,                     isPicklist: false, unit: UNIT_LABELS.EUR_MONTH,      options: [], defaultValue: null, disabled: false },
     ];
 
     defaultMobilityKeys = ['keuze_lease_category'];
@@ -369,15 +383,15 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
 
     get refSalaryUnitOptions() {
         return [
-            { label: 'Per uur',   value: 'H' },
-            { label: 'Per dag',   value: 'D' },
-            { label: 'Per week',  value: 'W' },
-            { label: 'Per maand', value: 'M' },
+            { label: LABELS.Opt_PerHour,   value: 'H' },
+            { label: LABELS.Opt_PerDay,   value: 'D' },
+            { label: LABELS.Opt_PerWeek,  value: 'W' },
+            { label: LABELS.Opt_PerMonth, value: 'M' },
         ];
     }
 
     get typeLabel() {
-        const map = { EMP: 'Kandidaat', WRK: 'Voorstelling', OVK: 'Overeenkomst', PRJ: 'Project' };
+        const map = TYPE_LABELS;
         return map[this.simulationType] ?? 'Kandidaat';
     }
 
@@ -399,7 +413,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     }
 
     get kpbStatusLabel() {
-        const map = { BL: 'Blanco', T: 'Te valideren', V: 'Gevalideerd', GG: 'Goedgekeurd', VE: 'Verwerkt', GT: 'Goed te keuren', R: 'Afgekeurd' };
+        const map = STATUS_LABELS;
         return map[this.kpbStatus] ?? this.kpbStatus ?? '';
     }
 
@@ -413,28 +427,28 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
 
     get calculationTypeOptions() {
         if (this.formType === 'Freelancer') {
-            return [{ label: 'Freelancer', value: '8' }];
+            return [{ label: LABELS.Opt_Freelancer, value: '8' }];
         }
         const brand = normalizeBrand(this.brand) || this.userBrand;
         console.log('[kpbPage] calculationTypeOptions — this.brand:', this.brand, '| this.userBrand:', this.userBrand, '| resolved brand:', brand);
         if (!brand) return [];
         if (brand === 'UNQ') {
             return [
-                { label: 'Ad hoc consultant',         value: '13508' },
-                { label: 'Advanced consultant',      value: '13510' },
-                { label: 'Expert consultant',        value: '13507' },
-                { label: 'Project consultant',       value: '13511' },
-                { label: 'Project consultant BNP',   value: '13504' },
-                { label: 'Skilled consultant',       value: '13513' },
-                { label: 'Specialist/Gold consultant', value: '13514' },
-                { label: 'Trainee consultant',       value: '13512' },
+                { label: LABELS.Opt_AdHocConsultant,         value: '13508' },
+                { label: LABELS.Opt_AdvancedConsultant,      value: '13510' },
+                { label: LABELS.Opt_ExpertConsultant,        value: '13507' },
+                { label: LABELS.Opt_ProjectConsultant,       value: '13511' },
+                { label: LABELS.Opt_ProjectConsultantBnp,   value: '13504' },
+                { label: LABELS.Opt_SkilledConsultant,       value: '13513' },
+                { label: LABELS.Opt_SpecialistGoldConsultant, value: '13514' },
+                { label: LABELS.Opt_TraineeConsultant,       value: '13512' },
             ];
         }
         if (brand === 'BPL') {
             return [
-                { label: 'Junior', value: '13506' },
-                { label: 'Medior', value: '13502' },
-                { label: 'Senior', value: '13503' },
+                { label: LABELS.Opt_Junior, value: '13506' },
+                { label: LABELS.Opt_Medior, value: '13502' },
+                { label: LABELS.Opt_Senior, value: '13503' },
             ];
         }
         return [
@@ -464,7 +478,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             .filter(d => !used.has(d.key))
             .map(d => ({ label: d.label, value: d.key }));
         if (remaining.length === 0) return [];
-        return [{ label: 'Selecteer alles', value: SELECT_ALL_VALUE }, ...remaining];
+        return [{ label: LABELS.Opt_SelectAll, value: SELECT_ALL_VALUE }, ...remaining];
     }
 
     connectedCallback() {
@@ -600,9 +614,10 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         }
     }
 
+    /** Formats a number for display using the user's decimal separator. */
     _toDisplay(n) {
         if (n === null || n === undefined) return null;
-        return String(n).replace('.', ',');
+        return String(n).replace('.', DECIMAL_SEPARATOR);
     }
 
     _populate(cg, updateFormType = true) {
@@ -834,17 +849,13 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     handleFulltimeEquivalentChange(event) {
         const selected = event.detail.value;
         this.fulltimeEquivalent = selected;
+        // NOTE: o.id is a Number and `selected` a String, so this never matches and
+        // the auto-fill below stays inactive — unchanged behaviour (PMATS-4435, B1).
+        // The hours now come from the option definition instead of being parsed out
+        // of the label text, so translating the labels can no longer break it.
         const opt = this.fulltimeEquivalentBaseOptions.find(o => o.id === selected);
-        const hours = opt ? this._extractHoursFromUwk(opt.label) : null;
-        if (hours !== null) this.avgHoursPerWeekCost = this._toDisplay(hours);
-    }
-
-    _extractHoursFromUwk(text) {
-        if (!text) return null;
-        const match = text.match(/(\d+(?:[.,]\d+)?)\s*u\/wk/i);
-        if (!match) return null;
-        const num = Number(match[1].replace(',', '.'));
-        return Number.isFinite(num) ? num : null;
+        const hours = opt ? opt.hours : null;
+        if (hours !== null && hours !== undefined) this.avgHoursPerWeekCost = this._toDisplay(hours);
     }
 
     handleAddMobility(event) {
@@ -1011,7 +1022,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         for (const check of checks) {
             if (check.message) {
                 this.dispatchEvent(new ShowToastEvent({
-                    title: 'Opgelet',
+                    title: LABELS.Msg_Attention,
                     message: check.message,
                     variant: 'warning',
                     mode: 'sticky'
@@ -1021,20 +1032,29 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     }
 
     _numericFieldRules = [
-        { field: 'avgDaysPerWeekCost',  label: 'Gem. dagen/week',           min: 1,     max: 7,      minLabel: '1',     maxLabel: '7',       required: true  },
-        { field: 'avgHoursPerWeekCost', label: 'Gem. uren/week (kostprijs)', min: 0,     max: 1000,   minLabel: '0',     maxLabel: '1000',    required: false },
-        { field: 'grossSalaryPerMonth', label: 'Referentieloon',             min: 0,     max: 100000, minLabel: '0',     maxLabel: '100.000', required: false },
-        { field: 'avgDaysPerWeekSales', label: 'Gem. dagen/week (verkoop)',  min: 1,     max: 7,      minLabel: '1',     maxLabel: '7',       required: true  },
-        { field: 'avgHoursPerWeekSales',label: 'Gem. uren/week (verkoop)',   min: 0,     max: 1000,   minLabel: '0',     maxLabel: '1000',    required: false },
-        { field: 'marginPct',           label: 'Marge',                      min: -1000, max: 1000,   minLabel: '-1000', maxLabel: '1000',    required: false },
-        { field: 'salesPricePerHour',   label: 'Verkoopprijs/uur',           min: 0,     max: 1000,   minLabel: '0',     maxLabel: '1000',    required: false },
-        { field: 'salesPricePerDay',    label: 'Verkoopprijs/dag',           min: 0,     max: 100000, minLabel: '0',     maxLabel: '100.000', required: false },
+        { field: 'avgDaysPerWeekCost',  label: LABELS.Rul_AvgDaysPerWeek,           min: 1,     max: 7,       required: true  },
+        { field: 'avgHoursPerWeekCost', label: LABELS.Rul_AvgHoursPerWeekCost, min: 0,     max: 1000,    required: false },
+        { field: 'grossSalaryPerMonth', label: LABELS.Rul_ReferenceSalary,             min: 0,     max: 100000, required: false },
+        { field: 'avgDaysPerWeekSales', label: LABELS.Rul_AvgDaysPerWeekSales,  min: 1,     max: 7,       required: true  },
+        { field: 'avgHoursPerWeekSales',label: LABELS.Rul_AvgHoursPerWeekSales,   min: 0,     max: 1000,    required: false },
+        { field: 'marginPct',           label: LABELS.Rul_Margin,                      min: -1000, max: 1000,    required: false },
+        { field: 'salesPricePerHour',   label: LABELS.Rul_SalesPricePerHour,           min: 0,     max: 1000,    required: false },
+        { field: 'salesPricePerDay',    label: LABELS.Rul_SalesPricePerDay,           min: 0,     max: 100000, required: false },
     ];
 
+    /**
+     * The single parser for user-entered numbers. The grouping separator is
+     * dropped, the decimal separator is normalised to '.'. Used both by the
+     * validation and by _toNumber, so what we validate is what we send.
+     * @param {*} raw value straight from the input
+     * @returns {{empty: boolean, value: number|null}} NaN when unparseable
+     */
     _parseDecimal(raw) {
         if (raw === null || raw === undefined || raw === '') return { empty: true, value: null };
         if (typeof raw === 'number') return { empty: false, value: Number.isFinite(raw) ? raw : NaN };
-        const cleaned = String(raw).trim().replace(/\./g, '').replace(',', '.');
+        const cleaned = String(raw).trim()
+            .split(GROUPING_SEPARATOR).join('')
+            .replace(DECIMAL_SEPARATOR, '.');
         const num = Number(cleaned);
         return { empty: false, value: Number.isFinite(num) ? num : NaN };
     }
@@ -1042,18 +1062,18 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
     _validateNumericFields() {
         const errors = [];
         for (const rule of this._numericFieldRules) {
-            const range = `tussen ${rule.minLabel} en ${rule.maxLabel}`;
+            const outOfRange = format(LABELS.Err_ValueRange, NUMBER_FORMAT.format(rule.min), NUMBER_FORMAT.format(rule.max));
             const { empty, value } = this._parseDecimal(this[rule.field]);
             if (empty) {
                 if (rule.required) {
-                    errors.push({ title: rule.label, message: `Waarde moet liggen ${range}.` });
+                    errors.push({ title: rule.label, message: outOfRange });
                 }
                 continue;
             }
             if (Number.isNaN(value)) {
-                errors.push({ title: rule.label, message: `${this[rule.field]} is not a valid decimal value. Waarde moet liggen ${range}.` });
+                errors.push({ title: rule.label, message: format(LABELS.Err_InvalidDecimal, this[rule.field], NUMBER_FORMAT.format(rule.min), NUMBER_FORMAT.format(rule.max)) });
             } else if (value < rule.min || value > rule.max) {
-                errors.push({ title: rule.label, message: `Waarde moet liggen ${range}.` });
+                errors.push({ title: rule.label, message: outOfRange });
             }
         }
         if (errors.length) {
@@ -1076,8 +1096,8 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         const dayEmpty  = this.salesPricePerDay  === null || this.salesPricePerDay  === '' || this.salesPricePerDay  === undefined;
         if (hourEmpty && dayEmpty) {
             this.dispatchEvent(new ShowToastEvent({
-                title: 'Verkoopprijs ontbreekt',
-                message: 'Vul minstens Verkoopprijs / uur of Verkoopprijs / dag in.',
+                title: LABELS.Err_SalesPriceMissing,
+                message: LABELS.Err_SalesPriceRequired,
                 variant: 'error',
                 mode: 'sticky'
             }));
@@ -1119,12 +1139,12 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 }
                 if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
                 this.dispatchEvent(new ShowToastEvent({
-                    title: 'Berekening uitgevoerd.',
+                    title: LABELS.Msg_Calculated,
                     variant: 'success'
                 }));
             } else {
                 this.dispatchEvent(new ShowToastEvent({
-                    title: 'Fout bij berekenen',
+                    title: LABELS.Err_Calculate,
                     message: this._apiError(result),
                     variant: 'error',
                     mode: 'sticky'
@@ -1132,8 +1152,8 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
-                title: 'Fout bij berekenen',
-                message: e.body?.message ?? e.message ?? 'Onbekende fout',
+                title: LABELS.Err_Calculate,
+                message: e.body?.message ?? e.message ?? LABELS.Err_Unknown,
                 variant: 'error',
                 mode: 'sticky'
             }));
@@ -1157,7 +1177,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             console.log('[kpbPage] _performSave — response httpCode:', result.httpCode, '| success:', result.success, '| body:', result.result);
             if (!result.success) {
                 this.dispatchEvent(new ShowToastEvent({
-                    title: 'Fout bij bewaren',
+                    title: LABELS.Err_Save,
                     message: this._apiError(result),
                     variant: 'error',
                     mode: 'sticky'
@@ -1180,8 +1200,8 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             return { ok: qualityChecks.filter(c => c.constraint !== 'PSG_APPROVE_MARGIN').length === 0, isNew };
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
-                title: 'Fout bij bewaren',
-                message: e.body?.message ?? e.message ?? 'Onbekende fout',
+                title: LABELS.Err_Save,
+                message: e.body?.message ?? e.message ?? LABELS.Err_Unknown,
                 variant: 'error',
                 mode: 'sticky'
             }));
@@ -1198,7 +1218,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                     try { await linkKpbToApplication({ applicationId: this.applicationId, kpbId: this.kpbId, costPerHour: this._savedSalesPricePerHour ?? null, margin: this._savedMargin ?? null }); } catch (_) {  }
                 }
                 this.dispatchEvent(new ShowToastEvent({
-                    title: isNew ? 'Kostprijsberekening aangemaakt.' : 'Kostprijsberekening aangepast.',
+                    title: isNew ? LABELS.Msg_Created : LABELS.Msg_Updated,
                     variant: 'success'
                 }));
                 if (this.applicationId) getRecordNotifyChange([{ recordId: this.applicationId }]);
@@ -1211,12 +1231,13 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         }
     }
 
+    /**
+     * Number for the IFOrce payload, or null when empty or unparseable.
+     * Delegates to _parseDecimal so validation and payload can never diverge.
+     */
     _toNumber(v) {
-        if (v === null || v === undefined || v === '') return null;
-        if (typeof v === 'number') return Number.isFinite(v) ? v : null;
-        const cleaned = String(v).trim().replace(/\./g, '').replace(',', '.');
-        const n = Number(cleaned);
-        return Number.isFinite(n) ? n : null;
+        const { empty, value } = this._parseDecimal(v);
+        return (empty || Number.isNaN(value)) ? null : value;
     }
 
     _resolveUnitId() {
@@ -1227,7 +1248,6 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
 
     _unitIdHeader() {
         const u = this._resolveUnitId();
-        console.log('[kpbPage] _unitIdHeader — office:', this.office, '| unitId prop:', this.unitId, '| resolved:', u, '| header:', (u != null ? String(u) : null));
         return u != null ? String(u) : null;
     }
 
@@ -1316,7 +1336,7 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
                 : await updateKpb({ kpbId: String(this.kpbId), body, pNumber: this.pNumber, unitId: this._unitIdHeader() });
             if (!result.success) {
                 this.dispatchEvent(new ShowToastEvent({
-                    title: 'Fout bij berekenen',
+                    title: LABELS.Err_Calculate,
                     message: this._apiError(result),
                     variant: 'error',
                     mode: 'sticky'
@@ -1340,8 +1360,8 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             }
         } catch (e) {
             this.dispatchEvent(new ShowToastEvent({
-                title: 'Fout bij berekenen',
-                message: e.body?.message ?? e.message ?? 'Onbekende fout',
+                title: LABELS.Err_Calculate,
+                message: e.body?.message ?? e.message ?? LABELS.Err_Unknown,
                 variant: 'error',
                 mode: 'sticky'
             }));
@@ -1367,12 +1387,12 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
             const body = JSON.stringify({ reason: this.approvalReason.trim() });
             const result = await requestApproval({ kpbId: String(this.kpbId), body, pNumber: this.pNumber, unitId: this._unitIdHeader() });
             if (result.success) {
-                this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuring aangevraagd.', variant: 'success' }));
+                this.dispatchEvent(new ShowToastEvent({ title: LABELS.Msg_ApprovalRequested, variant: 'success' }));
             } else {
-                this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message: this._apiError(result), variant: 'error', mode: 'sticky' }));
+                this.dispatchEvent(new ShowToastEvent({ title: LABELS.Err_ApproveNotAllowed, message: this._apiError(result), variant: 'error', mode: 'sticky' }));
             }
         } catch (e) {
-            this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message: e.body?.message ?? e.message ?? 'Onbekende fout', variant: 'error', mode: 'sticky' }));
+            this.dispatchEvent(new ShowToastEvent({ title: LABELS.Err_ApproveNotAllowed, message: e.body?.message ?? e.message ?? LABELS.Err_Unknown, variant: 'error', mode: 'sticky' }));
         } finally {
             this.isLoading = false;
             this.approvalReason = '';
@@ -1383,13 +1403,12 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         try {
             const result = await approveSimulation({ kpbId: String(this.kpbId), pNumber: this.pNumber, unitId: this._unitIdHeader() });
             if (result.success) {
-                this.dispatchEvent(new ShowToastEvent({ title: 'Kostprijsberekening goedgekeurd.', variant: 'success' }));
+                this.dispatchEvent(new ShowToastEvent({ title: LABELS.Msg_Approved, variant: 'success' }));
             } else {
-                this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message: this._apiError(result), variant: 'error', mode: 'sticky' }));
+                this.dispatchEvent(new ShowToastEvent({ title: LABELS.Err_ApproveNotAllowed, message: this._apiError(result), variant: 'error', mode: 'sticky' }));
             }
         } catch (e) {
-            this.dispatchEvent(new ShowToastEvent({ title: 'Goedkeuren niet toegelaten.', message: e.body?.message ?? e.message ?? 'Onbekende fout', variant: 'error', mode: 'sticky' }));
+            this.dispatchEvent(new ShowToastEvent({ title: LABELS.Err_ApproveNotAllowed, message: e.body?.message ?? e.message ?? LABELS.Err_Unknown, variant: 'error', mode: 'sticky' }));
         }
     }
 }
-
