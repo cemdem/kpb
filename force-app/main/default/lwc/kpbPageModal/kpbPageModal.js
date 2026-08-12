@@ -32,12 +32,6 @@ export default class KpbPageModal extends LightningModal {
     }
 
     connectedCallback() {
-        // Remove the framework's top-right X (and ESC / click-outside dismiss).
-        // Those paths close the modal without running kpbPage.handleClose, so they
-        // skip the navigation/reload and leave the record page showing stale KPB
-        // cost/margin values. Forcing every close through the in-page Sluiten button
-        // guarantees the page reloads and reflects the latest values.
-        this.disableClose = true;
         console.log('[kpbPageModal] connectedCallback — freelance:', this._freelance, '| pNumber:', this.pNumber, '| brand:', this.brand, '| contactId:', this.contactId);
     }
 
