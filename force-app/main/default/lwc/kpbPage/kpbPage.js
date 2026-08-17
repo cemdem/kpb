@@ -646,6 +646,11 @@ export default class KpbPage extends NavigationMixin(LightningElement) {
         this.avgDaysPerWeekSales  = this._toDisplay(cg.avg_days_per_week_sales ?? null);
         this.marginPct            = this._toDisplay(cg.margin ?? null);
         this.salesPricePerHour    = this._toDisplay(cg.sales_price_per_hour ?? null);
+        // Capture cost/margin from the loaded record so that opening a KPB by link
+        // and closing it (without recalculating) writes the existing values back to
+        // the Application, instead of wiping RGF_KPB_Cost__c / RGF_KPB_Margin__c to null.
+        if (cg.sales_price_per_hour != null) this._savedSalesPricePerHour = cg.sales_price_per_hour;
+        if (cg.margin != null) this._savedMargin = cg.margin;
         this.grossSalaryPerMonth  = this._toDisplay(cg.reference_salary?.salary ?? cg.real_salary ?? null);
         this.avgHoursPerWeekCost  = this._toDisplay(cg.avg_hours_per_week_cost ?? null);
         this.avgDaysPerWeekCost   = this._toDisplay(cg.avg_days_per_week_cost ?? null);
