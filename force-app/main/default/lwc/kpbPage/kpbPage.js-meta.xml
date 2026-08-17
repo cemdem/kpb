@@ -3,14 +3,33 @@
     <apiVersion>66</apiVersion>
     <isExposed>true</isExposed>
     <targets>
+        <target>lightning__RecordAction</target>
         <target>lightning__FlowScreen</target>
         <target>lightning__AppPage</target>
     </targets>
     <targetConfigs>
+        <targetConfig targets="lightning__RecordAction">
+            <actionType>ScreenAction</actionType>
+        </targetConfig>
         <targetConfig targets="lightning__FlowScreen">
-            <property name="recordId" type="String" label="Record Id" />
-            <property name="action"   type="String" label="Action (EDIT | COPY | NEW)" />
-            <property name="json"     type="String" label="JSON (legacy)" />
+            <property name="recordId"             type="String"  label="Record Id" />
+            <property name="kpbId"                type="Integer" label="KPB Id (open existing via link)" />
+            <property name="action"               type="String"  label="Action (EDIT | COPY | NEW)" />
+            <property name="json"                 type="String"  label="JSON (legacy)" />
+            <property name="brand"                type="String"  label="Brand" />
+            <property name="candidateName"        type="String"  label="Kandidaat naam" />
+            <property name="genericEmployeeId"    type="String"  label="Generic Employee Id (NEW)" />
+            <property name="genericEmployeeNumber" type="String" label="Generic Employee Number (NEW)" />
+            <property name="pNumber"               type="String"  label="P-Number (created_by)" />
+            <property name="contactId"             type="String"  label="Contact Salesforce Id" />
+            <property name="vacancyId"               type="String"  label="Vacancy Id (staffing request)" />
+            <property name="freelance"                type="Boolean" label="Freelance (true = load freelancer form empty)" />
+            <property name="isPotentialVoorstelling" type="Boolean" label="Is Potential Voorstelling (WRK on OVK prefill)" />
+            <property name="applicationId"           type="String"  label="Application Salesforce Id (TR1__Application_V2__c)" />
+            <property name="office"                  type="String"  label="Office (RGF_Office__c) — managing_office" />
+            <property name="payrollId"               type="String"  label="Payroll Id (IFOrce payroll_id)" />
+            <property name="navigationMode"          type="String"  label="Navigation Mode (set to NEXT when a flow element follows this screen)" />
+            <property name="callingRecordId"         type="String"  label="Calling Record Id (opened by link — Job/Contact to return to on close)" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

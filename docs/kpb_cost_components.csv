@@ -1,0 +1,48 @@
+component_id,key,type,section,label,unit,is_picklist,default_value,disabled
+1,keuze_lease_category,CAR,mobility,Keuze lease category,,true,,false
+2,tankkaart_budget,CAR,mobility,Tankkaart budget,€ per maand,false,300,false
+3,bedrijfswagen_netto_inhouding,CAR,mobility,Bedrijfswagen netto-inhouding,€ per maand,false,,false
+4,woon_werkverkeer,CAR,mobility,Woon-werkverkeer,km,false,,false
+11020,mobiliteitsprogramma,CAR,mobility,Mobiliteitsprogramma,,true,,false
+105,maaltijdcheques,DIV,variable,Maaltijdcheques,€ per dag,true,,false
+114,gsm,DIV,variable,GSM,€ per maand,true,0,false
+10100,3de_betaler_trein_aantal_km_enkel,DIV,variable,3de betaler trein aantal km enkel,Kilometers per dag,false,,false
+11172,3e_betaler_tram_bus_metro,DIV,variable,3e betaler (tram/bus/metro),,true,,false
+10932,ancienniteitstoeslag,DIV,variable,Anciënniteitstoeslag,€ per jaar,false,,false
+10893,andere_kosten,DIV,variable,Andere kosten,€ per jaar,false,,false
+110,andere_kosten_per_maand,DIV,variable,Andere kosten per maand,€ per maand,false,,false
+10933,andere_premies,DIV,variable,Andere premies,€ per jaar,false,,false
+11010,auteursrechten,DIV,variable,Auteursrechten,%,false,,false
+10892,bonus_commissies,DIV,variable,Bonus/Commissies,€ per jaar,false,,false
+11030,brutopremie_mobiliteit,DIV,variable,Brutopremie Mobiliteit,€ per maand,false,,false
+10871,correctie_standaard_leegloop,DIV,variable,Correctie standaard leegloop,,false,,false
+106,dagvergoeding,DIV,variable,Forfaitaire onkostenvergoeding (dag),€ per dag,false,,false
+113,ecocheques,DIV,variable,Ecocheques,€ per jaar,false,0,true
+10855,extra_opleiding,DIV,variable,Extra opleiding,€ per jaar,false,,false
+10857,extra_opzegvergoeding,DIV,variable,Extra opzegvergoeding,€ per jaar,false,,false
+103,fietsvergoeding_aantal_km_enkel,DIV,variable,Fietsvergoeding aantal km enkel,Kilometers per dag,false,,false
+11000,forfaitaire_onkostenvergoeding_maand,DIV,variable,Forfaitaire onkostenvergoeding (maand),€ per maand,false,0,true
+10934,groepsverzekering_yn,DIV,variable,Groepsverzekering,,true,,false
+10859,gsm_tussenkomst_aankoop_toestel,DIV,variable,GSM tussenkomst aankoop toestel,€ per jaar,true,0,false
+10938,hospitalisatieverzekering_yn,DIV,variable,Hospitalisatieverzekering,,true,,false
+108,internetvergoeding,DIV,variable,Internetvergoeding,€ per maand,true,0,false
+11040,kost_leasefiets,DIV,variable,Kost leasefiets,€ per maand,false,,false
+10858,parkingkosten,DIV,variable,Parkingkosten,€ per maand,false,,false
+10937,perc_ploegenarbeid,DIV,variable,% ploegenarbeid,%,false,,false
+10852,ploegenarbeid_volgens_voorwaarden,DIV,variable,Ploegenarbeid volgens voorwaarden,,true,,false
+10936,ploegen_nacht_premie,DIV,variable,Premie per uur ploegen/nacht,€ per uur,false,,false
+10891,projectpremie_per_maand,DIV,variable,Projectpremie per maand,€ per maand,false,,false
+101,soc_abon_trein_aantal_km_enkel,DIV,variable,Soc. abon. trein aantal km enkel,Kilometers per dag,false,,false
+102,soc_abon_tram_metro_bus_aantal_km_enkel,DIV,variable,"Soc. abon. aantal km enkel (tram, metro, bus)",Kilometers per dag,false,,false
+104,soc_abon_prive_vervoer_auto_aantal_km_enkel,DIV,variable,Soc. abon. privé vervoer auto aantal km enkel,Kilometers per dag,false,,false
+123,televergoeding,DIV,variable,Televergoeding,€ per maand,false,,false
+10935,wetsverzekering_yn,DIV,variable,Wetsverzekering,,true,,false
+124,hospitalisatie_verzekering,FIX,variable,Hospitalisatieverzekering,€ per maand,false,,true
+125,groepsverzekering,FIX,variable,Groepsverzekering,€ per maand,false,,true
+10337,ziektecontrole,FIX,variable,Ziektecontrole,€ per maand,false,,true
+10338,uniform,FIX,variable,Uniform,€ per maand,false,,false
+10340,kosten_sd,FIX,variable,Kosten SD Worx,€ per maand,false,,true
+10341,gelijkgestelde_rechten,FIX,variable,Gelijkgestelde rechten,€ per maand,false,,true
+10342,koopkrachtpremie,FIX,variable,Koopkrachtpremie,€ per maand,false,,true
+10856,opzegvergoeding_per_jaar,FIX,variable,Opzegvergoeding per jaar,€ per maand,false,,true
+10862,sport_en_cultuurcheques,FIX,variable,Sport- en cultuurcheques,€ per maand,false,,false

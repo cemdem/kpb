@@ -1,1 +1,67 @@
-/* kpbPage styles */
+:host {
+    --kpb-blue: #1b4f72;
+}
+
+.slds-card__header-title {
+    color: var(--kpb-blue) !important;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.kpb-section {
+    margin-bottom: 1.5rem;
+}
+
+.kpb-card {
+    border: 2px solid var(--kpb-blue);
+    border-radius: 0.25rem;
+    height: 100%;
+}
+
+.kpb-form .slds-col {
+    margin-bottom: 0.75rem;
+}
+
+.kpb-trash .slds-button_icon {
+    color: var(--kpb-blue);
+}
+
+.kpb-component-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.kpb-component-table .kpb-col-type    { width: 30%; }
+.kpb-component-table .kpb-col-aantal  { width: 35%; min-width: 8rem; }
+.kpb-component-table .kpb-col-eenheid { width: 20%; min-width: 6rem; }
+.kpb-component-table .kpb-col-kostprijs{ width: 10%; min-width: 4rem; }
+.kpb-component-table .kpb-col-action  { width: 5%;  min-width: 2.5rem; }
+
+.kpb-component-table td {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.kpb-component-table td.kpb-col-type {
+    padding-right: 1rem;
+}
+
+.kpb-action-bar {
+    border-top: 1px solid #d8dde6;
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
+}
+
+.kpb-action-bar lightning-button {
+    margin-left: 0.5rem;
+}
+
+.kpb-btn .slds-button {
+    background-color: var(--kpb-blue);
+    border-color: var(--kpb-blue);
+}
+
+.kpb-btn .slds-button:hover {
+    background-color: #154360;
+    border-color: #154360;
+}
